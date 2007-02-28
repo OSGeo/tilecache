@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# BSD Licensed, Copyright (c) 2006 MetaCarta, Inc.
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
 import sys, cgi, time, os, traceback, ConfigParser
 import Cache, Layer
