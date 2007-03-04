@@ -265,6 +265,40 @@ class WMSLayer(MetaLayer):
         tile.data, response = wms.fetch()
         return tile.data 
 
+class ImageLayer(MetaLayer):
+    """The ImageLayer allows you to set up any image file in TileCache.
+       All you need is an image, and a geographic bounds (filebounds),
+       Which is passed in as a single, comma seperated string in the form 
+       minx,miny,maxx,maxy."""
+    
+    def __init__ (self, name, file = None, filebounds = "-180,-90,180,90", **kwargs):
+        import Image
+        
+        MetaLayer.__init__(self, name, **kwargs) 
+        
+        self.file = file
+        self.filebounds  = map(float,filebounds.split(","))
+        self.image = Image.open(self.file)
+        self.image_size = self.image.size
+        self.image_res = [(self.filebounds[2] - self.filebounds[0]) / self.image_size[0], 
+                    (self.filebounds[3] - self.filebounds[1]) / self.image_size[1]
+                   ]
+    
+    def renderTile(self, tile):
+        import Image, StringIO
+        bounds = tile.bounds()
+        size = tile.size()
+        min_x = (bounds[0] - self.filebounds[0]) / self.image_res[0]   
+        min_y = (self.filebounds[3] - bounds[3]) / self.image_res[1]
+        max_x = (bounds[2] - self.filebounds[0]) / self.image_res[0]   
+        max_y = (self.filebounds[3] - bounds[1]) / self.image_res[1]
+        sub = self.image.transform(size, Image.EXTENT, (min_x, min_y, max_x, max_y))
+        buffer = StringIO.StringIO()
+        sub.save(buffer, self.extension)
+        buffer.seek(0)
+        tile.data = buffer.read()
+        return tile.data 
+
 class MapnikLayer(MetaLayer):
     def __init__ (self, name, mapfile = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
