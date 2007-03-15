@@ -54,6 +54,22 @@ To set up a TileCache under CGI
 
  * If you see a tile you have set up your configuration correctly. Congrats!
 
+Non-standard Python Location: If your Python is not at /usr/bin/python
+on your system, you will need to change the first line of tilecache.cgi
+to reference the location of your Python binary. A common example is:
+
+#!/usr/local/bin/python
+
+Under Apache, you might see an error message like:
+
+[Wed Mar 14 19:55:30 2007] [error] [client 127.0.0.1] (2)No such file or 
+    directory: exec of '/www/tilecache.cgi' failed
+
+to indicate this problem.
+
+You can typically locate where Python is installed on your system via the
+command `which python`.
+
 Windows users: If you are using Windows, you should change the first line 
 of tilecache.cgi to read:
 
