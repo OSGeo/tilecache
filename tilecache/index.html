@@ -27,7 +27,7 @@
         function init(){
             map = new OpenLayers.Map( $('map'));
             layer = new OpenLayers.Layer.WMS( "VMap0", 
-                    document.location+"tilecache.cgi?", {layers: 'basic', format: 'image/png' } );
+                    "tilecache.cgi?", {layers: 'basic', format: 'image/png' } );
             map.addLayer(layer);
             map.addControl(new OpenLayers.Control.Permalink());
             if (!map.getCenter()) map.zoomToMaxExtent();
