@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
-import sys, urllib, urllib2, time
+import sys, urllib, urllib2, time, os
 
 class WMS (object):
     fields = ("bbox", "srs", "width", "height", "format", "layers", "styles")
@@ -50,7 +50,7 @@ class WMS (object):
 
 def seed (base, layer, levels = (0, 5), bbox = None):
     from Layer import Tile
-    params = { 'layers' : layer.layers,
+    params = { 'layers' : layer.name,
                'srs'    : layer.srs,
                'width'  : layer.size[0],
                'height' : layer.size[1],
@@ -82,9 +82,12 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
 if __name__ == '__main__':
+    from Service import Service
     from Layer import Layer
     base  = sys.argv[1]
-    layer = Layer(sys.argv[2])
+    cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"))
+    svc = Service.load(*cfgfiles)
+    layer = svc.layers[sys.argv[2]]
     if len(sys.argv) == 5:
         seed(base, layer, map(int, sys.argv[3:]))
     elif len(sys.argv) == 6:
