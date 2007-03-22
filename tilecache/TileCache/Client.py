@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
 import sys, urllib, urllib2, time, os
