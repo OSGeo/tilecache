@@ -39,7 +39,8 @@ class Cache (object):
         raise NotImplementedError()
 
 class MemoryCache (Cache):
-    def __init__ (self, servers = ['127.0.0.1:11211']):
+    def __init__ (self, servers = ['127.0.0.1:11211'], **kwargs):
+        Cache.__init__(self, **kwargs)
         import memcache
         if type(servers) is str: servers = map(str.strip, servers.split(","))
         self.cache = memcache.Client(servers, debug=0)
@@ -69,7 +70,8 @@ class MemoryCache (Cache):
         self.cache.delete( self.getLockName() )
 
 class DiskCache (Cache):
-    def __init__ (self, base = None, perms = 0777):
+    def __init__ (self, base = None, perms = 0777, **kwargs):
+        Cache.__init__(self, **kwargs)
         self.basedir = base
         if not os.access(base, os.R_OK):
             os.makedirs(base, perms)
