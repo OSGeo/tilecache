@@ -22,8 +22,11 @@ def walk_disk_cache (rootdir, max_entries):
         for file in files:
             path = os.path.join(root, file)
             stat = os.stat(path)
-            heapq.heappush(heap, (start - stat.st_atime, stat.st_size, path))
-            cache_size += stat.st_size
+            size = stat.st_size
+            if hasattr(stat, 'st_blocks'):
+                size = stat.st_blocks * stat.st_blksize
+            heapq.heappush(heap, (start - stat.st_atime, size, path))
+            cache_size += size
             del heap[max_entries:]
     return heap, cache_size
 
