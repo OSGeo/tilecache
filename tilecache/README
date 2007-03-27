@@ -232,7 +232,7 @@ If you are using TileCache for overlays, you should set the 'reproject' option
 on the layer to 'false'.
 
 To use TileCache to seed your cache
-===============================
+===================================
 
  * Set up the tilecache.cfg if you have not already done so in one of the
    above configurations
@@ -260,5 +260,37 @@ To use TileCache to seed your cache
 
 /usr/bin/python ./Client.py "http://example.com/yourdir/tilecache.cgi?"
      Zip_Codes 0 9
+
+Keeping Your Disk Cache to a Reasonable Size
+============================================
+
+The tilecache_clean.py utility will remove the least recently accessed
+tiles from a cache, down to a specified size.
+
+  usage: tilecache_clean.py [options] <cache_location>
+
+  options:
+    --version             show program's version number and exit
+    -h, --help            show this help message and exit
+    -s SIZE, --size=SIZE  Maximum cache size, in megabytes.
+    -e ENTRIES, --entries=ENTRIES
+                          Maximum cache entries. This limits the
+                          amount of memory that will be used to store
+                          information about tiles to remove.
+                            
+The --entries option to tilecache_clean.py is optional, and is used to regulate
+how much memory it uses to do its bookkeeping. The default value of 5 million
+keeps RAM utilization under about 100M on a 32-bit x86 Linux machine. If
+tilecache_clean.py doesn't appear to be keeping your disk cache to an
+appropriate size, try upping this value to 10 million or more.
+
+tilecache_clean.py is designed to be run from a cronjob like so:
+
+  00 05 * * *  /usr/local/bin/tilecache_clean.py -s500 /var/www/tilecache
+
+Note that tilecache_clean.py measures file sizes, and not disk usage. Because
+most filesystems use entire file blocks for files smaller than a block, running
+'du -s' or similar on your disk cache after a cleaning may still return a total
+cache size larger than you expect.
 
 =30=
