@@ -3,8 +3,9 @@ import os, sys, time
 from warnings import warn
 
 class Cache (object):
-    def __init__ (self, timeout = 30.0, **kwargs):
+    def __init__ (self, timeout = 30.0, readonly = False, **kwargs):
         self.timeout = float(timeout)
+        self.readonly = readonly
 
     def lock (self, tile, blocking = True):
         result = self.attemptLock(tile)
@@ -54,6 +55,7 @@ class MemoryCache (Cache):
         return tile.data
     
     def set(self, tile, data):
+        if self.readonly: return data
         key = self.getKey(tile)
         self.cache.set(key, data)
         return data
@@ -99,6 +101,7 @@ class DiskCache (Cache):
             return None
 
     def set (self, tile, data):
+        if self.readonly: return data
         filename = self.getKey(tile)
         dirname  = os.path.dirname(filename)
         if not os.access(dirname, os.W_OK):
