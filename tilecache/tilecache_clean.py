@@ -10,7 +10,7 @@ import sys, os, heapq, time
 from optparse import OptionParser
 
 
-MAX_HEAP_SIZE  = 5000000
+MAX_HEAP_SIZE  = 1000000
 MAX_CACHE_SIZE = 500 # MB
 
 def walk_disk_cache (rootdir, max_entries):
@@ -25,7 +25,9 @@ def walk_disk_cache (rootdir, max_entries):
             size = stat.st_size
             if hasattr(stat, 'st_blocks'):
                 size = stat.st_blocks * stat.st_blksize
-            heapq.heappush(heap, (start - stat.st_atime, size, path))
+            # strip off rootdir to keep RAM use down
+            path = path[len(rootdir):]
+            heapq.heappush(heap, (stat.st_atime, size, path))
             cache_size += size
             del heap[max_entries:]
     return heap, cache_size
@@ -40,6 +42,7 @@ def clean_disk_cache (rootdir, max_size, max_entries):
     while heap and cache_size > max_size:
         atime, size, path = heapq.heappop(heap)
         cache_size -= size
+        path = rootdir + path
         os.unlink(path)
         removed_files += 1
     print "Removed %d files." % removed_files    

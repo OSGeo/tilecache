@@ -279,10 +279,10 @@ tiles from a cache, down to a specified size.
                           information about tiles to remove.
                             
 The --entries option to tilecache_clean.py is optional, and is used to regulate
-how much memory it uses to do its bookkeeping. The default value of 5 million
-keeps RAM utilization under about 100M on a 32-bit x86 Linux machine. If
-tilecache_clean.py doesn't appear to be keeping your disk cache down to an
-appropriate size, try upping this value to 10 million or more.
+how much memory it uses to do its bookkeeping. The default value of 1 million
+will hopefully keep RAM utilization under about 100M on a 32-bit x86 Linux
+machine. If tilecache_clean.py doesn't appear to be keeping your disk cache
+down to an appropriate size, try upping this value.
 
 tilecache_clean.py is designed to be run from a cronjob like so:
 
