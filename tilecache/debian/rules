@@ -9,10 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
-
-
-CFLAGS = -Wall -g
+PREFIX := debian/tilecache
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -51,10 +48,13 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tilecache.
-	python setup.py install --root $(CURDIR)/debian/tilecache
-	mv $(CURDIR)/debian/tilecache/usr/bin/tilecache.* $(CURDIR)/debian/tilecache/usr/lib/cgi-bin
-	mv $(CURDIR)/debian/tilecache/usr/bin/tilecache_*.py $(CURDIR)/debian/tilecache/usr/sbin
-	rmdir $(CURDIR)/debian/tilecache/usr/bin
+    	python ./setup.py install --no-compile \
+	    --root=$(PREFIX) \
+	    --install-lib=/usr/share/python-support/python-package
+
+	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin
+	mv $(PREFIX)/usr/bin/tilecache_*.py $(PREFIX)/usr/sbin
+	rmdir $(PREFIX)/usr/bin
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -70,6 +70,7 @@ binary-indep: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
+	dh_pysupport
 	dh_python
 	dh_installdeb
 	dh_shlibdeps

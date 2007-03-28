@@ -4,4 +4,4 @@
 # See the policy manual
 #
 # for example:
-# /etc/tilecache/tilecache.conf
+/etc/tilecache.conf
