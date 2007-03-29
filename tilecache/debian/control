@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: tilecache
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${python:Depends}
 Recommends: python-imaging
 Suggests: python-mapscript (>= 4.10), mapnik, memcached, python-memcache
 Description: A web map tile caching system.
