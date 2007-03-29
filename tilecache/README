@@ -298,10 +298,10 @@ The bbox can be dropped and defaults to world lonlat(-180,-90,180,90)
   ::
  
   
-        <lon>,<lat>,<radius> <new_line \n>
-        <lon>,<lat>,<radius> <new_line \n>
-        <lon>,<lat>,<radius> <new_line \n>
-        <lon>,<lat>,<radius> <new_line \n>
+        <lat>,<lon>,<radius> <new_line \n>
+        <lat>,<lon>,<radius> <new_line \n>
+        <lat>,<lon>,<radius> <new_line \n>
+        <lat>,<lon>,<radius> <new_line \n>
         <ctrl + d>
  
 
