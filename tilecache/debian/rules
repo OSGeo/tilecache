@@ -48,9 +48,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tilecache.
-    	python ./setup.py install --no-compile \
-	    --root=$(PREFIX) \
-	    --install-lib=/usr/share/python-support/python-package
+	python ./setup.py install --no-compile --root=$(PREFIX) --install-lib=/usr/share/python-support/python-package
 
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin
 	mv $(PREFIX)/usr/bin/tilecache_*.py $(PREFIX)/usr/sbin
