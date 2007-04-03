@@ -25,7 +25,7 @@
         var map, layer;
 
         function init(){
-            map = new OpenLayers.Map( $('map'));
+            map = new OpenLayers.Map( $('map'), {'maxResolution': 360/512});
             layer = new OpenLayers.Layer.WMS( "VMap0", 
                     "tilecache.cgi?", {layers: 'basic', format: 'image/png' } );
             map.addLayer(layer);
