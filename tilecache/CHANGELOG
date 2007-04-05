@@ -1,3 +1,7 @@
+tilecache-1.6, Thu Apr  5 19:09:58 EDT 2007
+ * Added Python distutils and Debian packaging materials.
+ * Added CONTRIBUTORS and EXAMPLES documentation files.
+
 tilecache-1.5, Tue Mar 27 10:17:57 EDT 2007
  * Client.py support reading Layer config from tilecache.cfg, from Hani Howari
  * Added ImageLayer.

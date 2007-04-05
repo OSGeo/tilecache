@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='TileCache',
-      version='1.5',
+      version='1.6',
       description='a web map tile caching system',
       author='MetaCarta Labs',
       author_email='labs+tilecache@metacarta.com',
