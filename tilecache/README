@@ -68,8 +68,8 @@ RUNNING UNDER CGI
 * Visit:
   
   http://example.com/yourdir/tilecache.cgi?LAYERS=basic&SERVICE=WMS
-  &VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&BBOX=-180,-90,0,90&WIDTH=256
-  &HEIGHT=256
+  &VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&BBOX=-180,-90,0,90
+  &WIDTH=256&HEIGHT=256
   
 * Or visit:
 
