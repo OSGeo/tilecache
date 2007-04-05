@@ -51,7 +51,9 @@ install: build
 	python ./setup.py install --no-compile --root=$(PREFIX) --install-lib=/usr/share/python-support/python-package
 
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin
-	mv $(PREFIX)/usr/bin/tilecache_*.py $(PREFIX)/usr/sbin
+	mv $(PREFIX)/usr/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
+	mv $(PREFIX)/usr/bin/tilecache_clean.py $(PREFIX)/usr/sbin/tilecache_clean
+	mv $(PREFIX)/usr/bin/tilecache_http_server.py $(PREFIX)/usr/sbin/tilecache_http_server
 	rmdir $(PREFIX)/usr/bin
 
 # Build architecture-independent files here.
