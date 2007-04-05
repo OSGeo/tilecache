@@ -4,7 +4,7 @@
 import sys, cgi, time, os, traceback, ConfigParser
 import Cache, Layer
 
-cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"))
+cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
 
 class Capabilities (object):
     def __init__ (self, format, data):
