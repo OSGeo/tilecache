@@ -1,0 +1,54 @@
+tilecache-1.6, Thu Apr  5 19:09:58 EDT 2007
+ * Added Python distutils and Debian packaging materials.
+ * Added CONTRIBUTORS and EXAMPLES documentation files.
+
+tilecache-1.5, Tue Mar 27 10:17:57 EDT 2007
+ * Client.py support reading Layer config from tilecache.cfg, from Hani Howari
+ * Added ImageLayer.
+ * Support for readonly caches
+ * Add utility for cleaning a tilecache DiskCache to a certain size.
+ * Minor distribution/documentation changes.
+
+tilecache-1.4, Sat Feb  3 21:56:02 EST 2007
+ * Added wsgi handler, from Ehud Shabtai.
+ * Added standalone HTTP server, using wsgi handler, from Ehud Shabtai.
+ * Added fastcgi implementation, using wsgi handler, from Ehud Shabtai.
+ * Improved documentation, including patch from Eric Lemoine.
+ * Support for 'maxResolution' layer option.
+ * Improved support for running as CGI under IIS, from Suki Hirata.   
+
+tilecache-1.3, Tue Dec  5 23:40:49 EST 2006 
+ * Fix metaTile support:
+   * Data was offset downwards by metaBuffer pixels.
+   * metabuffer and metasize parsing was not working.
+ * Add support for palatted transparency when using metaTiling. Patch by 
+   Matthew Perry
+ * Fix for Windows support: os.rename() won't overwrite files. Patch by Tim
+   Schaub 
+ * Added 'description' metadata as a layer property. 
+ * <Title> and <Abstract> support added to TMS metadata.
+ * Documented layer configuration parameters.
+ 
+tilecache-1.2, Mon Dec  4 01:15:41 EST 2006
+ * Add support for WorldWind style requests, courtesy of Emily Gouge, from
+   Refractions.
+ * Add support for MapnikLayer for rendering.
+ * Add support for rendering using metatiles: instead of rendering one tile
+   at a time, render a 5x5 tileset, and then slice the tiles up. Good for
+   vector layers, where labels crossing tile boundaries is useful. 
+   To turn on, use 'metaTile=yes' in layer definition. Requires 
+   Python-Imaging.
+ * Improved TMS metadata
+ * Fix TileCache to work on Python 2.2
+ * Fix TileCache to work on Windows.
+
+tilecache-1.1, Fri Nov 17 14:56:56 EST 2006
+ * Allow non-integer aspect ratios for bounding boxes
+ * Add support for bounding box passed on command line to Client.py
+ * Change cache to use local layer name for creating caches instead of
+   remote layer list. After installing 1.1, if you have DiskCaches 
+   where the local layer name does not match the remote layer name,
+   you should move your directory after installing tilecache-1.1.
+ 
+tilecache-1.0, Fri Nov 10 13:14:02 EST 2006
+ * Initial Release

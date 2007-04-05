@@ -1,0 +1,21 @@
+Source: tilecache
+Section: web
+Priority: optional
+Maintainer: MetaCarta Labs <labs+tilecache@metacarta.com>
+Build-Depends: debhelper (>= 4.0.0), python (>= 2.2), python-support
+Standards-Version: 3.6.1
+
+Package: tilecache
+Architecture: any
+Depends: ${python:Depends}
+Recommends: python-imaging
+Suggests: python-mapscript (>= 4.10), mapnik, memcached, python-memcache
+Description: a web map tile caching system
+ TileCache is an implementation of a WMS-C compliant server made available
+ under the BSD license by MetaCarta. TileCache provides a Python-based WMS/TMS
+ server, with pluggable caching mechanisms and rendering backends. In the
+ simplest use case, TileCache requires only write access to a disk, the
+ ability to run Python CGI scripts, and a WMS you want to be cached. With
+ these resources, you can create your own local disk-based cache of any WMS
+ server, and use the result in any WMS-C supporting client, like OpenLayers,
+ or any TMS supporting client, like OpenLayers and worldKit.
