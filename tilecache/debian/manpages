@@ -1,5 +1,5 @@
-tilecache.8
-tilecache_seed.8
-tilecache_clean.8
-tilecache_http_server.8
-tilecache.cfg.5
+debian/tilecache.8
+debian/tilecache_seed.8
+debian/tilecache_clean.8
+debian/tilecache_http_server.8
+debian/tilecache.cfg.5

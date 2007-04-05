@@ -10,6 +10,7 @@
 #export DH_VERBOSE=1
 
 PREFIX := debian/tilecache
+PYSUPPORT := /usr/share/python-support/python-package
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -37,9 +38,9 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	# -$(MAKE) clean
 
-	dh_clean 
+	dh_clean *.pyc lib/TileCache/*.pyc
 
 install: build
 	dh_testdir
@@ -48,7 +49,11 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tilecache.
-	python ./setup.py install --no-compile --root=$(PREFIX) --install-lib=/usr/share/python-support/python-package
+	python ./setup.py install --no-compile --root=$(PREFIX) --install-lib=$(PYSUPPORT)
+
+	# eliminates script-not-executable warning from lintian
+	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
+	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
 
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin
 	mv $(PREFIX)/usr/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
