@@ -82,10 +82,9 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
 if __name__ == '__main__':
-    from Service import Service
+    from Service import Service, cfgfiles
     from Layer import Layer
     base  = sys.argv[1]
-    cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"))
     svc = Service.load(*cfgfiles)
     layer = svc.layers[sys.argv[2]]
     if len(sys.argv) == 5:

@@ -12,11 +12,16 @@ cp CHANGELOG $DIR
 cp CONTRIBUTORS $DIR
 cp LICENSE $DIR
 cp HACKING $DIR
+cp MANIFEST $DIR
+cp setup.py $DIR
+cp -r debian $DIR
 cp -r TileCache $DIR
 cp tilecache.cfg $DIR
 cp tilecache.cgi $DIR
 cp tilecache.fcgi $DIR
 cp tilecache_http_server.py $DIR
+cp tilecache_seed.py $DIR
+cp tilecache_clean.py $DIR
 cp index.html $DIR/index.html
 find $DIR -name .svn | xargs rm -rf
 find $DIR -name *.pyc | xargs rm -rf
