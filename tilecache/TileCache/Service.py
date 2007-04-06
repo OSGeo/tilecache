@@ -4,7 +4,12 @@
 import sys, cgi, time, os, traceback, ConfigParser
 import Cache, Layer
 
-cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
+# Windows doesn't always do the 'working directory' check correctly.
+if sys.platform == 'win32':
+    workingdir = os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0])))
+    cfgfiles = (os.path.join(workingdir, "tilecache.cfg"), os.path.join(workingdir,"..","tilecache.cfg"))
+else:
+    cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
 
 class Capabilities (object):
     def __init__ (self, format, data):
@@ -272,7 +277,7 @@ class TMS (Request):
             elif (layer.srs == "OSGEO:41001"): profile = "global-mercator"
             xml += """
                 <TileMap 
-                   href="%s%s/" 
+                   href="%s1.0.0/%s/" 
                    srs="%s"
                    title="%s"
                    profile="%s" />
@@ -286,7 +291,7 @@ class TMS (Request):
 
     def layerCapabilities (self, host, layer):
         xml = """<?xml version="1.0" encoding="UTF-8" ?>
-            <TileMap version="1.0.0" tilemapservice="%s/1.0.0/">
+            <TileMap version="1.0.0" tilemapservice="%s1.0.0/">
               <Title>%s</Title>
               <Abstract>%s</Abstract>
               <SRS>%s</SRS>
@@ -300,9 +305,9 @@ class TMS (Request):
 
         for z, res in enumerate(layer.resolutions):
             xml += """
-                 <TileSet href="%s%d"
+                 <TileSet href="%s1.0.0/%s/%d"
                           units-per-pixel="%.9f" order="%d" />""" % (
-                   host, z, res, z)
+                   host, layer.name, z, res, z)
                 
         xml += """
               </TileSets>
@@ -458,11 +463,13 @@ def cgiHandler (service):
 
         format, image = service.dispatchRequest( params, path_info, host )
         print "Content-type: %s\n" % format
+
         if sys.platform == "win32":
             binaryPrint(image)
         else:    
             print image
     except Exception, E:
+        print "Cache-Control: max-age=10, must-revalidate" # make the client reload        
         print "Content-type: text/plain\n"
         print "An error occurred: %s\n%s\n" % (
             str(E), 
