@@ -1,3 +1,9 @@
+tilecache-next, no date set yet 
+ * Add support for forcing client to reload on errors
+ * Add support for not caching data which is not images for WMS, with
+   original support written by Suki Hirata.
+ * Minor fixups to TMS metadata, from Suki Hirata.
+
 tilecache-1.6, Thu Apr  5 19:09:58 EDT 2007
  * Added Python distutils and Debian packaging materials.
  * Added CONTRIBUTORS and EXAMPLES documentation files.
