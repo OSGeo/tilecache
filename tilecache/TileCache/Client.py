@@ -3,6 +3,10 @@
 
 import sys, urllib, urllib2, time, os
 
+# setting this to True will exchange more useful error messages
+# for privacy, hiding URLs and error messages.
+HIDE_ALL = False 
+
 class WMS (object):
     fields = ("bbox", "srs", "width", "height", "format", "layers", "styles")
     defaultParams = {'version': '1.1.1', 'request': 'GetMap', 'service': 'WMS'}
@@ -36,6 +40,15 @@ class WMS (object):
         try:
             response = self.client.open(urlrequest)
             data = response.read()
+            # check to make sure that we have an image...
+            msg = response.info()
+            if msg.has_key("Content-Type"):
+                ctype = msg['Content-Type']
+                if ctype[:5].lower() != 'image':
+                    if HIDE_ALL:
+                        raise Exception("Did not get image data back. (Adjust HIDE_ALL for more detail.)")
+                    else:
+                        raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
         except urllib2.HTTPError, err:
             response = err
             data = None
