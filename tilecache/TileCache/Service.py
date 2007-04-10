@@ -149,7 +149,7 @@ class WMS (Request):
 
         xml = """<?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
         <!DOCTYPE WMT_MS_Capabilities SYSTEM 
-            "http://schemas.opengeospatial.net/wms/%s/WMS_MS_Capabilities.dtd" [
+            "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd" [
               <!ELEMENT VendorSpecificCapabilities (TileSet*) >
               <!ELEMENT TileSet (SRS, BoundingBox?, Resolutions,
                                  Width, Height, Format, Layers*, Styles*) >
@@ -159,14 +159,13 @@ class WMS (Request):
               <!ELEMENT Layers (#PCDATA) >
               <!ELEMENT Styles (#PCDATA) >
         ]> 
-        <WMT_MS_Capabilities version="%s"
-                             xmlns:xlink="http://www.w3.org/1999/xlink">
+        <WMT_MS_Capabilities version="1.1.1">
           <Service>
             <Name>OGC:WMS</Name>
             <Title>%s</Title>
             <OnlineResource xlink:href="%s"/>
           </Service>
-        """ % (param["version"], param["version"], description, host)
+        """ % (description, host)
 
         xml += """
           <Capability>
@@ -202,7 +201,7 @@ class WMS (Request):
             xml += """
               <TileSet>
                 <SRS>%s</SRS>
-                <BoundingBox srs="%s" minx="%f" miny="%f"
+                <BoundingBox SRS="%s" minx="%f" miny="%f"
                                       maxx="%f" maxy="%f" />
                 <Resolutions>%s</Resolutions>
                 <Width>%d</Width>
