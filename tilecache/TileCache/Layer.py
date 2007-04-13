@@ -294,7 +294,11 @@ class ImageLayer(MetaLayer):
         max_y = (self.filebounds[3] - bounds[1]) / self.image_res[1]
         sub = self.image.transform(size, Image.EXTENT, (min_x, min_y, max_x, max_y))
         buffer = StringIO.StringIO()
-        sub.save(buffer, self.extension)
+        if self.image.info.has_key('transparency'):
+            sub.save(buffer, self.extension, transparency=self.image.info['transparency'])
+        else:
+            sub.save(buffer, self.extension)
+
         buffer.seek(0)
         tile.data = buffer.read()
         return tile.data 
