@@ -1,4 +1,8 @@
 tilecache-next, no date set yet 
+ * Apache will sometimes kill TileCache, leaving around locks. If we can't 
+   lock for > cache.timeout seconds, throw an exception with the lockname,
+   so that users can cleanup. Reported by Brock Anderson, who had stuck locks
+   for several days.
  * If ImageLayer base image is transparent, make output Image transparent too.
    Report and patch by Brian Victor.
  * Add support for forcing client to reload on errors
