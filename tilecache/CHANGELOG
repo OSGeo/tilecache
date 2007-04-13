@@ -5,7 +5,7 @@ tilecache-next, no date set yet
    for several days.
  * If ImageLayer base image is transparent, make output Image transparent too.
    Report and patch by Brian Victor.
- * Add support for forcing client to reload on errors
+ * Add support for forcing client to reload on errors, by Suki Hirata.
  * Add support for not caching data which is not images for WMS, with
    original support written by Suki Hirata.
  * Minor fixups to TMS metadata, from Suki Hirata.
