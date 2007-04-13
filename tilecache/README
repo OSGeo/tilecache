@@ -408,6 +408,19 @@ filesystems use entire file blocks for files smaller than a block, running du
 -s or similar on your disk cache after a cleaning may still return a total
 cache size larger than you expect.
 
+TROUBLESHOOTING
+===============
+
+Occasionally, for some reason, when using meta tiles, your server may leave
+behind lock files. If this happens, there will be files in your cache directory
+with the extension '.lck'. If you are seeing tiles not render and taking 
+multiple minutes before returning a 500 error, you may be suffering under
+a stuck lock.
+
+Removing all files with extension '.lck' from the cache directory will
+resolve this problem.
+
+
 SEE ALSO
 ========
 
