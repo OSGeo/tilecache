@@ -8,12 +8,15 @@ class Cache (object):
         self.readonly = readonly
 
     def lock (self, tile, blocking = True):
+        start_time = time.time()
         result = self.attemptLock(tile)
         if result:
             return True
         elif not blocking:
             return False
         while result is not True:
+            if time.time() - start_time > self.timeout:
+                raise Exception("You appear to have a stuck lock. You may wish to remove the file:\n%s" % self.getLockName(tile)) 
             time.sleep(0.25)
             result = self.attemptLock(tile)
         return True
