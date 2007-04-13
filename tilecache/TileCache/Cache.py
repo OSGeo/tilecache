@@ -16,7 +16,7 @@ class Cache (object):
             return False
         while result is not True:
             if time.time() - start_time > self.timeout:
-                raise Exception("You appear to have a stuck lock. You may wish to remove the file:\n%s" % self.getLockName(tile)) 
+                raise Exception("You appear to have a stuck lock. You may wish to remove the lock named:\n%s" % self.getLockName(tile)) 
             time.sleep(0.25)
             result = self.attemptLock(tile)
         return True
@@ -128,6 +128,7 @@ class DiskCache (Cache):
             
     def attemptLock (self, tile):
         name = self.getLockName(tile)
+        print >>sys.stderr, name
         try: 
             os.makedirs(name)
             return True
