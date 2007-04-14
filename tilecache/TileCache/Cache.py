@@ -3,7 +3,8 @@ import os, sys, time
 from warnings import warn
 
 class Cache (object):
-    def __init__ (self, timeout = 30.0, readonly = False, **kwargs):
+    def __init__ (self, timeout = 30.0, stale_interval = 300.0, readonly = False, **kwargs):
+        self.stale    = float(stale_interval)
         self.timeout = float(timeout)
         self.readonly = readonly
 
@@ -128,12 +129,22 @@ class DiskCache (Cache):
             
     def attemptLock (self, tile):
         name = self.getLockName(tile)
-        print >>sys.stderr, name
         try: 
             os.makedirs(name)
             return True
         except OSError:
-            return False 
+            pass
+        try:
+            st = os.stat(name)
+            if st.st_ctime + self.stale < time.time():
+                warnings.warn("removing stale lock %s" % name)
+                # remove stale lock
+                self.unlock()
+                os.makedirs(name)
+                return True
+        except OSError:
+            pass
+        return False 
      
     def unlock (self, tile):
         name = self.getLockName(tile)
