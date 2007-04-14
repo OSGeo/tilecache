@@ -1,0 +1,32 @@
+Example Layer Configurations:
+
+[mario-8-4]
+type=ImageLayer
+file=/home/images/mario-8-4.gif
+bbox=0,0,5889,224
+filebounds=0,0,5889,224
+maxresolution=16
+
+[avalon]
+type=ImageLayer
+filebounds=-180,-88.759,180,88.759
+file=/home/images/avalon.jpg
+
+[basic]
+type=MapServerLayer
+layers=basic
+mapfile=/home/tilecache/basic.map
+debug=off 
+description=VMap0-based vector layer, styled by Schuyler Erle. 
+
+[DRG]
+type=WMSLayer
+layers=DRG
+url=http://terraservice.net/ogcmap.ashx?
+extension=jpeg
+debug=off 
+
+[osm-map]
+type=MapnikLayer
+mapfile=/www/wms-c/osm.xml
+
