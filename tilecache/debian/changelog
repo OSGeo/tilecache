@@ -1,4 +1,4 @@
-tilecache (1.6-1) unstable; urgency=low
+tilecache (1.7-1) unstable; urgency=low
 
  * Apache will sometimes kill TileCache, leaving around locks. If we can't 
    lock for > cache.timeout seconds, throw an exception with the lockname,

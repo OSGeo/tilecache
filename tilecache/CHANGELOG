@@ -1,4 +1,4 @@
-tilecache-next, no date set yet 
+tilecache-1.7, Fri, 13 Apr 2007 20:34:42 -0400
  * Apache will sometimes kill TileCache, leaving around locks. If we can't 
    lock for > cache.timeout seconds, throw an exception with the lockname,
    so that users can cleanup. Reported by Brock Anderson, who had stuck locks
