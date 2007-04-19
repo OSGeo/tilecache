@@ -271,7 +271,8 @@ class ImageLayer(MetaLayer):
        Which is passed in as a single, comma seperated string in the form 
        minx,miny,maxx,maxy."""
     
-    def __init__ (self, name, file = None, filebounds = "-180,-90,180,90", **kwargs):
+    def __init__ (self, name, file = None, filebounds = "-180,-90,180,90",
+                              transparency = False, scaling = "nearest", **kwargs):
         import Image
         
         MetaLayer.__init__(self, name, **kwargs) 
@@ -283,6 +284,13 @@ class ImageLayer(MetaLayer):
         self.image_res = [(self.filebounds[2] - self.filebounds[0]) / self.image_size[0], 
                     (self.filebounds[3] - self.filebounds[1]) / self.image_size[1]
                    ]
+        self.scaling = scaling.lower()
+        if isinstance(transparency, str):
+            transparency = transparency.lower() in ("true", "yes", "1")
+        self.transparency = transparency
+
+        if self.transparency and self.image.mode not in ("LA", "RGBA"):
+            self.image.putalpha(Image.new("L", self.image_size, 255));
     
     def renderTile(self, tile):
         import Image, StringIO
@@ -292,7 +300,14 @@ class ImageLayer(MetaLayer):
         min_y = (self.filebounds[3] - bounds[3]) / self.image_res[1]
         max_x = (bounds[2] - self.filebounds[0]) / self.image_res[0]   
         max_y = (self.filebounds[3] - bounds[1]) / self.image_res[1]
-        sub = self.image.transform(size, Image.EXTENT, (min_x, min_y, max_x, max_y))
+        if self.scaling == "bilinear":
+            scaling = Image.BILINEAR
+        elif self.scaling == "bicubic":
+            scaling = Image.BICUBIC
+        else:
+            scaling = Image.NEAREST
+        sub = self.image.transform(size, Image.EXTENT, (min_x, min_y, max_x, max_y), scaling)
+
         buffer = StringIO.StringIO()
         if self.image.info.has_key('transparency'):
             sub.save(buffer, self.extension, transparency=self.image.info['transparency'])
