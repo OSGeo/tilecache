@@ -94,7 +94,7 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                 print >>sys.stderr, "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
-if __name__ == '__main__':
+def main ():
     from Service import Service, cfgfiles
     from Layer import Layer
     base  = sys.argv[1]
@@ -110,3 +110,6 @@ if __name__ == '__main__':
             bbox = (lon - delta, lat - delta, lon + delta, lat + delta)
             print >>sys.stderr, "===> %s <===" % (bbox,)
             seed(base, layer, (5, 17), bbox)
+
+if __name__ == '__main__':
+    main()
