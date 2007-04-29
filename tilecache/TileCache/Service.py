@@ -379,7 +379,18 @@ class Service (object):
         
         return (layer.format(), image)
 
-    def dispatchRequest (self, params, path_info, host):
+    def expireTile (self, tile):
+        bbox  = tile.bounds()
+        layer = tile.layer 
+        for z in range(len(layer.resolutions)):
+            bottomleft = layer.getClosestCell(z, bbox[0:2])
+            topright   = layer.getClosestCell(z, bbox[2:4])
+            for y in range(bottomleft[1], topright[1] + 1):
+                for x in range(bottomleft[0], topright[0] + 1):
+                    coverage = Tile(layer,x,y,z)
+                    self.cache.delete(coverage)
+
+    def dispatchRequest (self, params, path_info, req_method, host):
         if params.has_key("service") or params.has_key("SERVICE"):
             tile = WMS(self).parse(params, path_info, host)
         elif params.has_key("L") or params.has_key("l"):
@@ -387,7 +398,11 @@ class Service (object):
         else:
             tile = TMS(self).parse(params, path_info, host)
         if isinstance(tile, Layer.Tile):
-            return self.renderTile(tile, params.has_key('FORCE'))
+            if req_method == 'DELETE':
+                self.expireTile(tile)
+                return ('text/plain', 'OK')
+            else:
+                return self.renderTile(tile, params.has_key('FORCE'))
         else:
             return (tile.format, tile.data)
 
@@ -402,6 +417,7 @@ def modPythonHandler (apacheReq, service):
         format, image = service.dispatchRequest( 
                                 util.FieldStorage(apacheReq), 
                                 apacheReq.path_info,
+                                apacheReq.method,
                                 host )
         apacheReq.content_type = format
         apacheReq.send_http_header()
@@ -430,10 +446,10 @@ def wsgiHandler (environ, start_response, service):
             host      = "http://" + environ["HTTP_HOST"]
 
         host += environ["SCRIPT_NAME"]
-
+        req_method = environ["REQUEST_METHOD"]
         fields = parse_formvars(environ)
 
-        format, image = service.dispatchRequest( fields, path_info, host )
+        format, image = service.dispatchRequest( fields, path_info, req_method, host )
         start_response("200 OK", [('Content-Type',format)])
         return [image]
 
@@ -459,8 +475,8 @@ def cgiHandler (service):
             host      = "http://" + os.environ["HTTP_HOST"]
 
         host += os.environ["SCRIPT_NAME"]
-
-        format, image = service.dispatchRequest( params, path_info, host )
+        req_method = environ["REQUEST_METHOD"]
+        format, image = service.dispatchRequest( params, path_info, req_method, host )
         print "Content-type: %s\n" % format
 
         if sys.platform == "win32":
