@@ -61,7 +61,7 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (base, layer, levels = (0, 5), bbox = None, debug = False):
+def seed (base, layer, levels = (0, 5), bbox = None):
     from Layer import Tile
     params = { 'layers' : layer.name,
                'srs'    : layer.srs,
@@ -78,7 +78,7 @@ def seed (base, layer, levels = (0, 5), bbox = None, debug = False):
     for z in range(*levels):
         bottomleft = layer.getClosestCell(z, bbox[0:2])
         topright   = layer.getClosestCell(z, bbox[2:4])
-        if debug: print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
+        print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
         zcount = 0 
         ztiles = (topright[1] - bottomleft[1] + 1) * (topright[0] - bottomleft[0] + 1)
         for y in range(bottomleft[1], topright[1] + 1):
@@ -88,11 +88,10 @@ def seed (base, layer, levels = (0, 5), bbox = None, debug = False):
                 bounds = tile.bounds()
                 client.setBBox(bounds)
                 client.fetch()
-                if debug:
-                    total += 1
-                    zcount += 1
-                    box = "(%.4f %.4f %.4f %.4f)" % bounds
-                    print >>sys.stderr, "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
+                total += 1
+                zcount += 1
+                box = "(%.4f %.4f %.4f %.4f)" % bounds
+                print >>sys.stderr, "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
 def main ():
