@@ -289,9 +289,6 @@ class ImageLayer(MetaLayer):
             transparency = transparency.lower() in ("true", "yes", "1")
         self.transparency = transparency
 
-        if self.transparency and self.image.mode not in ("LA", "RGBA"):
-            self.image.putalpha(Image.new("L", self.image_size, 255));
-    
     def renderTile(self, tile):
         import Image, StringIO
         bounds = tile.bounds()
@@ -304,9 +301,21 @@ class ImageLayer(MetaLayer):
             scaling = Image.BILINEAR
         elif self.scaling == "bicubic":
             scaling = Image.BICUBIC
+        elif self.scaling == "antialias":
+            scaling = Image.ANTIALIAS
         else:
             scaling = Image.NEAREST
-        sub = self.image.transform(size, Image.EXTENT, (min_x, min_y, max_x, max_y), scaling)
+
+        crop_size = (max_x-min_x, max_y-min_y)
+        if min(min_x, min_y, max_x, max_y) < 0:
+            if self.transparency and self.image.mode in ("L", "RGB"):
+                self.image.putalpha(Image.new("L", self.image_size, 255));
+            sub = self.image.transform(crop_size, Image.EXTENT, (min_x, min_y, max_x, max_y))
+        else:
+            sub = self.image.crop((min_x, min_y, max_x, max_y));
+        if crop_size[0] < size[0] and crop_size[1] < size[1] and self.scaling == "antialias":
+            scaling = Image.BICUBIC
+        sub = sub.resize(size, scaling)
 
         buffer = StringIO.StringIO()
         if self.image.info.has_key('transparency'):
