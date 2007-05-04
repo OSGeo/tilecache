@@ -2,7 +2,8 @@ tilecache-1.next, Undetermined
  * Patch to ImageLayer from Volker Mische add:
    * Optional transparency to images which are not transparent. This allows 
      the images to be transparent outside the maxExtent of the image.
-   * Resize scaling method specification  
+   * Resize scaling method specification 
+ * Add support for tile watermarking.  
 
 tilecache-1.7, Fri, 13 Apr 2007 20:34:42 -0400
  * Apache will sometimes kill TileCache, leaving around locks. If we can't 

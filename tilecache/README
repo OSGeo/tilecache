@@ -265,6 +265,16 @@ to all layers:
  url
     URL to use when requesting images from a remote WMS server. Required
     for WMSLayer.
+ watermarkImage
+    The watermarkImage parameter is assigned on a per-layer basis.
+    This is a fully qualified path to an image you would like to apply to each
+    tile. We recommend you use a watermark image the same size as your tiles.
+    If using the default tile size, you should use a 256x256 image.
+    NOTE: presently, python imaging library DOES NOT support interlaced images.
+ watermarkOpacity
+    The watermarkOpacity parameter is assigned on a per-layer basis.
+    This configures the opacity of the watermark over the tile, it is a floating
+    point number between 0 and 1. Usage is optional and will otherwise default.
 
 USING TILECACHE WITH OPENLAYERS
 ===============================

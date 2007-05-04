@@ -54,13 +54,13 @@ class MetaTile (Tile):
 class Layer (object):
     __slots__ = ( "name", "layers", "bbox", 
                   "size", "resolutions", "extension", "srs",
-                  "cache", "debug", "description" )
+                  "cache", "debug", "description", "watermarkimage", "watermarkopacity" )
     threshold = 0.001
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
-                        extension = "png", cache = None,  debug = True):
+                        extension = "png", cache = None,  debug = True, watermarkimage = None, watermarkopacity = 0.2 ):
         self.name   = name
         self.description = description
         self.layers = layers or name
@@ -93,6 +93,8 @@ class Layer (object):
             else:
                 maxRes = float(maxresolution)
             self.resolutions = [maxRes / 2 ** i for i in range(int(levels))]
+        self.watermarkimage = watermarkimage
+        self.watermarkopacity = float(watermarkopacity)
 
     def getResolution (self, (minx, miny, maxx, maxy)):
         return max( (maxx - minx) / self.size[0],
@@ -228,6 +230,8 @@ class MetaLayer (Layer):
                 x = metatile.x * self.metaSize[0] + i
                 y = metatile.y * self.metaSize[1] + j
                 subtile = Tile( self, x, y, metatile.z )
+                if self.watermarkimage:
+                    subdata = self.watermark(subdata)
                 self.cache.set( subtile, subdata )
                 if x == tile.x and y == tile.y:
                     tile.data = subdata
@@ -246,7 +250,38 @@ class MetaLayer (Layer):
                 self.cache.unlock(metatile)
             return image
         else:
-            return self.renderTile(tile)
+            if self.watermarkimage:
+                return self.watermark(self.renderTile(tile))
+            else:
+                return self.renderTile(tile)
+
+
+
+    def watermark (self, img):
+        import StringIO, Image, ImageEnhance
+        tileImage = Image.open( StringIO.StringIO(img) )
+        wmark = Image.open(self.watermarkimage)
+        assert self.watermarkopacity >= 0 and self.watermarkopacity <= 1
+        if wmark.mode != 'RGBA':
+            wmark = wmark.convert('RGBA')
+        else:
+            wmark = wmark.copy()
+        alpha = wmark.split()[3]
+        alpha = ImageEnhance.Brightness(alpha).enhance(self.watermarkopacity)
+        wmark.putalpha(alpha)
+        if tileImage.mode != 'RGBA':
+            tileImage = tileImage.convert('RGBA')
+        watermarkedImage = Image.new('RGBA', tileImage.size, (0,0,0,0))
+        watermarkedImage.paste(wmark, (0,0))
+        watermarkedImage = Image.composite(watermarkedImage, tileImage, watermarkedImage)
+        buffer = StringIO.StringIO()
+        if watermarkedImage.info.has_key('transparency'):
+            watermarkedImage.save(buffer, self.extension, transparency=compositeImage.info['transparency'])
+        else:
+            watermarkedImage.save(buffer, self.extension)
+        buffer.seek(0)
+        return buffer.read()
+
 
 class WMSLayer(MetaLayer):
     def __init__ (self, name, url = None, **kwargs):
