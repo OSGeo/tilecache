@@ -27,8 +27,6 @@ class WMS (object):
         for key in self.fields:
             if params.has_key(key):
                 self.params[key] = params[key]
-            else:
-                self.params[key] = ""
 
     def url (self):
         return self.base + urllib.urlencode(self.params)
