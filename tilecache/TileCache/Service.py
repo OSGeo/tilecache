@@ -475,7 +475,7 @@ def cgiHandler (service):
             host      = "http://" + os.environ["HTTP_HOST"]
 
         host += os.environ["SCRIPT_NAME"]
-        req_method = environ["REQUEST_METHOD"]
+        req_method = os.environ["REQUEST_METHOD"]
         format, image = service.dispatchRequest( params, path_info, req_method, host )
         print "Content-type: %s\n" % format
 
