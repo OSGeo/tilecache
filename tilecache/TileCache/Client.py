@@ -27,7 +27,7 @@ class WMS (object):
         for key in self.fields:
             if params.has_key(key):
                 self.params[key] = params[key]
-            else if self.base.lower().rfind(key.lower()) == -1:
+            elif self.base.lower().rfind(key.lower()) == -1:
                 self.params[key] = ""
 
     def url (self):
