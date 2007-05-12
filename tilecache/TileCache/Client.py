@@ -37,25 +37,29 @@ class WMS (object):
         urlrequest = urllib2.Request(self.url())
         # urlrequest.add_header("User-Agent",
         #    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)" )
-        try:
-            response = self.client.open(urlrequest)
-            data = response.read()
-            # check to make sure that we have an image...
-            msg = response.info()
-            if msg.has_key("Content-Type"):
-                ctype = msg['Content-Type']
-                if ctype[:5].lower() != 'image':
-                    if HIDE_ALL:
-                        raise Exception("Did not get image data back. (Adjust HIDE_ALL for more detail.)")
-                    else:
-                        raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
-        except urllib2.HTTPError, err:
-            response = err
-            data = None
-        except urllib2.URLError, err:
-            err.code = -1
-            response = err
-            data = None
+        response = None
+        while response is None:
+            try:
+                response = self.client.open(urlrequest)
+                data = response.read()
+                # check to make sure that we have an image...
+                msg = response.info()
+                if msg.has_key("Content-Type"):
+                    ctype = msg['Content-Type']
+                    if ctype[:5].lower() != 'image':
+                        if HIDE_ALL:
+                            raise Exception("Did not get image data back. (Adjust HIDE_ALL for more detail.)")
+                        else:
+                            raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
+            except httplib.BadStatusLine:
+                response = None # try again
+            except urllib2.HTTPError, err:
+                response = err
+                data = None
+            except urllib2.URLError, err:
+                err.code = -1
+                response = err
+                data = None
         return data, response
 
     def setBBox (self, box):
