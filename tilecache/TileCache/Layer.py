@@ -196,8 +196,8 @@ class MetaLayer (Layer):
 
     def getMetaSize (self, z):
         maxcol, maxrow = self.grid(z)
-        return ( min(self.metaSize[0], int(maxcol)), 
-                 min(self.metaSize[1], int(maxrow)) )
+        return ( min(self.metaSize[0], int(maxcol + 1)), 
+                 min(self.metaSize[1], int(maxrow + 1)) )
 
     def getMetaTile (self, tile):
         x = int(tile.x / self.metaSize[0])
