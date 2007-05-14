@@ -43,8 +43,11 @@ def clean_disk_cache (rootdir, max_size, max_entries):
         atime, size, path = heapq.heappop(heap)
         cache_size -= size
         path = rootdir + path
-        os.unlink(path)
-        removed_files += 1
+        try:
+            os.unlink(path)
+            removed_files += 1
+        except OSError, e:
+            print >>sys.stderr, "Error removing tile %s: %s" % (path, e)
     print "Removed %d files." % removed_files    
 
 if __name__ == "__main__":
