@@ -23,11 +23,12 @@ class WMS (object):
         self.params  = {}
         self.client  = urllib2.build_opener()
         for key, val in self.defaultParams.items():
-            self.params[key] = val
+            if self.base.lower().rfind("%s=" % key.lower()) == -1:
+                self.params[key] = val
         for key in self.fields:
             if params.has_key(key):
                 self.params[key] = params[key]
-            elif self.base.lower().rfind(key.lower()) == -1:
+            elif self.base.lower().rfind("%s=" % key.lower()) == -1:
                 self.params[key] = ""
 
     def url (self):
