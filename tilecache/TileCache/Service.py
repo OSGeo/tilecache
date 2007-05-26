@@ -454,7 +454,7 @@ def wsgiHandler (environ, start_response, service):
         return [image]
 
     except Exception, E:
-        start_response("200 OK", [('Content-Type','text/plain')])
+        start_response("500 Internal Server Error", [('Content-Type','text/plain')])
         return ["An error occurred: %s\n%s\n" % (
             str(E), 
             "".join(traceback.format_tb(sys.exc_traceback)))]
