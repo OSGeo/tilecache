@@ -2,6 +2,7 @@
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
 import sys, urllib, urllib2, time, os
+import httplib
 
 # setting this to True will exchange more useful error messages
 # for privacy, hiding URLs and error messages.
