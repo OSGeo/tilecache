@@ -19,7 +19,8 @@ Requests
 ========
 Request objects define a single 'parse' function, which is used to 
 accept PATH_INFO and QUERY_STRING data from the Service, and convert
-it to tiles. 
+it to tiles. The Tile is then passed to the Layer, which knows how to
+return image data for a specific tile object.
 
 Cache
 =====
