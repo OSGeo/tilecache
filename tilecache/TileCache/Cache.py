@@ -7,7 +7,7 @@ class Cache (object):
         self.stale    = float(stale_interval)
         self.timeout = float(timeout)
         self.readonly = readonly
-
+                
     def lock (self, tile, blocking = True):
         start_time = time.time()
         result = self.attemptLock(tile)
@@ -79,8 +79,28 @@ class DiskCache (Cache):
     def __init__ (self, base = None, perms = 0777, **kwargs):
         Cache.__init__(self, **kwargs)
         self.basedir = base
-        if not os.access(base, os.R_OK):
+        
+        if sys.platform.startswith("java"):
+            from java.io import File
+            self.file_module = File
+            self.platform = "jython"
+        else:
+            self.platform = "cpython"
+        
+        if not self.access(base, 'read'):
             os.makedirs(base, perms)
+        
+    def access(self, path, type='read'):
+        if self.platform == "jython":
+            if type == "read":
+                return self.file_module(path).canRead()
+            else:
+                return self.file_module(path).canWrite()
+        else:
+            if type =="read":
+                return os.access(path, os.R_OK)
+            else:
+                return os.access(path, os.W_OK)
 
     def getKey (self, tile):
         components = ( self.basedir,
@@ -98,7 +118,7 @@ class DiskCache (Cache):
 
     def get (self, tile):
         filename = self.getKey(tile)
-        if os.access(filename, os.R_OK):
+        if self.access(filename, 'read'):
             tile.data = file(filename, "rb").read()
             return tile.data
         else:
@@ -108,7 +128,7 @@ class DiskCache (Cache):
         if self.readonly: return data
         filename = self.getKey(tile)
         dirname  = os.path.dirname(filename)
-        if not os.access(dirname, os.W_OK):
+        if not self.access(dirname, 'write'):
             os.makedirs(dirname)
         tmpfile = filename + ".%d.tmp" % os.getpid()
         output = file(tmpfile, "wb")
@@ -124,7 +144,7 @@ class DiskCache (Cache):
     
     def delete (self, tile):
         filename = self.getKey(tile)
-        if os.access(filename, os.R_OK):
+        if self.access(filename, 'read'):
             os.unlink(filename)
             
     def attemptLock (self, tile):
