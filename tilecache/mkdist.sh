@@ -7,6 +7,7 @@ DIR="tilecache-$VERSION"
 rm -rf $DIR 
 rm -rf $DIR.tar.gz 
 mkdir $DIR
+cp EXAMPLES $DIR
 cp README $DIR
 cp CHANGELOG $DIR
 cp CONTRIBUTORS $DIR
