@@ -1,3 +1,11 @@
+tilecache-1.9, Thu, 19 Jul 2007 16:41:44 -0400
+ * Fix longstanding bug which made some non-geographic projections difficult
+   to create tiles with
+ * Add more informative error message output via TileCacheExceptions  
+ * Fix for "MetaLayer.getMetaSize is too conservative"
+ * Report OSErrors more cleanly in tilecache_clean.py
+ * Better support for Jython in DiskCache class.
+
 tilecache-1.8, Fri,  4 May 2007 07:31:38 -0400
  * Patch to ImageLayer from Volker Mische add:
    * Optional transparency to images which are not transparent. This allows 
