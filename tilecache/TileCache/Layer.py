@@ -2,6 +2,7 @@
 import os, sys
 from warnings import warn
 from Client import WMS
+from Service import TileCacheException
 
 DEBUG = True
 
@@ -54,13 +55,16 @@ class MetaTile (Tile):
 class Layer (object):
     __slots__ = ( "name", "layers", "bbox", 
                   "size", "resolutions", "extension", "srs",
-                  "cache", "debug", "description", "watermarkimage", "watermarkopacity" )
-    threshold = 0.001
+                  "cache", "debug", "description", 
+                  "watermarkimage", "watermarkopacity",
+                  "extent_type")
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
-                        extension = "png", cache = None,  debug = True, watermarkimage = None, watermarkopacity = 0.2 ):
+                        extension = "png", cache = None,  debug = True, 
+                        watermarkimage = None, watermarkopacity = 0.2,
+                        extent_type = "strict" ):
         self.name   = name
         self.description = description
         self.layers = layers or name
@@ -75,6 +79,7 @@ class Layer (object):
             debug = debug.lower() not in ("false", "off", "no", "0")
         self.cache = cache
         self.debug = debug
+        self.extent_type = extent_type
         if resolutions:
             if isinstance(resolutions, str):
                 resolutions = map(float,resolutions.split(","))
@@ -107,8 +112,8 @@ class Layer (object):
                 res = self.resolutions[i]
                 z = i
                 break
-        if z is None and self.debug:
-            warn("can't find resolution index for %f" % res)
+        if z is None:
+            raise TileCacheException("can't find resolution index for %f. Available resolutions are: \n%s" % (res, self.resolutions))
         return z
 
     def getClosestLevel (self, res):
@@ -118,9 +123,9 @@ class Layer (object):
         return len(self.resolutions) - 1
 
     def getCell (self, (minx, miny, maxx, maxy), exact = True):
-        if exact and not self.contains((minx, miny)): 
-            if self.debug: warn(
-                "Lower left (%f, %f) is outside layer bounds" % (minx, miny))
+        if exact and self.extent_type == "strict" and not self.contains((minx, miny)): 
+            raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
+                     % (minx, miny, self.bbox))
             return None
 
         res = self.getResolution((minx, miny, maxx, maxy))
@@ -128,7 +133,6 @@ class Layer (object):
 
         if exact:
             z = self.getLevel(res)
-            if z is None: return None # oops
         else:
             z = self.getClosestLevel(res)
 
@@ -136,19 +140,18 @@ class Layer (object):
         x0 = (minx - self.bbox[0]) / (res * self.size[0])
         y0 = (miny - self.bbox[1]) / (res * self.size[1])
         
-        x = int(x0 + self.threshold / 2)
-        y = int(y0 + self.threshold / 2)
-
-        if exact:
-            if abs(x - x0) > self.threshold:
-                if self.debug:
-                    warn("x (%f) - x0 (%f) = %f" % (x, x0, abs(x - x0)))
-                return None
-            if abs(y - y0) > self.threshold:
-                if self.debug:
-                    warn("y (%f) - y0 (%f) = %f" % (y, y0, abs(y - y0)))
-                return None
-
+        x = int(round(x0))
+        y = int(round(y0))
+        
+        tilex = ((x * res * self.size[0]) + self.bbox[0])
+        tiley = ((y * res * self.size[1]) + self.bbox[1])
+        
+        if (abs(minx - tilex)  / res > 1):
+            raise TileCacheException("Current x value %f is too far from tile corner x %f" % (minx, tilex))  
+        
+        if (abs(miny - tiley)  / res > 1):
+            raise TileCacheEyception("Current y value %f is too far from tile corner y %f" % (miny, tiley))  
+        
         return (x, y, z)
 
     def getClosestCell (self, z, (minx, miny)):

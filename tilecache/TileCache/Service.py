@@ -11,6 +11,8 @@ if sys.platform == 'win32':
 else:
     cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
 
+class TileCacheException(Exception): pass
+
 class Capabilities (object):
     def __init__ (self, format, data):
         self.format = format
@@ -422,6 +424,11 @@ def modPythonHandler (apacheReq, service):
         apacheReq.content_type = format
         apacheReq.send_http_header()
         apacheReq.write(image)
+    except TileCacheException, E:
+        apacheReq.content_type = "text/plain"
+        apacheReq.status = apache.HTTP_NOT_FOUND
+        apacheReq.send_http_header()
+        apacheReq.write("An error occurred: %s\n" % (str(E)))
     except Exception, E:
         apacheReq.content_type = "text/plain"
         apacheReq.status = apache.HTTP_INTERNAL_SERVER_ERROR
@@ -453,6 +460,9 @@ def wsgiHandler (environ, start_response, service):
         start_response("200 OK", [('Content-Type',format)])
         return [image]
 
+    except TileCacheException, E:
+        start_response("404 Tile Not Found", [('Content-Type','text/plain')])
+        return ["An error occurred: %s" % (str(E))]
     except Exception, E:
         start_response("500 Internal Server Error", [('Content-Type','text/plain')])
         return ["An error occurred: %s\n%s\n" % (
@@ -483,6 +493,10 @@ def cgiHandler (service):
             binaryPrint(image)
         else:    
             print image
+    except TileCacheException, E:
+        print "Cache-Control: max-age=10, must-revalidate" # make the client reload        
+        print "Content-type: text/plain\n"
+        print "An error occurred: %s\n" % (str(E))
     except Exception, E:
         print "Cache-Control: max-age=10, must-revalidate" # make the client reload        
         print "Content-type: text/plain\n"
