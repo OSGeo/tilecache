@@ -424,7 +424,7 @@ def modPythonHandler (apacheReq, service):
         apacheReq.content_type = format
         apacheReq.send_http_header()
         apacheReq.write(image)
-    except TileCacheException, E:
+    except Layer.TileCacheException, E:
         apacheReq.content_type = "text/plain"
         apacheReq.status = apache.HTTP_NOT_FOUND
         apacheReq.send_http_header()
