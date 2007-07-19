@@ -150,7 +150,7 @@ class Layer (object):
             raise TileCacheException("Current x value %f is too far from tile corner x %f" % (minx, tilex))  
         
         if (abs(miny - tiley)  / res > 1):
-            raise TileCacheEyception("Current y value %f is too far from tile corner y %f" % (miny, tiley))  
+            raise TileCacheException("Current y value %f is too far from tile corner y %f" % (miny, tiley))  
         
         return (x, y, z)
 
