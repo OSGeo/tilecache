@@ -55,13 +55,6 @@ class WMS (object):
                             raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
             except httplib.BadStatusLine:
                 response = None # try again
-            except urllib2.HTTPError, err:
-                response = err
-                data = None
-            except urllib2.URLError, err:
-                err.code = -1
-                response = err
-                data = None
         return data, response
 
     def setBBox (self, box):
