@@ -21,6 +21,11 @@ class Capabilities (object):
 class Request (object):
     def __init__ (self, service):
         self.service = service
+    def getLayer(self, layername):    
+        try:
+            return self.service.layers[layername]
+        except:
+            raise TileCacheException("The requested layer (%s) does not exist. Available layers are: \n * %s" % (layername, "\n * ".join(self.service.layers.keys()))) 
 
 class WorldWind (Request):
     def parse (self, fields, path, host):
@@ -40,7 +45,7 @@ class WorldWind (Request):
             return self.getMap(param)
 
     def getMap (self, param):
-        layer = self.service.layers[param["t"]]
+        layer = self.getLayer(param["t"])
         level = int(param["l"])
         y = float(param["y"])
         x = float(param["x"])
@@ -123,7 +128,7 @@ class WMS (Request):
 
     def getMap (self, param):
         bbox  = map(float, param["bbox"].split(","))
-        layer = self.service.layers[param["layers"]]
+        layer = self.getLayer(param["layers"])
         tile  = layer.getTile(bbox)
         if not tile:
             raise Exception(
@@ -247,7 +252,7 @@ class TMS (Request):
         elif len(parts) < 2:
             return self.serviceCapabilities(host, self.service.layers)
         else:
-            layer = self.service.layers[parts[1]]
+            layer = self.getLayer(parts[1])
             if len(parts) < 3:
                 return self.layerCapabilities(host, layer)
             else:
