@@ -322,7 +322,7 @@ class TMS (Request):
         return Capabilities("text/xml", xml)
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "available_layers")
+    __slots__ = ("layers", "cache", "metadata", "available_layers", "tilecache_options")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
@@ -348,12 +348,21 @@ class Service (object):
         
         metadata = {}
         if config.has_section("metadata"):
-            for key in config.section("metadata"):
+            for key in config.options("metadata"):
                 metadata[key] = config.get("metadata", key)
-
+        
+        
+        # By default, use cwd/TileCache/Layers
+        # override with [tilecache_options]\nlayers_location=/absolute/path
+        layers_loc = os.path.join(".", "TileCache", "Layers")
+        
+        if config.has_section("tilecache_options"):
+            if 'layers_path' in config.options("tilecache_options"): 
+                layers_loc = config.get("tilecache_options", "layers_path")
+        
+        cls.available_layers = Layers.layers(layers_loc)
+        
         cache = cls.loadFromSection(config, "cache", Cache)
-
-        cls.available_layers = Layers.layers()
 
         layers = {}
         for section in config.sections():
