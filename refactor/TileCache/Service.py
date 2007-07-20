@@ -2,7 +2,7 @@
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
 import sys, cgi, time, os, traceback, ConfigParser
-import Cache, Layer
+import Cache, Layer, Layers
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
@@ -322,7 +322,7 @@ class TMS (Request):
         return Capabilities("text/xml", xml)
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata")
+    __slots__ = ("layers", "cache", "metadata", "available_layers")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
@@ -331,13 +331,14 @@ class Service (object):
     
     def _loadFromSection (cls, config, section, module, **objargs):
         type  = config.get(section, "type")
-        objclass = getattr(module, type)
         for opt in config.options(section):
             if opt != "type":
                 objargs[opt] = config.get(section, opt)
         if module is Layer:
-            return objclass(section, **objargs)
+            type = type.replace("Layer", "")
+            return cls.available_layers[type](section, **objargs)
         else:
+            objclass = getattr(module, type)
             return objclass(**objargs)
     loadFromSection = classmethod(_loadFromSection)
 
@@ -351,6 +352,8 @@ class Service (object):
                 metadata[key] = config.get("metadata", key)
 
         cache = cls.loadFromSection(config, "cache", Cache)
+
+        cls.available_layers = Layers.layers()
 
         layers = {}
         for section in config.sections():
