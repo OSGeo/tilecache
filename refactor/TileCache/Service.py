@@ -2,7 +2,8 @@
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
 import sys, cgi, time, os, traceback, ConfigParser
-import Cache, Layer, Layers
+import Cache, Caches
+import Layer, Layers
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
@@ -322,24 +323,24 @@ class TMS (Request):
         return Capabilities("text/xml", xml)
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "available_layers", "tilecache_options")
+    __slots__ = ("layers", "cache", "metadata", "tilecache_options")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
         self.layers   = layers
         self.metadata = metadata
     
-    def _loadFromSection (cls, config, section, module, **objargs):
+    def _loadFromSection (cls, config, section, module, choices, **objargs):
         type  = config.get(section, "type")
         for opt in config.options(section):
             if opt != "type":
                 objargs[opt] = config.get(section, opt)
         if module is Layer:
             type = type.replace("Layer", "")
-            return cls.available_layers[type](section, **objargs)
+            return choices[type](section, **objargs)
         else:
-            objclass = getattr(module, type)
-            return objclass(**objargs)
+            type = type.replace("Cache", "")
+            return choices[type](**objargs)
     loadFromSection = classmethod(_loadFromSection)
 
     def _load (cls, *files):
@@ -351,24 +352,32 @@ class Service (object):
             for key in config.options("metadata"):
                 metadata[key] = config.get("metadata", key)
         
-        
-        # By default, use cwd/TileCache/Layers
+        # By default, use cwd/TileCache
         # override with [tilecache_options]\nlayers_location=/absolute/path
-        layers_loc = os.path.join(".", "TileCache", "Layers")
+        modules_loc = os.path.join(".", "TileCache")
+        
+        if config.has_section("tilecache_options"):
+            if 'modules_path' in config.options("tilecache_options"): 
+                modules_loc = config.get("tilecache_options", "modules_path")
+        
+        caches_loc = os.path.join(modules_loc, "Caches")
+        layers_loc = os.path.join(modules_loc, "Layers")
         
         if config.has_section("tilecache_options"):
             if 'layers_path' in config.options("tilecache_options"): 
                 layers_loc = config.get("tilecache_options", "layers_path")
+            if 'caches_path' in config.options("tilecache_options"): 
+                caches_loc = config.get("tilecache_options", "caches_path")
         
-        cls.available_layers = Layers.layers(layers_loc)
-        
-        cache = cls.loadFromSection(config, "cache", Cache)
+        cache = cls.loadFromSection(config, "cache", Cache, 
+                                    Caches.caches(caches_loc))
 
         layers = {}
         for section in config.sections():
             if section in cls.__slots__: continue
             layers[section] = cls.loadFromSection(
-                                    config, section, Layer, cache = cache)
+                                    config, section, Layer, 
+                                    Layers.layers(layers_loc), cache = cache)
 
         return cls(cache, layers, metadata)
     load = classmethod(_load)
