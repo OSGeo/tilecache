@@ -105,10 +105,11 @@ class Layer (object):
         return max( (maxx - minx) / self.size[0],
                     (maxy - miny) / self.size[1] )
 
-    def getLevel (self, res):
+    def getLevel (self, res, size = [256, 256]):
+        max_diff = res / max(size[0], size[1])
         z = None
         for i in range(len(self.resolutions)):
-            if abs( self.resolutions[i] - res ) < 0.00000001:
+            if abs( self.resolutions[i] - res ) < max_diff:
                 res = self.resolutions[i]
                 z = i
                 break
@@ -132,7 +133,7 @@ class Layer (object):
         x = y = None
 
         if exact:
-            z = self.getLevel(res)
+            z = self.getLevel(res, self.size)
         else:
             z = self.getClosestLevel(res)
 
