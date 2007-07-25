@@ -1,0 +1,42 @@
+tilecache (1.9) unstable; urgency=low
+  * Fix longstanding bug which made some non-geographic projections difficult
+    to create tiles with
+  * Add more informative error message output via TileCacheExceptions  
+  * Fix for "MetaLayer.getMetaSize is too conservative"
+  * Report OSErrors more cleanly in tilecache_clean.py
+  * Better support for Jython in DiskCache class.
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Thu, 19 Jul 2007 16:41:44 -0400
+
+tilecache (1.8-1) unstable; urgency=low
+ 
+  * Patch to ImageLayer from Volker Mische add:
+    * Optional transparency to images which are not transparent. This allows 
+      the images to be transparent outside the maxExtent of the image.
+    * Resize scaling method specification 
+  * Add support for tile watermarking, patch by Andrew Hughes. 
+  * Allow for definition of 'styles' parameter in WMSLayer tilecache
+    cfg -- don't send blank parameters to the backend.
+ 
+ -- Christopher Schmidt <labs+tilecache@metacarta.com>  Fri,  4 May 2007 07:33:15 -0400
+
+tilecache (1.7-1) unstable; urgency=low
+
+  * Apache will sometimes kill TileCache, leaving around locks. If we can't 
+    lock for > cache.timeout seconds, throw an exception with the lockname,
+    so that users can cleanup. Reported by Brock Anderson, who had stuck locks
+    for several days.
+  * If ImageLayer base image is transparent, make output Image transparent too.
+    Report and patch by Brian Victor.
+  * Add support for forcing client to reload on errors, by Suki Hirata.
+  * Add support for not caching data which is not images for WMS, with
+    original support written by Suki Hirata.
+  * Minor fixups to TMS metadata, from Suki Hirata.
+
+ -- Christopher Schmidt <labs+tilecache@metacarta.com>  Fri, 13 Apr 2007 20:33:06 -0400
+
+tilecache (1.5-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Schuyler Erle <labs+tilecache@metacarta.com>  Wed, 28 Mar 2007 11:49:06 -0500
+
