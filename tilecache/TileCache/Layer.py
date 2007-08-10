@@ -146,12 +146,12 @@ class Layer (object):
         
         tilex = ((x * res * self.size[0]) + self.bbox[0])
         tiley = ((y * res * self.size[1]) + self.bbox[1])
-        
-        if (abs(minx - tilex)  / res > 1):
-            raise TileCacheException("Current x value %f is too far from tile corner x %f" % (minx, tilex))  
-        
-        if (abs(miny - tiley)  / res > 1):
-            raise TileCacheException("Current y value %f is too far from tile corner y %f" % (miny, tiley))  
+        if exact:
+            if (abs(minx - tilex)  / res > 1):
+                raise TileCacheException("Current x value %f is too far from tile corner x %f" % (minx, tilex))  
+            
+            if (abs(miny - tiley)  / res > 1):
+                raise TileCacheException("Current y value %f is too far from tile corner y %f" % (miny, tiley))  
         
         return (x, y, z)
 
