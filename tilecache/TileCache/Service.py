@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
+class TileCacheException(Exception): pass
+
 import sys, cgi, time, os, traceback, ConfigParser
 import Cache, Layer
 
@@ -11,7 +13,6 @@ if sys.platform == 'win32':
 else:
     cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
 
-class TileCacheException(Exception): pass
 
 class Capabilities (object):
     def __init__ (self, format, data):
