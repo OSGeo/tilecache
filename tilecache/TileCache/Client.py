@@ -87,8 +87,10 @@ def seed (base, layer, levels = (0, 5), bbox = None):
         print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
         zcount = 0 
         ztiles = (topright[1] - bottomleft[1] + 1) * (topright[0] - bottomleft[0] + 1)
-        for y in range(bottomleft[1], topright[1] + 1):
-            for x in range(bottomleft[0], topright[0] + 1):
+        metaSize = layer.getMetaSize(z)
+        ztiles = ztiles / metaSize[0] / metaSize[1]
+        for y in range(bottomleft[1], topright[1] + 1, metaSize[1]):
+            for x in range(bottomleft[0], topright[0] + 1, metaSize[0]):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
