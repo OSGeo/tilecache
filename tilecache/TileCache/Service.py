@@ -259,7 +259,7 @@ class TMS (Request):
             else:
                 parts[-1] = parts[-1].split(".")[0]
                 tile = None
-                if (fields.has_key('type') and fields['type'] == 'google'):
+                if layer.tms_type == "google" or (fields.has_key('type') and fields['type'] == 'google'):
                     res = layer.resolutions[int(parts[2])]
                     maxY = int((layer.bbox[3] - layer.bbox[1]) / (res * layer.size[1])) - 1
                     tile  = Layer.Tile(layer, int(parts[3]), maxY - int(parts[4]), int(parts[2]))
@@ -297,8 +297,10 @@ class TMS (Request):
         return Capabilities("text/xml", xml)
 
     def layerCapabilities (self, host, layer):
+        tms_type = layer.tms_type or "default"
         xml = """<?xml version="1.0" encoding="UTF-8" ?>
             <TileMap version="1.0.0" tilemapservice="%s1.0.0/">
+              <!-- Additional data: tms_type is %s -->
               <Title>%s</Title>
               <Abstract>%s</Abstract>
               <SRS>%s</SRS>
@@ -306,7 +308,7 @@ class TMS (Request):
               <Origin x="%.6f" y="%.6f" />  
               <TileFormat width="%d" height="%d" mime-type="%s" extension="%s" />
               <TileSets>
-            """ % (host, layer.name, layer.description, layer.srs, layer.bbox[0], layer.bbox[1],
+            """ % (host, tms_type, layer.name, layer.description, layer.srs, layer.bbox[0], layer.bbox[1],
                    layer.bbox[2], layer.bbox[3], layer.bbox[0], layer.bbox[1],
                    layer.size[0], layer.size[1], layer.format(), layer.extension)
 
