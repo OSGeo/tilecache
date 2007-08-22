@@ -157,9 +157,9 @@ class DiskCache (Cache):
         try:
             st = os.stat(name)
             if st.st_ctime + self.stale < time.time():
-                warnings.warn("removing stale lock %s" % name)
+                warn("removing stale lock %s" % name)
                 # remove stale lock
-                self.unlock()
+                self.unlock(tile)
                 os.makedirs(name)
                 return True
         except OSError:
