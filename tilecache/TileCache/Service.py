@@ -400,7 +400,7 @@ class Service (object):
                     coverage = Tile(layer,x,y,z)
                     self.cache.delete(coverage)
 
-    def dispatchRequest (self, params, path_info, req_method, host):
+    def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
         if params.has_key("service") or params.has_key("SERVICE"):
             tile = WMS(self).parse(params, path_info, host)
         elif params.has_key("L") or params.has_key("l"):
