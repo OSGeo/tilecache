@@ -118,12 +118,6 @@ class Layer (object):
             raise TileCacheException("can't find resolution index for %f. Available resolutions are: \n%s" % (res, self.resolutions))
         return z
 
-    def getClosestLevel (self, res):
-        for i in range(1, len(self.resolutions)):
-            if res > self.resolutions[i]:
-                return i - 1 
-        return len(self.resolutions) - 1
-
     def getCell (self, (minx, miny, maxx, maxy), exact = True):
         if exact and self.extent_type == "strict" and not self.contains((minx, miny)): 
             raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
@@ -133,10 +127,7 @@ class Layer (object):
         res = self.getResolution((minx, miny, maxx, maxy))
         x = y = None
 
-        if exact:
-            z = self.getLevel(res, self.size)
-        else:
-            z = self.getClosestLevel(res)
+        z = self.getLevel(res, self.size)
 
         res = self.resolutions[z]
         x0 = (minx - self.bbox[0]) / (res * self.size[0])
