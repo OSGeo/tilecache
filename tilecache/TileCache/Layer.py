@@ -373,8 +373,19 @@ class MapnikLayer(MetaLayer):
             # Init it as 0,0
             m = mapnik.Map( 0, 0 )
             mapnik.load_map(m,self.mapfile)
+            # Restrict layer list, if requested
+            if self.layers:
+                layers = self.layers.split(",")
+                for layer_num in range(len(m.layers)-1, -1, -1):
+                    l = m.layers[layer_num]
+                    if l.name not in layers:
+                        del m.layers[layer_num]
+                    if self.debug:
+                        print >>sys.stderr, "Removed layer %s loaded from %s, not in list: %s" % (l.name, self.mapfile, layers)
+                        
             # this will insure that it gets cached in mod_python
             self.mapnik = m
+        
         
         # Set the mapnik size to match the size of the current tile 
         m.width = tile.size()[0]
