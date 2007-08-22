@@ -7,10 +7,10 @@ Cache and serve map tiles
 -------------------------
 
 :Author: labs@metacarta.com
-:Date:   2007-04-05
+:Date:   2007-08-22
 :Copyright: (c) 2006-2007 MetaCarta, Inc.
             Distributed under the BSD license.
-:Version: 1.6
+:Version: 1.9
 :Manual section: 8
 :Manual group: GIS Utilities
 
@@ -261,7 +261,8 @@ to all layers:
  srs
     String describing the SRS value. Default is "EPSG:4326"          
  type
-    The type of layer. Options are: WMSLayer, MapnikLayer, MapServerLayer, ImageLayer
+    The type of layer. Options are: WMSLayer, MapnikLayer, MapServerLayer,
+    ImageLayer
  url
     URL to use when requesting images from a remote WMS server. Required
     for WMSLayer.
@@ -270,11 +271,18 @@ to all layers:
     This is a fully qualified path to an image you would like to apply to each
     tile. We recommend you use a watermark image the same size as your tiles.
     If using the default tile size, you should use a 256x256 image.
-    NOTE: presently, python imaging library DOES NOT support interlaced images.
+    NOTE: Python Imaging Library DOES NOT support interlaced images.
  watermarkOpacity
     The watermarkOpacity parameter is assigned on a per-layer basis.
     This configures the opacity of the watermark over the tile, it is a floating
     point number between 0 and 1. Usage is optional and will otherwise default.
+ extent_type
+    Setting this to 'loose' will allow TileCache to generate tiles outside the
+    maximum bounding box. Useful for clients that don't know when to stop
+    asking for tiles.
+ tms_type
+    Setting this to "google" will cause tiles to switch vertical order (that
+    is, following the Google style x/y pattern).
 
 USING TILECACHE WITH OPENLAYERS
 ===============================
@@ -299,6 +307,16 @@ of the TileCache layer.
 
 If you are using TileCache for overlays, you should set the 'reproject' option
 on the layer to 'false'.
+
+USING TILECACHE WITH MAPSERVER
+==============================
+MapServer has a map level metadata option, labelcache_map_edge_buffer, which
+is set automatically by TileCache to the metaBuffer plus five when metaTiling
+is on, if it is not set in the mapfile.
+
+If you are using MetaTiling, be aware that MapServer generates interlaced
+PNG files, which PIL will not read. See 
+http://mapserver.gis.umn.edu/docs/faq/pil_mapscript on how to resolve this. 
 
 SEEDING YOUR TILECACHE
 ======================
