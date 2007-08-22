@@ -171,7 +171,7 @@ class WMS (Request):
           <Service>
             <Name>OGC:WMS</Name>
             <Title>%s</Title>
-            <OnlineResource xlink:href="%s"/>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/>
           </Service>
         """ % (description, host)
 
@@ -182,7 +182,7 @@ class WMS (Request):
                 <Format>application/vnd.ogc.wms_xml</Format>
                 <DCPType>
                   <HTTP>
-                    <Get><OnlineResource xlink:href="%s"/></Get>
+                    <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/></Get>
                   </HTTP>
                 </DCPType>
               </GetCapabilities>""" % (host)
@@ -194,7 +194,7 @@ class WMS (Request):
         xml += """
                 <DCPType>
                   <HTTP>
-                    <Get><OnlineResource xlink:href="%s"/></Get>
+                    <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/></Get>
                   </HTTP>
                 </DCPType>
               </GetMap>
@@ -224,7 +224,8 @@ class WMS (Request):
         xml += """
             </VendorSpecificCapabilities>
             <UserDefinedSymbolization SupportSLD="0" UserLayer="0"
-                                      UserStyle="0" RemoteWFS="0"/>"""
+                                      UserStyle="0" RemoteWFS="0"/>
+            <Layer>"""
         for name, layer in self.service.layers.items():
             xml += """
             <Layer queryable="0" opaque="0" cascaded="1">
@@ -238,6 +239,7 @@ class WMS (Request):
                 layer.bbox[0], layer.bbox[1], layer.bbox[2], layer.bbox[3])
 
         xml += """
+            </Layer>
           </Capability>
         </WMT_MS_Capabilities>"""
 
