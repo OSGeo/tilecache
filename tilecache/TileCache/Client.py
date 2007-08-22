@@ -87,7 +87,10 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
                 client.setBBox(bounds)
-                client.fetch()
+                try:
+                    client.fetch()
+                except Exception, E:
+                    print "An error occured when fetching: %s\nURL: %s" % (E, client.url()) 
                 total += 1
                 zcount += 1
                 box = "(%.4f %.4f %.4f %.4f)" % bounds
