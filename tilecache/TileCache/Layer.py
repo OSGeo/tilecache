@@ -30,7 +30,7 @@ class Tile (object):
         return ",".join(map(str, self.bounds()))
 
 class MetaTile (Tile):
-    def actualSize (self) :
+    def actualSize (self):
         metaCols, metaRows = self.layer.getMetaSize(self.z)
         return ( self.layer.size[0] * metaCols,
                  self.layer.size[1] * metaRows )
@@ -191,6 +191,7 @@ class MetaLayer (Layer):
         self.metaBuffer  = metabuffer
 
     def getMetaSize (self, z):
+        if not self.metaTile: return (1,1)
         maxcol, maxrow = self.grid(z)
         return ( min(self.metaSize[0], int(maxcol + 1)), 
                  min(self.metaSize[1], int(maxrow + 1)) )

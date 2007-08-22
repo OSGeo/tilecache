@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 
-import sys, urllib, urllib2, time, os
+import sys, urllib, urllib2, time, os, math
 import httplib
 
 # setting this to True will exchange more useful error messages
@@ -55,13 +55,6 @@ class WMS (object):
                             raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
             except httplib.BadStatusLine:
                 response = None # try again
-            except urllib2.HTTPError, err:
-                response = err
-                data = None
-            except urllib2.URLError, err:
-                err.code = -1
-                response = err
-                data = None
         return data, response
 
     def setBBox (self, box):
@@ -86,11 +79,10 @@ def seed (base, layer, levels = (0, 5), bbox = None):
         topright   = layer.getClosestCell(z, bbox[2:4])
         print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
         zcount = 0 
-        ztiles = (topright[1] - bottomleft[1] + 1) * (topright[0] - bottomleft[0] + 1)
         metaSize = layer.getMetaSize(z)
-        ztiles = ztiles / metaSize[0] / metaSize[1]
-        for y in range(bottomleft[1], topright[1] + 1, metaSize[1]):
-            for x in range(bottomleft[0], topright[0] + 1, metaSize[0]):
+        ztiles = int(math.ceil(float(topright[1] - bottomleft[1]) / metaSize[0]) * math.ceil(float(topright[0] - bottomleft[0]) / metaSize[1])) 
+        for y in range(bottomleft[1], topright[1], metaSize[1]):
+            for x in range(bottomleft[0], topright[0], metaSize[0]):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
