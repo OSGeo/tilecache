@@ -179,7 +179,7 @@ class Layer (object):
 
 class MetaLayer (Layer):
     __slots__ = ('metaTile', 'metaSize', 'metaBuffer')
-    def __init__ (self, name, metatile = False, metasize = (5,5),
+    def __init__ (self, name, metatile = "", metasize = (5,5),
                               metabuffer = 10, **kwargs):
         Layer.__init__(self, name, **kwargs)
         self.metaTile    = metatile.lower() in ("true", "yes", "1")

@@ -425,8 +425,8 @@ class Service (object):
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
-        if params.has_key("service") or params.has_key("SERVICE") or 
-           params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or 
+        if params.has_key("service") or params.has_key("SERVICE") or \
+           params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or \
            params.has_key("request") and params['request'] == "GetMap": 
             tile = WMS(self).parse(params, path_info, host)
         elif params.has_key("L") or params.has_key("l"):

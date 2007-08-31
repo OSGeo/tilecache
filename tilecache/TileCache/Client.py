@@ -89,7 +89,7 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                 client.setBBox(bounds)
                 try:
                     client.fetch()
-                except Exception, E:
+                except urllib2.HTTPError, E:
                     print "An error occured when fetching: %s\nURL: %s" % (E, client.url()) 
                 total += 1
                 zcount += 1
