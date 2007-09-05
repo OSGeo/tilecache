@@ -1,0 +1,6 @@
+tilecache for Debian
+--------------------
+
+The /usr/bin/*.py scripts have been moved to /usr/sbin and the .py extensions removed per Debian packaging policy.
+
+ -- Schuyler Erle <labs+tilecache@metacarta.com>, Wed, 28 Mar 2007 11:49:06 -0500
