@@ -406,9 +406,10 @@ class MapnikLayer(MetaLayer):
         return tile.data 
 
 class MapServerLayer(MetaLayer):
-    def __init__ (self, name, mapfile = None, **kwargs):
+    def __init__ (self, name, mapfile = None, styles = "", **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.mapfile = mapfile
+        self.styles = styles
 
     def renderTile(self, tile):
         import mapscript
@@ -430,6 +431,8 @@ class MapServerLayer(MetaLayer):
         req.setParameter("srs", self.srs)
         req.setParameter("format", self.format())
         req.setParameter("layers", self.layers)
+        req.setParameter("styles", self.styles)
+        req.setParameter("request", "GetMap")
         wms.loadOWSParameters(req)
         mapImage = wms.draw()
         tile.data = mapImage.getBytes()
