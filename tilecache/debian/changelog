@@ -5,7 +5,23 @@ tilecache (1.9) unstable; urgency=low
   * Fix for "MetaLayer.getMetaSize is too conservative"
   * Report OSErrors more cleanly in tilecache_clean.py
   * Better support for Jython in DiskCache class.
- -- Christopher Schmidt <crschmidt@metacarta.com>  Thu, 19 Jul 2007 16:41:44 -0400
+  * Add support for extent_type=loose to allow out of bounds tile requests
+  * Improved tilecache_seed to only grab one metaTile from each set -- 
+    this drastically reduces the number of requests to precache metatiled
+    layers. Also fixed off-by-one error where seed was requesting too many
+    tiles.
+  * Add tms_type=google to specify that the TMS layer should go down instead
+    of up.
+  * Add setting of labelcache_map_edge_buffer to the MapServer layer if one
+    does not exist on the map object.
+  * Make mapnik layer respect layers= config if provided.
+  * Remove getClosestLevel, no longer used or neccesary.  
+  * Better Lockfile removal, from Paul Spencer
+  * Update WMS Capabilities, from Steven Ottens
+  * Only use metaTiling if metatile=yes, true, or 1 
+  * Minor change to WMS layer dispatching to handle GDAL WMS Driver 
+   compatability.
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Fri, 14 Sep 2007 11:04:58 -0400
 
 tilecache (1.8-1) unstable; urgency=low
  
