@@ -205,6 +205,14 @@ Installing TileCache for use with IIS requires some additional configuration.
   
      svc = Service.load("C:\\TileCache\\tilecache.cfg")
 
+When using Tilecache with TMS style requests, you will need to change your
+IIS configuration to allow PATH_INFO to be delivered to the CGI script.
+http://support.microsoft.com/kb/q184320/ provides information on this
+topic. If you do not do this, you will get an error message like:
+
+ "The requested layer (tilecache.cgi) does not exist."
+
+
 CONFIGURATION
 =============
 TileCache is configured by a config file, defaulting to tilecache.cfg.
