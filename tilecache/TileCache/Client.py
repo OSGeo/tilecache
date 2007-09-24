@@ -60,14 +60,8 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (base, layer, levels = (0, 5), bbox = None):
+def seed (svc, base, layer, levels = (0, 5), bbox = None):
     from Layer import Tile
-    params = { 'layers' : layer.name,
-               'srs'    : layer.srs,
-               'width'  : layer.size[0],
-               'height' : layer.size[1],
-               'format' : layer.format() }
-    client = WMS(base, params)
 
     if not bbox: bbox = layer.bbox
 
@@ -86,15 +80,11 @@ def seed (base, layer, levels = (0, 5), bbox = None):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
-                client.setBBox(bounds)
-                try:
-                    client.fetch()
-                except urllib2.HTTPError, E:
-                    print "An error occured when fetching: %s\nURL: %s" % (E, client.url()) 
+                svc.renderTile(tile)
                 total += 1
                 zcount += 1
                 box = "(%.4f %.4f %.4f %.4f)" % bounds
-                print >>sys.stderr, "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
+                print "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
 def main ():
@@ -104,15 +94,15 @@ def main ():
     svc = Service.load(*cfgfiles)
     layer = svc.layers[sys.argv[2]]
     if len(sys.argv) == 5:
-        seed(base, layer, map(int, sys.argv[3:]))
+        seed(svc, base, layer, map(int, sys.argv[3:]))
     elif len(sys.argv) == 6:
-        seed(base, layer, map(int, sys.argv[3:5]), map(float, sys.argv[5].split(",")))
+        seed(svc, base, layer, map(int, sys.argv[3:5]), map(float, sys.argv[5].split(",")))
     else:
         for line in sys.stdin.readlines():
             lat, lon, delta = map(float, line.split(","))
             bbox = (lon - delta, lat - delta, lon + delta, lat + delta)
-            print >>sys.stderr, "===> %s <===" % (bbox,)
-            seed(base, layer, (5, 17), bbox)
+            print "===> %s <===" % (bbox,)
+            seed(svc, base, layer, (5, 17), bbox)
 
 if __name__ == '__main__':
     main()
