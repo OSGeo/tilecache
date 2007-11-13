@@ -451,7 +451,7 @@ def modPythonHandler (apacheReq, service):
             host = "http://" + apacheReq.headers_in["X-Forwarded-Host"]
         else:
             host = "http://" + apacheReq.headers_in["Host"]
-        host += apacheReq.uri
+        host += apacheReq.uri[:-len(apacheReq.path_info)]
         format, image = service.dispatchRequest( 
                                 util.FieldStorage(apacheReq), 
                                 apacheReq.path_info,
