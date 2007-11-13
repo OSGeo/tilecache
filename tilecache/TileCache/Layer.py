@@ -360,10 +360,11 @@ class ImageLayer(MetaLayer):
         return tile.data 
 
 class MapnikLayer(MetaLayer):
-    def __init__ (self, name, mapfile = None, **kwargs):
+    def __init__ (self, name, mapfile = None, projection = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.mapfile = mapfile
         self.mapnik  = None
+        self.projection = projection
 
     def renderTile(self, tile):
         import mapnik, Image, StringIO
@@ -374,8 +375,12 @@ class MapnikLayer(MetaLayer):
             # Init it as 0,0
             m = mapnik.Map( 0, 0 )
             mapnik.load_map(m,self.mapfile)
+            
+            if self.projection:
+                m.srs = self.projection
+            
             # Restrict layer list, if requested
-            if self.layers:
+            if self.layers and self.layers != self.name:
                 layers = self.layers.split(",")
                 for layer_num in range(len(m.layers)-1, -1, -1):
                     l = m.layers[layer_num]
