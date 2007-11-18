@@ -376,9 +376,9 @@ class MapnikLayer(MetaLayer):
         if self.mapnik:
             m = self.mapnik
         else:
-            if fonts:
+            if self.fonts:
                 engine = mapnik.FontEngine.instance()
-                for font in fonts:
+                for font in self.fonts:
                     engine.register_font(font)
             
             # Init it as 0,0
