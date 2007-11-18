@@ -285,7 +285,12 @@ class TMS (Request):
                 tile = None
                 if layer.tms_type == "google" or (fields.has_key('type') and fields['type'] == 'google'):
                     res = layer.resolutions[int(parts[2])]
-                    maxY = int((layer.bbox[3] - layer.bbox[1]) / (res * layer.size[1]))
+                    maxY = int(
+                      round(
+                        (layer.bbox[3] - layer.bbox[1]) / 
+                        (res * layer.size[1])
+                       )
+                    ) - 1
                     tile  = Layer.Tile(layer, int(parts[3]), maxY - int(parts[4]), int(parts[2]))
                 else: 
                     tile  = Layer.Tile(layer, int(parts[3]), int(parts[4]), int(parts[2]))
