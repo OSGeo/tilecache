@@ -360,22 +360,31 @@ class ImageLayer(MetaLayer):
         return tile.data 
 
 class MapnikLayer(MetaLayer):
-    def __init__ (self, name, mapfile = None, projection = None, **kwargs):
+    def __init__ (self, name, mapfile = None, projection = None, fonts = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.mapfile = mapfile
         self.mapnik  = None
         self.projection = projection
-
+        if fonts:
+            self.fonts = fonts.split(",")
+        else:
+            self.fonts = []
+            
     def renderTile(self, tile):
         import mapnik, Image, StringIO
         
         if self.mapnik:
             m = self.mapnik
         else:
+            if fonts:
+                engine = mapnik.FontEngine.instance()
+                for font in fonts:
+                    engine.register_font(font)
+            
             # Init it as 0,0
             m = mapnik.Map( 0, 0 )
             mapnik.load_map(m,self.mapfile)
-            
+             
             if self.projection:
                 m.srs = self.projection
             
