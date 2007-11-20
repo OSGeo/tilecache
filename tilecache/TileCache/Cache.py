@@ -76,9 +76,10 @@ class MemoryCache (Cache):
         self.cache.delete( self.getLockName() )
 
 class DiskCache (Cache):
-    def __init__ (self, base = None, perms = 0777, **kwargs):
+    def __init__ (self, base = None, umask = '002', **kwargs):
         Cache.__init__(self, **kwargs)
         self.basedir = base
+        self.umask = int(umask, 0)
         
         if sys.platform.startswith("java"):
             from java.io import File
@@ -88,7 +89,12 @@ class DiskCache (Cache):
             self.platform = "cpython"
         
         if not self.access(base, 'read'):
-            os.makedirs(base, perms)
+            self.makedirs(base)
+        
+    def makedirs(self, path):
+        old_umask = os.umask(self.umask)
+        os.makedirs(path)
+        os.umask(old_umask)
         
     def access(self, path, type='read'):
         if self.platform == "jython":
@@ -129,11 +135,13 @@ class DiskCache (Cache):
         filename = self.getKey(tile)
         dirname  = os.path.dirname(filename)
         if not self.access(dirname, 'write'):
-            os.makedirs(dirname)
+            self.makedirs(dirname)
         tmpfile = filename + ".%d.tmp" % os.getpid()
+        old_umask = os.umask(self.umask)
         output = file(tmpfile, "wb")
         output.write(data)
         output.close()
+        os.umask( old_umask );
         try:
             os.rename(tmpfile, filename)
         except OSError:
@@ -150,7 +158,7 @@ class DiskCache (Cache):
     def attemptLock (self, tile):
         name = self.getLockName(tile)
         try: 
-            os.makedirs(name)
+            self.makedirs(name)
             return True
         except OSError:
             pass
@@ -160,7 +168,7 @@ class DiskCache (Cache):
                 warn("removing stale lock %s" % name)
                 # remove stale lock
                 self.unlock(tile)
-                os.makedirs(name)
+                self.makedirs(name)
                 return True
         except OSError:
             pass
