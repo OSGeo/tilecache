@@ -4,14 +4,15 @@
 class TileCacheException(Exception): pass
 
 import sys, cgi, time, os, traceback, ConfigParser
-import Cache, Layer
+import Cache, Caches
+import Layer, Layers
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
     workingdir = os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0])))
     cfgfiles = (os.path.join(workingdir, "tilecache.cfg"), os.path.join(workingdir,"..","tilecache.cfg"))
 else:
-    cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
+    cfgfiles = ("/etc/tilecache.cfg", os.path.join("..", "tilecache.cfg"), "tilecache.cfg")
 
 
 class Capabilities (object):
@@ -28,349 +29,49 @@ class Request (object):
         except:
             raise TileCacheException("The requested layer (%s) does not exist. Available layers are: \n * %s" % (layername, "\n * ".join(self.service.layers.keys()))) 
 
-class TileService (Request):
-    def parse (self, fields, path, host):
-        param = {}
-
-        for key in ['interface', 'version', 'dataset', 'level', 'x', 'y', 'request']: 
-            if fields.has_key(key.upper()):
-                param[key] = fields[key.upper()] 
-            elif fields.has_key(key):
-                param[key] = fields[key]
-            else:
-                param[key] = ""
-        
-        return self.getMap(param)
-
-    def getMap (self, param):
-        layer = self.getLayer(param["dataset"])
-        level = int(param["level"])
-        y = float(param["y"])
-        x = float(param["x"])
-        
-        tile  = Layer.Tile(layer, x, y, level)
-        return tile
-class WorldWind (Request):
-    def parse (self, fields, path, host):
-        param = {}
-
-        for key in ['t', 'l', 'x', 'y', 'request']: 
-            if fields.has_key(key.upper()):
-                param[key] = fields[key.upper()] 
-            elif fields.has_key(key):
-                param[key] = fields[key]
-            else:
-                param[key] = ""
-        
-        if param["request"] == "GetCapabilities" or param["request"] == "metadata":
-            return self.getCapabilities(host + path, param)
-        else:
-            return self.getMap(param)
-
-    def getMap (self, param):
-        layer = self.getLayer(param["t"])
-        level = int(param["l"])
-        y = float(param["y"])
-        x = float(param["x"])
-        
-        tile  = Layer.Tile(layer, x, y, level)
-        return tile
     
-    def getCapabilities (self, host, param):
-
-        metadata = self.service.metadata
-        if "description" in metadata:
-            description = metadata["description"]
-        else:
-            description = ""
-
-        formats = {}
-        for layer in self.service.layers.values():
-            formats[layer.format()] = 1
-        formats = formats.keys()
-        xml = """<?xml version="1.0" encoding="UTF-8" ?>
-            <LayerSet Name="TileCache" ShowAtStartup="true" ShowOnlyOneLayers="false"> 
-            """
-
-        for name, layer in self.service.layers.items():
-            if (layer.srs != "EPSG:4326"): continue
-            xml += """
-                <ChildLayerSet Name="%s" ShowAtStartup="false" ShowOnlyOneLayer="true">
-                <QuadTileSet ShowAtStartup="true">
-                  <Name>%s</Name>
-                  <Description>Layer: %s</Description>
-                  <DistanceAboveSurface>0</DistanceAboveSurface>
-                  <BoundingBox>
-                    <West><Value>%s</Value></West>
-                    <South><Value>%s</Value></South>
-                    <East><Value>%s</Value></East>
-                    <North><Value>%s</Value></North>
-                  </BoundingBox>
-                  <TerrainMapped>false</TerrainMapped>
-                  <!-- I have no clue what this means. -->
-                  <ImageAccessor>
-                    <LevelZeroTileSizeDegrees>%s</LevelZeroTileSizeDegrees>
-                    <NumberLevels>%s</NumberLevels>
-                    <TextureSizePixels>%s</TextureSizePixels>
-                    <ImageFileExtension>%s</ImageFileExtension>
-                    <ImageTileService>
-                      <ServerUrl>%s</ServerUrl>
-                      <DataSetName>%s</DataSetName>
-                    </ImageTileService>  
-                  </ImageAccessor>
-                  <ExtendedInformation>
-                    <Abstract>SRS:%s</Abstract>
-                    <!-- WorldWind doesn't have any place to store the SRS --> 
-                  </ExtendedInformation>
-                </QuadTileSet>
-              </ChildLayerSet>
-                """ % (name, name, layer.description, float(layer.bbox[0]), float(layer.bbox[1]),
-                       float(layer.bbox[2]), float(layer.bbox[3]), layer.resolutions[0] * layer.size[0], 
-                       len(layer.resolutions), layer.size[0], layer.extension, host, 
-                       name, layer.srs)
-
-        xml += """
-            </LayerSet>"""
-
-        return Capabilities("text/xml", xml)
-
-class WMS (Request):
-    def parse (self, fields, path, host):
-        param = {}
-        for key in ['bbox', 'layers', 'request', 'version']: 
-            if fields.has_key(key.upper()):
-                param[key] = fields[key.upper()] 
-            elif fields.has_key(key):
-                param[key] = fields[key]
-            else:
-                param[key] = ""
-        if param["request"] == "GetCapabilities":
-            return self.getCapabilities(host + path, param)
-        else:
-            return self.getMap(param)
-
-    def getMap (self, param):
-        bbox  = map(float, param["bbox"].split(","))
-        layer = self.getLayer(param["layers"])
-        tile  = layer.getTile(bbox)
-        if not tile:
-            raise Exception(
-                "couldn't calculate tile index for layer %s from (%s)"
-                % (layer.name, bbox))
-        return tile
-
-    def getCapabilities (self, host, param):
-        if host[-1] not in "?&":
-            if "?" in host:
-                host += "&"
-            else:
-                host += "?"
-
-        metadata = self.service.metadata
-        if "description" in metadata:
-            description = metadata["description"]
-        else:
-            description = ""
-
-        formats = {}
-        for layer in self.service.layers.values():
-            formats[layer.format()] = 1
-        formats = formats.keys()
-
-        xml = """<?xml version='1.0' encoding="ISO-8859-1" standalone="no" ?>
-        <!DOCTYPE WMT_MS_Capabilities SYSTEM 
-            "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd" [
-              <!ELEMENT VendorSpecificCapabilities (TileSet*) >
-              <!ELEMENT TileSet (SRS, BoundingBox?, Resolutions,
-                                 Width, Height, Format, Layers*, Styles*) >
-              <!ELEMENT Resolutions (#PCDATA) >
-              <!ELEMENT Width (#PCDATA) >
-              <!ELEMENT Height (#PCDATA) >
-              <!ELEMENT Layers (#PCDATA) >
-              <!ELEMENT Styles (#PCDATA) >
-        ]> 
-        <WMT_MS_Capabilities version="1.1.1">
-          <Service>
-            <Name>OGC:WMS</Name>
-            <Title>%s</Title>
-            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/>
-          </Service>
-        """ % (description, host)
-
-        xml += """
-          <Capability>
-            <Request>
-              <GetCapabilities>
-                <Format>application/vnd.ogc.wms_xml</Format>
-                <DCPType>
-                  <HTTP>
-                    <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/></Get>
-                  </HTTP>
-                </DCPType>
-              </GetCapabilities>""" % (host)
-        xml += """
-              <GetMap>"""
-        for format in formats:
-            xml += """
-                <Format>%s</Format>\n""" % format
-        xml += """
-                <DCPType>
-                  <HTTP>
-                    <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="%s"/></Get>
-                  </HTTP>
-                </DCPType>
-              </GetMap>
-            </Request>""" % (host)
-        xml += """
-            <Exception>
-              <Format>text/plain</Format>
-            </Exception>
-            <VendorSpecificCapabilities>"""
-        for name, layer in self.service.layers.items():
-            resolutions = " ".join(["%.9f" % r for r in layer.resolutions])
-            xml += """
-              <TileSet>
-                <SRS>%s</SRS>
-                <BoundingBox SRS="%s" minx="%f" miny="%f"
-                                      maxx="%f" maxy="%f" />
-                <Resolutions>%s</Resolutions>
-                <Width>%d</Width>
-                <Height>%d</Height>
-                <Format>%s</Format>
-                <Layers>%s</Layers>
-                <Styles></Styles>
-              </TileSet>""" % (
-                layer.srs, layer.srs, layer.bbox[0], layer.bbox[1],
-                layer.bbox[2], layer.bbox[3], resolutions, layer.size[0],
-                layer.size[1], layer.format(), name )
-        xml += """
-            </VendorSpecificCapabilities>
-            <UserDefinedSymbolization SupportSLD="0" UserLayer="0"
-                                      UserStyle="0" RemoteWFS="0"/>
-            <Layer>"""
-        for name, layer in self.service.layers.items():
-            xml += """
-            <Layer queryable="0" opaque="0" cascaded="1">
-              <Name>%s</Name>
-              <Title>%s</Title>
-              <SRS>%s</SRS>
-              <BoundingBox srs="%s" minx="%f" miny="%f"
-                                    maxx="%f" maxy="%f" />
-            </Layer>""" % (
-                name, layer.name, layer.srs, layer.srs,
-                layer.bbox[0], layer.bbox[1], layer.bbox[2], layer.bbox[3])
-
-        xml += """
-            </Layer>
-          </Capability>
-        </WMT_MS_Capabilities>"""
-
-        return Capabilities("text/xml", xml)
-
-class TMS (Request):
-    def parse (self, fields, path, host):
-        # /1.0.0/global_mosaic/0/0/0.jpg
-        parts = filter( lambda x: x != "", path.split("/") )
-        if not host[-1] == "/": host = host + "/"
-        if len(parts) < 1:
-            return self.serverCapabilities(host)
-        elif len(parts) < 2:
-            return self.serviceCapabilities(host, self.service.layers)
-        else:
-            layer = self.getLayer(parts[1])
-            if len(parts) < 3:
-                return self.layerCapabilities(host, layer)
-            else:
-                parts[-1] = parts[-1].split(".")[0]
-                tile = None
-                if layer.tms_type == "google" or (fields.has_key('type') and fields['type'] == 'google'):
-                    res = layer.resolutions[int(parts[2])]
-                    maxY = int(
-                      round(
-                        (layer.bbox[3] - layer.bbox[1]) / 
-                        (res * layer.size[1])
-                       )
-                    ) - 1
-                    tile  = Layer.Tile(layer, int(parts[3]), maxY - int(parts[4]), int(parts[2]))
-                else: 
-                    tile  = Layer.Tile(layer, int(parts[3]), int(parts[4]), int(parts[2]))
-                return tile
-
-    def serverCapabilities (self, host):
-        return Capabilities("text/xml", """<?xml version="1.0" encoding="UTF-8" ?>
-            <Services>
-                <TileMapService version="1.0.0" href="%s1.0.0/" />
-            </Services>""" % host)
-
-    def serviceCapabilities (self, host, layers):
-        xml = """<?xml version="1.0" encoding="UTF-8" ?>
-            <TileMapService version="1.0.0">
-              <TileMaps>"""
-
-        for name, layer in layers.items():
-            profile = "none"
-            if (layer.srs == "EPSG:4326"): profile = "global-geodetic"
-            elif (layer.srs == "OSGEO:41001"): profile = "global-mercator"
-            xml += """
-                <TileMap 
-                   href="%s1.0.0/%s/" 
-                   srs="%s"
-                   title="%s"
-                   profile="%s" />
-                """ % (host, name, layer.srs, layer.name, profile)
-
-        xml += """
-              </TileMaps>
-            </TileMapService>"""
-
-        return Capabilities("text/xml", xml)
-
-    def layerCapabilities (self, host, layer):
-        tms_type = layer.tms_type or "default"
-        xml = """<?xml version="1.0" encoding="UTF-8" ?>
-            <TileMap version="1.0.0" tilemapservice="%s1.0.0/">
-              <!-- Additional data: tms_type is %s -->
-              <Title>%s</Title>
-              <Abstract>%s</Abstract>
-              <SRS>%s</SRS>
-              <BoundingBox minx="%.6f" miny="%.6f" maxx="%.6f" maxy="%.6f" />
-              <Origin x="%.6f" y="%.6f" />  
-              <TileFormat width="%d" height="%d" mime-type="%s" extension="%s" />
-              <TileSets>
-            """ % (host, tms_type, layer.name, layer.description, layer.srs, layer.bbox[0], layer.bbox[1],
-                   layer.bbox[2], layer.bbox[3], layer.bbox[0], layer.bbox[1],
-                   layer.size[0], layer.size[1], layer.format(), layer.extension)
-
-        for z, res in enumerate(layer.resolutions):
-            xml += """
-                 <TileSet href="%s1.0.0/%s/%d"
-                          units-per-pixel="%.9f" order="%d" />""" % (
-                   host, layer.name, z, res, z)
-                
-        xml += """
-              </TileSets>
-            </TileMap>"""
-
-        return Capabilities("text/xml", xml)
+def import_module(name):
+    """Helper module to import any module based on a name, and return the module."""
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata")
+    __slots__ = ("layers", "cache", "metadata", "tilecache_options")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
         self.layers   = layers
         self.metadata = metadata
-    
+ 
     def _loadFromSection (cls, config, section, module, **objargs):
         type  = config.get(section, "type")
-        objclass = getattr(module, type)
         for opt in config.options(section):
-            if opt != "type":
+            if opt not in ["type", "module"]:
                 objargs[opt] = config.get(section, opt)
+        
+        object_module = None
+        
+        if config.has_option(section, "module"):
+            object_module = import_module(config.get(section, "module"))
+        else: 
+            if module is Layer:
+                type = type.replace("Layer", "")
+                object_module = import_module("TileCache.Layers.%s" % type)
+            else:
+                type = type.replace("Cache", "")
+                object_module = import_module("TileCache.Caches.%s" % type)
+        if object_module == None:
+            raise TileCacheException("Attempt to load %s failed." % type)
+        
+        section_object = getattr(object_module, type)
+        
         if module is Layer:
-            return objclass(section, **objargs)
+            return section_object(section, **objargs)
         else:
-            return objclass(**objargs)
+            return section_object(**objargs)
     loadFromSection = classmethod(_loadFromSection)
 
     def _load (cls, *files):
@@ -379,16 +80,22 @@ class Service (object):
         
         metadata = {}
         if config.has_section("metadata"):
-            for key in config.section("metadata"):
+            for key in config.options("metadata"):
                 metadata[key] = config.get("metadata", key)
-
+        
+        if config.has_section("tilecache_options"):
+            if 'path' in config.options("tilecache_options"): 
+                for path in config.get("tilecache_options", "path").split(","):
+                    sys.path.insert(0, path)
+        
         cache = cls.loadFromSection(config, "cache", Cache)
 
         layers = {}
         for section in config.sections():
             if section in cls.__slots__: continue
             layers[section] = cls.loadFromSection(
-                                    config, section, Layer, cache = cache)
+                                    config, section, Layer, 
+                                    cache = cache)
 
         return cls(cache, layers, metadata)
     load = classmethod(_load)
@@ -430,16 +137,27 @@ class Service (object):
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
+        if path_info.split(".")[-1] == "kml":
+            from TileCache.Services.KML import KML 
+            return KML(self).parse(params, path_info, host)
+            raise TileCacheException("What, you think we do KML?")
+        
         if params.has_key("service") or params.has_key("SERVICE") or \
            params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or \
            params.has_key("request") and params['request'] == "GetMap": 
+            from TileCache.Services.WMS import WMS
             tile = WMS(self).parse(params, path_info, host)
-        elif params.has_key("L") or params.has_key("l"):
+        elif params.has_key("L") or params.has_key("l") or \
+             params.has_key("request") and params['request'] == "metadata":
+            from TileCache.Services.WorldWind import WorldWind
             tile = WorldWind(self).parse(params, path_info, host)
         elif params.has_key("interface"):
+            from TileCache.Services.TileService import TileService
             tile = TileService(self).parse(params, path_info, host)
         else:
+            from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
+        
         if isinstance(tile, Layer.Tile):
             if req_method == 'DELETE':
                 self.expireTile(tile)

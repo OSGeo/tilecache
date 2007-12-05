@@ -137,6 +137,8 @@ RUNNING UNDER MOD_PYTHON
 * In this example, /var/www/tilecache is the directory resulting from
   the code extraction. If you've installed this from a Debian package, the
   location of your .cfg file is probably /etc/tilecache.cfg.
+* Edit tilecache.cfg to point to the location of your 'Layers' directory,
+  as demonstrated inside the default tilecache.cfg.
 * Visit one of the URLs described above, replacing tilecache.cgi with 
   tilecache.py
 * If you see a tile you have set up your configuration correctly. Congrats!
