@@ -59,6 +59,6 @@ class KML(TMS):
     </GroundOverlay>
     %s
   </Document>
-</kml>""" % (b[3], b[1], b[2], b[0], host, tile.layer, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links))
+</kml>""" % (b[3], b[1], b[2], b[0], host, tile.layer.name, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links))
 
         return ("text/plain", kml)
