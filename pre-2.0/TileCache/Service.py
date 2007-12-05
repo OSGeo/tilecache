@@ -354,6 +354,15 @@ class TMS (Request):
 
         return Capabilities("text/xml", xml)
 
+    
+def import_module(name):
+    """Helper module to import any module based on a name, and return the module."""
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 class Service (object):
     __slots__ = ("layers", "cache", "metadata", "tilecache_options")
 
@@ -361,27 +370,34 @@ class Service (object):
         self.cache    = cache
         self.layers   = layers
         self.metadata = metadata
-    
-    def import_module(self, name):
-        mod = __import__(name)
-        components = name.split('.')
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
-        return mod
  
-    def _loadFromSection (cls, config, section, module, choices, **objargs):
+    def _loadFromSection (cls, config, section, module, **objargs):
         type  = config.get(section, "type")
         for opt in config.options(section):
             if opt not in ["type", "module"]:
                 objargs[opt] = config.get(section, opt)
+        
+        object_module = None
+        
         if config.has_option(section, "module"):
             object_module = import_module(config.get(section, "module"))
+        else: 
+            if module is Layer:
+                type = type.replace("Layer", "")
+                object_module = import_module("TileCache.Layers.%s" % type)
+            else:
+                type = type.replace("Cache", "")
+                object_module = import_module("TileCache.Caches.%s" % type)
+           
+        if object_module == None:
+            raise TileCacheException("Attempt to load %s failed." % type)
+        
+        section_object = getattr(object_module, type)
+        
         if module is Layer:
-            type = type.replace("Layer", "")
-            return choices[type](section, **objargs)
+            return section_object(section, **objargs)
         else:
-            type = type.replace("Cache", "")
-            return choices[type](**objargs)
+            return section_object(**objargs)
     loadFromSection = classmethod(_loadFromSection)
 
     def _load (cls, *files):
@@ -393,32 +409,19 @@ class Service (object):
             for key in config.options("metadata"):
                 metadata[key] = config.get("metadata", key)
         
-        # By default, use cwd/TileCache
-        # override with [tilecache_options]\nlayers_location=/absolute/path
-        modules_loc = os.path.join(".", "TileCache")
-        
         if config.has_section("tilecache_options"):
-            if 'modules_path' in config.options("tilecache_options"): 
-                modules_loc = config.get("tilecache_options", "modules_path")
+            if 'path' in config.options("tilecache_options"): 
+                for path in config.get("tilecache_options", "path").split(","):
+                    sys.path.insert(0, path)
         
-        caches_loc = os.path.join(modules_loc, "Caches")
-        layers_loc = os.path.join(modules_loc, "Layers")
-        
-        if config.has_section("tilecache_options"):
-            if 'layers_path' in config.options("tilecache_options"): 
-                layers_loc = config.get("tilecache_options", "layers_path")
-            if 'caches_path' in config.options("tilecache_options"): 
-                caches_loc = config.get("tilecache_options", "caches_path")
-        
-        cache = cls.loadFromSection(config, "cache", Cache, 
-                                    Caches.caches(caches_loc))
+        cache = cls.loadFromSection(config, "cache", Cache)
 
         layers = {}
         for section in config.sections():
             if section in cls.__slots__: continue
             layers[section] = cls.loadFromSection(
                                     config, section, Layer, 
-                                    Layers.layers(layers_loc), cache = cache)
+                                    cache = cache)
 
         return cls(cache, layers, metadata)
     load = classmethod(_load)
