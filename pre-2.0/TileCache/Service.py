@@ -137,12 +137,18 @@ class Service (object):
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
+        if path_info.split(".")[-1] == "kml":
+            from TileCache.Services.KML import KML 
+            return KML(self).parse(params, path_info, host)
+            raise TileCacheException("What, you think we do KML?")
+        
         if params.has_key("service") or params.has_key("SERVICE") or \
            params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or \
            params.has_key("request") and params['request'] == "GetMap": 
             from TileCache.Services.WMS import WMS
             tile = WMS(self).parse(params, path_info, host)
-        elif params.has_key("L") or params.has_key("l"):
+        elif params.has_key("L") or params.has_key("l") or \
+             params.has_key("request") and params['request'] == "metadata":
             from TileCache.Services.WorldWind import WorldWind
             tile = WorldWind(self).parse(params, path_info, host)
         elif params.has_key("interface"):
