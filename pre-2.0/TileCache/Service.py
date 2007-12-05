@@ -12,7 +12,7 @@ if sys.platform == 'win32':
     workingdir = os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0])))
     cfgfiles = (os.path.join(workingdir, "tilecache.cfg"), os.path.join(workingdir,"..","tilecache.cfg"))
 else:
-    cfgfiles = ("tilecache.cfg", os.path.join("..", "tilecache.cfg"), "/etc/tilecache.cfg")
+    cfgfiles = ("/etc/tilecache.cfg", os.path.join("..", "tilecache.cfg"), "tilecache.cfg")
 
 
 class Capabilities (object):
@@ -388,7 +388,6 @@ class Service (object):
             else:
                 type = type.replace("Cache", "")
                 object_module = import_module("TileCache.Caches.%s" % type)
-           
         if object_module == None:
             raise TileCacheException("Attempt to load %s failed." % type)
         
