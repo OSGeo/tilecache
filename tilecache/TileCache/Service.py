@@ -154,6 +154,10 @@ class Service (object):
         elif params.has_key("interface"):
             from TileCache.Services.TileService import TileService
             tile = TileService(self).parse(params, path_info, host)
+        elif params.has_key("v") and \
+             (params['v'] == "mgm" or params['v'] == "mgmaps"):
+            from TileCache.Services.MGMaps import MGMaps 
+            tile = MGMaps(self).parse(params, path_info, host)
         else:
             from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
