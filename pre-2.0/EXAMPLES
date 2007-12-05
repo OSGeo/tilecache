@@ -30,3 +30,8 @@ debug=off
 type=MapnikLayer
 mapfile=/www/wms-c/osm.xml
 
+[massgis]
+type=ArcXML
+url=http://maps.massgis.state.ma.us/servlet/com.esri.esrimap.Esrimap?ServiceName=coq2005hsde_with_roads&ClientVersion=4.0
+layers=14
+bbox=218337.16112593404,889611.9317974453,248183.9359890727,914312.7109945256
