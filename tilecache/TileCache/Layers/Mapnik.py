@@ -12,7 +12,8 @@ class Mapnik(MetaLayer):
             self.fonts = []
             
     def renderTile(self, tile):
-        import mapnik, Image, StringIO
+        import mapnik, StringIO
+        import PIL.Image 
         
         if self.mapnik:
             m = self.mapnik
@@ -53,7 +54,7 @@ class Mapnik(MetaLayer):
                     
         im = mapnik.Image( *tile.size() )
         mapnik.render(m, im)
-        im = Image.fromstring('RGBA', tile.size(), mapnik.rawdata(im))
+        im = PIL.Image.fromstring('RGBA', tile.size(), mapnik.rawdata(im))
         buffer = StringIO.StringIO()
         im.save(buffer, self.extension)
         buffer.seek(0)
