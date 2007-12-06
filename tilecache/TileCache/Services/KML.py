@@ -40,7 +40,7 @@ class KML(TMS):
   <Document>
     <Region>
       <Lod>
-        <minLodPixels>128</minLodPixels><maxLodPixels>-1</maxLodPixels>
+        <minLodPixels>128</minLodPixels><maxLodPixels>512</maxLodPixels>
       </Lod>
       <LatLonAltBox>
         <north>%s</north><south>%s</south>
@@ -48,7 +48,7 @@ class KML(TMS):
       </LatLonAltBox>
     </Region>
     <GroundOverlay>
-      <drawOrder>5</drawOrder>
+      <drawOrder>%s</drawOrder>
       <Icon>
         <href>%s/1.0.0/%s/%s/%s/%s</href>
       </Icon>
@@ -59,6 +59,6 @@ class KML(TMS):
     </GroundOverlay>
     %s
   </Document>
-</kml>""" % (b[3], b[1], b[2], b[0], host, tile.layer.name, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links))
+</kml>""" % (b[3], b[1], b[2], b[0], tile.z, host, tile.layer.name, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links))
 
-        return ("text/plain", kml)
+        return ("application/vnd.google-earth.kml+xml", kml)
