@@ -1,5 +1,5 @@
 from TileCache.Cache import Cache
-import sys, os
+import sys, os, time
 
 class Disk (Cache):
     def __init__ (self, base = None, umask = '002', **kwargs):

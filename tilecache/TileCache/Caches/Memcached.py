@@ -1,4 +1,5 @@
 from TileCache.Cache import Cache
+import time
 
 class Memcached(Cache):
     def __init__ (self, servers = ['127.0.0.1:11211'], **kwargs):
