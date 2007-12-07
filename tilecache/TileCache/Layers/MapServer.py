@@ -6,7 +6,9 @@ class MapServer(MetaLayer):
         self.mapfile = mapfile
         self.styles = styles
 
-    def renderTile(self, tile):
+    def get_map(self, tile):
+        # tile is unused here but might be used in a subclass
+        # where the mapfile config depends on the tile extents or layer
         import mapscript
         wms = mapscript.mapObj(self.mapfile) 
         if self.metaBuffer:
@@ -19,6 +21,10 @@ class MapServer(MetaLayer):
                 # cut even though the label that the shield is on isn't.
                 buffer = -self.metaBuffer - 5
                 wms.setMetaData("labelcache_map_edge_buffer", str(buffer))
+        return wms
+
+    def get_request(self, tile):
+        import mapscript
         req = mapscript.OWSRequest()
         req.setParameter("bbox", tile.bbox())
         req.setParameter("width", str(tile.size()[0]))
@@ -28,6 +34,11 @@ class MapServer(MetaLayer):
         req.setParameter("layers", self.layers)
         req.setParameter("styles", self.styles)
         req.setParameter("request", "GetMap")
+        return req
+
+    def renderTile(self, tile):
+        wms = self.get_map(tile)
+        req = self.get_request(tile)
         wms.loadOWSParameters(req)
         mapImage = wms.draw()
         tile.data = mapImage.getBytes()
