@@ -1,3 +1,7 @@
+tilecache (2.0) unstable; urgency=low
+  * Refactor TileCache to support drop in plugins for just about everything.
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Wed,  5 Dec 2007 21:03:56 -0800
+
 tilecache (1.9) unstable; urgency=low
   * Fix longstanding bug which made some non-geographic projections difficult
     to create tiles with
