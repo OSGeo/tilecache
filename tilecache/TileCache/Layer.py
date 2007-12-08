@@ -37,19 +37,19 @@ class MetaTile (Tile):
 
     def size (self):
         actual = self.actualSize()
-        return ( actual[0] + self.layer.metaBuffer * 2, 
-                 actual[1] + self.layer.metaBuffer * 2 )
+        return ( actual[0] + self.layer.metaBuffer[0] * 2, 
+                 actual[1] + self.layer.metaBuffer[1] * 2 )
 
     def bounds (self):
         tilesize   = self.actualSize()
         res        = self.layer.resolutions[self.z]
-        buffer     = res * self.layer.metaBuffer
+        buffer     = (res * self.layer.metaBuffer[0], res * self.layer.metaBuffer[1])
         metaWidth  = res * tilesize[0]
         metaHeight = res * tilesize[1]
-        minx = self.layer.bbox[0] + self.x * metaWidth  - buffer
-        miny = self.layer.bbox[1] + self.y * metaHeight - buffer
-        maxx = minx + metaWidth  + 2 * buffer
-        maxy = miny + metaHeight + 2 * buffer
+        minx = self.layer.bbox[0] + self.x * metaWidth  - buffer[0]
+        miny = self.layer.bbox[1] + self.y * metaHeight - buffer[1]
+        maxx = minx + metaWidth  + 2 * buffer[0]
+        maxy = miny + metaHeight + 2 * buffer[1]
         return (minx, miny, maxx, maxy)
 
 class Layer (object):
@@ -180,13 +180,15 @@ class Layer (object):
 class MetaLayer (Layer):
     __slots__ = ('metaTile', 'metaSize', 'metaBuffer')
     def __init__ (self, name, metatile = "", metasize = (5,5),
-                              metabuffer = 10, **kwargs):
+                              metabuffer = (10,10), **kwargs):
         Layer.__init__(self, name, **kwargs)
         self.metaTile    = metatile.lower() in ("true", "yes", "1")
         if isinstance(metasize, str):
             metasize = map(int,metasize.split(","))
         if isinstance(metabuffer, str):
-            metabuffer = int(metabuffer)
+            metabuffer = map(int, metabuffer.split(","))
+            if len(metabuffer) == 1:
+                metabuffer = (metabuffer[0], metabuffer[0])
         self.metaSize    = metasize
         self.metaBuffer  = metabuffer
 
@@ -208,13 +210,13 @@ class MetaLayer (Layer):
         image = Image.open( StringIO.StringIO(data) )
 
         metaCols, metaRows = self.getMetaSize(metatile.z)
-        metaHeight = metaRows * self.size[1] + 2 * self.metaBuffer
+        metaHeight = metaRows * self.size[1] + 2 * self.metaBuffer[1]
         for i in range(metaCols):
             for j in range(metaRows):
-                minx = i * self.size[0] + self.metaBuffer
+                minx = i * self.size[0] + self.metaBuffer[0]
                 maxx = minx + self.size[0]
                 ### this next calculation is because image origin is (top,left)
-                maxy = metaHeight - (j * self.size[1] + self.metaBuffer)
+                maxy = metaHeight - (j * self.size[1] + self.metaBuffer[1])
                 miny = maxy - self.size[1]
                 subimage = image.crop((minx, miny, maxx, maxy))
                 buffer = StringIO.StringIO()
