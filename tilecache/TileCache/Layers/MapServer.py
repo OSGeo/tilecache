@@ -19,7 +19,7 @@ class MapServer(MetaLayer):
                 # We stick an extra buffer of 5px in there because in the case
                 # of shields, we want to account for when the shield could get
                 # cut even though the label that the shield is on isn't.
-                buffer = -self.metaBuffer - 5
+                buffer = -max(self.metaBuffer[0], self.metaBuffer[1]) - 5
                 wms.setMetaData("labelcache_map_edge_buffer", str(buffer))
         return wms
 
