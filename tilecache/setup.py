@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='TileCache',
-      version='1.9',
+      version='2.0',
       description='a web map tile caching system',
       author='MetaCarta Labs',
       author_email='labs+tilecache@metacarta.com',
