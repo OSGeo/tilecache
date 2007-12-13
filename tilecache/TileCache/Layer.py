@@ -57,14 +57,14 @@ class Layer (object):
                   "size", "resolutions", "extension", "srs",
                   "cache", "debug", "description", 
                   "watermarkimage", "watermarkopacity",
-                  "extent_type", "tms_type")
+                  "extent_type", "tms_type", "units")
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
                         extension = "png", cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
-                        extent_type = "strict", tms_type = "" ):
+                        extent_type = "strict", units = None, tms_type = "" ):
         self.name   = name
         self.description = description
         self.layers = layers or name
@@ -72,6 +72,7 @@ class Layer (object):
         self.bbox = bbox
         if isinstance(size, str): size = map(int,size.split(","))
         self.size = size
+        self.units = units
         self.srs  = srs
         if extension.lower() == 'jpg': extension = 'jpeg' # MIME
         self.extension = extension.lower()

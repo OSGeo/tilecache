@@ -142,7 +142,10 @@ class Service (object):
             return KML(self).parse(params, path_info, host)
             raise TileCacheException("What, you think we do KML?")
         
-        if params.has_key("service") or params.has_key("SERVICE") or \
+        if params.has_key("scale") or params.has_key("SCALE"): 
+            from TileCache.Services.WMTS import WMTS
+            tile = WMTS(self).parse(params, path_info, host)
+        elif params.has_key("service") or params.has_key("SERVICE") or \
            params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or \
            params.has_key("request") and params['request'] == "GetMap": 
             from TileCache.Services.WMS import WMS
