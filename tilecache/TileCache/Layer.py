@@ -62,7 +62,7 @@ class Layer (object):
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
-                        extension = "png", cache = None,  debug = True, 
+                        extension = "png", mime_type = None, cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
                         extent_type = "strict", units = None, tms_type = "" ):
         self.name   = name
@@ -76,6 +76,7 @@ class Layer (object):
         self.srs  = srs
         if extension.lower() == 'jpg': extension = 'jpeg' # MIME
         self.extension = extension.lower()
+        self.mime_type = mime_type or self.format() 
         if isinstance(debug, str):
             debug = debug.lower() not in ("false", "off", "no", "0")
         self.cache = cache

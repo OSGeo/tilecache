@@ -123,7 +123,7 @@ class Service (object):
                 "Cache hit: %s, Tile: x: %s, y: %s, z: %s, time: %s, debug: %s\n" % (
                     tile.bbox(), tile.x, tile.y, tile.z, (time.time() - start), layer.debug) )
         
-        return (layer.format(), image)
+        return (layer.mime_type, image)
 
     def expireTile (self, tile):
         bbox  = tile.bounds()
