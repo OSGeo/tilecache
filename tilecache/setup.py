@@ -33,5 +33,6 @@ setup(name='TileCache',
                'tilecache_clean.py', 'tilecache_http_server.py'],
       data_files=[('/etc', ['tilecache.cfg'])],
       zip_safe=False,
+      test_suite = 'tests.run_doc_tests',
       license="BSD"
      )
