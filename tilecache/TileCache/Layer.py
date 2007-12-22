@@ -57,7 +57,7 @@ class Layer (object):
                   "size", "resolutions", "extension", "srs",
                   "cache", "debug", "description", 
                   "watermarkimage", "watermarkopacity",
-                  "extent_type", "tms_type", "units")
+                  "extent_type", "tms_type", "units", "mime_type")
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
