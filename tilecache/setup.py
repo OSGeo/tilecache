@@ -17,14 +17,13 @@ classifiers = [
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering :: GIS',
-        
 ]
 
 setup(name='TileCache',
       version='2.0',
       description='a web map tile caching system',
       author='MetaCarta Labs',
-      author_email='labs+tilecache@metacarta.com',
+      author_email='tilecache@openlayers.org',
       url='http://tilecache.org/',
       long_description=readme,
       packages=['TileCache', 'TileCache.Caches', 'TileCache.Services', 'TileCache.Layers'],
