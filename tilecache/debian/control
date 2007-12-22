@@ -1,7 +1,7 @@
 Source: tilecache
 Section: contrib/web
 Priority: extra
-Maintainer: MetaCarta Labs <labs+tilecache@metacarta.com>
+Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
 Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3)
 Standards-Version: 3.7.2
 
