@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # This code is downloaded as part of the "Amazon S3 Library for REST in Python"
 # http://developer.amazonwebservices.com/connect/entry.jspa?externalID=134&categoryID=47
 # It is taken verbatim from that download.
