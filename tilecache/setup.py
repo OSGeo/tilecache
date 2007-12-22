@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+
 try:
     from setuptools import setup
 except:
@@ -19,6 +21,16 @@ classifiers = [
         'Topic :: Scientific/Engineering :: GIS',
 ]
 
+# We'd like to let debian install the /etc/tilecache.cfg,
+# but put them in tilecache/tilecache.cfg using setuptools
+# otherwise. 
+extra = { }
+if "--debian" in sys.argv:
+   extra['data_files']=[('/etc', ['tilecache.cfg'])]
+   sys.argv.remove("--debian")
+else:
+   extra['data_files']=[('TileCache', ['tilecache.cfg'])]
+    
 setup(name='TileCache',
       version='2.0',
       description='a web map tile caching system',
@@ -28,10 +40,10 @@ setup(name='TileCache',
       long_description=readme,
       packages=['TileCache', 'TileCache.Caches', 'TileCache.Services', 'TileCache.Layers'],
       scripts=['tilecache.cgi', 'tilecache.fcgi',
-               'tilecache_seed.py',
+               'tilecache_seed.py', 'tilecache_install_config.py', 
                'tilecache_clean.py', 'tilecache_http_server.py'],
-      data_files=[('/etc', ['tilecache.cfg'])],
       zip_safe=False,
       test_suite = 'tests.run_doc_tests',
-      license="BSD"
+      license="BSD",
+      **extra 
      )

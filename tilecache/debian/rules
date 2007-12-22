@@ -32,13 +32,14 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tilecache.
-	python ./setup.py install --no-compile --root=$(PREFIX) --install-lib=$(PYSUPPORT)
+	python ./setup.py install --debian --no-compile --root=$(PREFIX) --install-lib=$(PYSUPPORT)
 
 	# eliminates script-not-executable warning from lintian
 	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
 	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
 
-	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin
+	rm $(PREFIX)/usr/bin/tilecache_install_config.py # only used for eggs
+	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
 	mv $(PREFIX)/usr/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
 	mv $(PREFIX)/usr/bin/tilecache_clean.py $(PREFIX)/usr/sbin/tilecache_clean
 	mv $(PREFIX)/usr/bin/tilecache_http_server.py $(PREFIX)/usr/sbin/tilecache_http_server
