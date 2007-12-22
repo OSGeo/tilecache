@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+# This example code demonstrates how you can construct
+# a custom service as an alternative to the config file.
+# This allows you to, for example, determine what layers to
+# load based on request parameters or something similar --
+# the config file based loading technique is handy, but 
+# probably doesn't solve all problems.
+
 from TileCache.Service import Service, modPythonHandler, cgiHandler
 from TileCache.Cache import DiskCache
 import TileCache.Layers.WMS as WMS
