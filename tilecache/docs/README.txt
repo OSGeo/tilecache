@@ -20,29 +20,39 @@ TileCache is a BSD licensed tile caching mechanism.  The goal is to make it
 easy to set up a WMS or TMS frontend to any backend data services you might be
 interested in, using a pluggable caching and rendering mechanism. 
 
-This package implements the WMS-C server recommendation as defined by
-http://wiki.osgeo.org/index.php/WMS_Tiling_Client_Recommendation, and the
-Tiled Map Service specification available at
-http://wiki.osgeo.org/index.php/Tile_Map_Service_Specification.
-
-TileCache will run under Python CGI or mod_python. 
-
-Backend rendering can be powered by remote, or cascading, WMS requests, or by
-MapServer rendering via python-mapscript. Support for other rendering engines
-can be added with the implementation of a single function.
-
-Caches can be maintained on disk, or via the memcached memory-based LRU
-caching daemon.
-
 TileCache was developed by MetaCarta Labs and released to the public under a
-BSD license. For updates on tools released by MetaCarta Labs, you can subscribe
-to the Labs Announce list, available at
-http://labs.metacarta.com/mailman/listinfo/announce. 
+BSD license.
 
 The TileCache was designed as a companion to OpenLayers, the BSD licensed web
-mapping interface. For help with setting up TileCache for use with OpenLayers,
-please feel free to stop by #openlayers, on irc.freenode.net, or to send email
-to labs@metacarta.com.
+mapping interface. If you are using TileCache with OpenLayers, please read the
+section of this readme which describes how to do so. For additional help with
+setting up TileCache for use with OpenLayers, please feel free to stop by
+#openlayers, on irc.freenode.net, or to send email to
+tilecache@openlayers.org. 
+
+INSTALLING TILECACHE
+====================
+
+Generally, installing TileCache is as simple as downloading a source
+distribution and unpacking it. For installation systemwide, you can also use
+the Python Package Index (aka pypi or Cheeseshop) to install TileCache. Simply
+type easy_install TileCache. Once this is done, you will need to install the
+TileCache configuration file. A tool to do this is installed, called
+tilecache_install_config.py. A full installation likely looks like::
+  
+  $ sudo easy_install TileCache
+  ...
+  Installed
+  /usr/lib/python2.5/site-packages/TileCache-2.0-py2.5.egg
+  
+  $ sudo tilecache_install_config.py
+  Successfully copied file
+  /usr/lib/python2.5/site-packages/TileCache-2.0-py2.5.egg/TileCache/tilecache.cfg
+  to /etc/tilecache.cfg.
+  
+TileCache is also available as a Debian package from the TileCache homepage.
+This Debian package is designed to install on Debian etch releases or later.
+This Debian package should install on Ubuntu Feisty or Gutsy.  
 
 RUNNING UNDER CGI
 =================
@@ -385,13 +395,13 @@ An example with zoom levels 5 through 12 would be like;
 
     ::
  
-      $ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "-118.12500,31.952162238,-116.015625,34.3071438563"
+      $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "-118.12500,31.952162238,-116.015625,34.3071438563"
 
 The bbox can be dropped and defaults to world lonlat(-180,-90,180,90):
 
     ::
 
-      $ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
+      $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
  
 
 In center point/radius mode, the zoom level range is not specifiable from the
@@ -399,7 +409,7 @@ command-line. An example usage might look like:
 
      ::
 
-       $ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
+       $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
        -118.12500,31.952162238,0.05
        -121.46327,32.345345645,0.08
        <Ctrl+D>
