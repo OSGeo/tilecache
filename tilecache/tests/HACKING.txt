@@ -92,26 +92,19 @@ the layer with a bounding box.
 
 This fails, because it's not an exact tile:
 
+>>> import TileCache
 >>> l.debug = False
->>> cell = l.getCell((-180, -90.0, 0, 85))
->>> l.debug = True
->>> cell == None
-True
-
-However, this succeeds, because the 'exact' parameter is set to 'False', 
-so calculations are rounded to the nearest cell:
- 
->>> cell = l.getCell((-180, -90.0, 0, 85), exact=False)
->>> cell
-(0, 0, 0)
-
+>>> try:
+...    cell = l.getCell((-180, -90.0, 0, 85))
+... except TileCache.TileCacheException:
+...    print "Failed"
+Failed
 
 Tiles 
 =====
 Tiles store information about where in the world you are requesting, based
 on the layer and x,y,z information. Tiles give access to X, Y, and Z value, as 
 well as a bounds() and bbox() method.
-
 
 >>> from TileCache.Layer import Tile 
 >>> t = Tile(l, x=1, y=2, z=3)

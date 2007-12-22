@@ -7,8 +7,7 @@ import unittest
 import glob
 import os
 
-optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
-               doctest.NORMALIZE_WHITESPACE |
+optionflags = (doctest.NORMALIZE_WHITESPACE |
                doctest.ELLIPSIS)
 
 def list_doctests():
