@@ -1,4 +1,0 @@
-
- >>> import TileCache.Service
- >>> dir(TileCache.Service)
- ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__', '_load', '_loadFromSection', 'cache', 'dispatchRequest', 'expireTile', 'layers', 'load', 'loadFromSection', 'metadata', 'renderTile', 'tilecache_options']
