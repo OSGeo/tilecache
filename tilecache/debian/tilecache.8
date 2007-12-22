@@ -1,6 +1,6 @@
 
 .\" Man page generated from reStructeredText.
-.TH tilecache 8 "2007-04-05" "1.6" "GIS Utilities"
+.TH tilecache 8 "2007-12-22" "2.0" "GIS Utilities"
 .SH NAME
 tilecache \- Cache and serve map tiles
 
@@ -9,29 +9,40 @@ TileCache is a BSD licensed tile caching mechanism.  The goal is to make it
 easy to set up a WMS or TMS frontend to any backend data services you might be
 interested in, using a pluggable caching and rendering mechanism.
 
-This package implements the WMS\-C server recommendation as defined by
-http://wiki.osgeo.org/index.php/WMS_Tiling_Client_Recommendation, and the
-Tiled Map Service specification available at
-http://wiki.osgeo.org/index.php/Tile_Map_Service_Specification.
-
-TileCache will run under Python CGI or mod_python.
-
-Backend rendering can be powered by remote, or cascading, WMS requests, or by
-MapServer rendering via python\-mapscript. Support for other rendering engines
-can be added with the implementation of a single function.
-
-Caches can be maintained on disk, or via the memcached memory\-based LRU
-caching daemon.
-
 TileCache was developed by MetaCarta Labs and released to the public under a
-BSD license. For updates on tools released by MetaCarta Labs, you can subscribe
-to the Labs Announce list, available at
-http://labs.metacarta.com/mailman/listinfo/announce.
+BSD license.
 
 The TileCache was designed as a companion to OpenLayers, the BSD licensed web
-mapping interface. For help with setting up TileCache for use with OpenLayers,
-please feel free to stop by #openlayers, on irc.freenode.net, or to send email
-to labs@metacarta.com.
+mapping interface. If you are using TileCache with OpenLayers, please read the
+section of this readme which describes how to do so. For additional help with
+setting up TileCache for use with OpenLayers, please feel free to stop by
+#openlayers, on irc.freenode.net, or to send email to
+tilecache@openlayers.org.
+
+
+.SH INSTALLING TILECACHE
+Generally, installing TileCache is as simple as downloading a source
+distribution and unpacking it. For installation systemwide, you can also use
+the Python Package Index (aka pypi or Cheeseshop) to install TileCache. Simply
+type easy_install TileCache. Once this is done, you will need to install the
+TileCache configuration file. A tool to do this is installed, called
+tilecache_install_config.py. A full installation likely looks like:
+
+
+.nf
+$ sudo easy_install TileCache
+...
+Installed
+/usr/lib/python2.5/site\-packages/TileCache\-2.0\-py2.5.egg
+
+$ sudo tilecache_install_config.py
+Successfully copied file
+/usr/lib/python2.5/site\-packages/TileCache\-2.0\-py2.5.egg/TileCache/tilecache.cfg
+to /etc/tilecache.cfg.
+.fi
+TileCache is also available as a Debian package from the TileCache homepage.
+This Debian package is designed to install on Debian etch releases or later.
+This Debian package should install on Ubuntu Feisty or Gutsy.
 
 
 .SH RUNNING UNDER CGI
@@ -53,7 +64,7 @@ by default.
 \(bu
 Permit CGI execution in the TileCache directory.
 For example, if TileCache is to be run with Apache, the
-following must be added in your Apache configuration,   
+following must be added in your Apache configuration,
 where /var/www/tilecache is the directory resulting from
 the code extraction. On Debian, this is typically /usr/lib/cgi\-bin.
 
@@ -105,7 +116,7 @@ Under Apache, you might see an error message like:
 .\" visit_block_quote
 
 .nf
-[Wed Mar 14 19:55:30 2007] [error] [client 127.0.0.1] (2)No such file or 
+[Wed Mar 14 19:55:30 2007] [error] [client 127.0.0.1] (2)No such file or
   directory: exec of \'/www/tilecache.cgi\' failed
 .fi
 
@@ -115,7 +126,7 @@ to indicate this problem.
 You can typically locate where Python is installed on your system via the
 command which python.
 
-Windows users: If you are using Windows, you should change the first line 
+Windows users: If you are using Windows, you should change the first line
 of tilecache.cgi to read:
 
 
@@ -126,7 +137,7 @@ of tilecache.cgi to read:
 .fi
 
 .\" depart_block_quote
-C:/Python should match the location Python is installed under on your 
+C:/Python should match the location Python is installed under on your
 system. In Python 2.5, this location is C:/Python25 by default.
 
 
@@ -151,7 +162,7 @@ Add the following to your Apache configuration, under a <Directory> heading:
 
 .nf
 AddHandler python\-program .py
-PythonHandler TileCache.Service 
+PythonHandler TileCache.Service
 PythonOption TileCacheConfig /path/to/tilecache.cfg
 .fi
 
@@ -163,7 +174,7 @@ An example might look like:
 .nf
 <Directory /var/www/tilecache/>
     AddHandler python\-program .py
-    PythonHandler TileCache.Service 
+    PythonHandler TileCache.Service
     PythonOption TileCacheConfig /var/www/tilecache/tilecache.cfg
 </Directory>
 .fi
@@ -177,7 +188,13 @@ location of your .cfg file is probably /etc/tilecache.cfg.
 
 .TP 2
 \(bu
-Visit one of the URLs described above, replacing tilecache.cgi with 
+Edit tilecache.cfg to point to the location of your \'Layers\' directory,
+as demonstrated inside the default tilecache.cfg.
+
+
+.TP 2
+\(bu
+Visit one of the URLs described above, replacing tilecache.cgi with
 tilecache.py
 
 
@@ -199,7 +216,7 @@ http://cheeseshop.python.org/pypi/Paste
 
 
 .\" depart_block_quote
-For versions of Python earlier than 2.5, you will also need to install 
+For versions of Python earlier than 2.5, you will also need to install
 wsgiref:
 
 
@@ -233,7 +250,7 @@ to see your first tile.
 
 
 .SH RUNNING UNDER FASTCGI
-TileCache as of version 1.4 comes with a fastcgi implementation. In 
+TileCache as of version 1.4 comes with a fastcgi implementation. In
 order to use this implementation, you will need to install flup, available
 from:
 
@@ -243,7 +260,7 @@ http://trac.saddi.com/flup
 
 
 .\" depart_block_quote
-This implementation also depends on Python Paste, which can be downloaded 
+This implementation also depends on Python Paste, which can be downloaded
 from:
 
 
@@ -287,6 +304,17 @@ Edit tilecache.cgi to specify your configuration file explicitly:
 .nf
 svc = Service.load("C:\\TileCache\\tilecache.cfg")
 .fi
+When using Tilecache with TMS style requests, you will need to change your
+IIS configuration to allow PATH_INFO to be delivered to the CGI script.
+http://support.microsoft.com/kb/q184320/ provides information on this
+topic. If you do not do this, you will get an error message like:
+
+
+.\" visit_block_quote
+"The requested layer (tilecache.cgi) does not exist."
+
+
+.\" depart_block_quote
 
 .SH CONFIGURATION
 TileCache is configured by a config file, defaulting to tilecache.cfg.
@@ -298,7 +326,7 @@ to all layers:
 
 .TP
 .B bbox
-The bounding box of the Layer. The resolutions array defaults 
+The bounding box of the Layer. The resolutions array defaults
 to having resolutions which are equal to the bbox divided by
 512 (two standard tiles).
 
@@ -311,7 +339,7 @@ can be set to "no"
 
 .TP
 .B description
-Layer description, used in some metadata responses. Default 
+Layer description, used in some metadata responses. Default
 is blank.
 
 
@@ -325,14 +353,14 @@ WMS servers, as well as when writing cache files.
 .B layers
 A string used to describe the layers. Typically passed directly
 to the renderer. The WMSLayer sends this in the HTTP request,
-and the MapServerLayer chooses which layer to render based on 
+and the MapServerLayer chooses which layer to render based on
 this string. If no layer is provided, the layer name is used
 to fill this property.
 
 
 .TP
 .B levels
-An integer, describing the number of \'zoom levels\' or 
+An integer, describing the number of \'zoom levels\' or
 scales to support. Overridden by resolutions, if passed.
 
 
@@ -365,7 +393,7 @@ in various map renderers. Defaults to 10.
 
 .TP
 .B metaSize
-A comma seperated pair of integers, which is used to 
+A comma seperated pair of integers, which is used to
 determine how many tiles should be rendered when using
 metaTiling. Default is 5,5.
 
@@ -389,13 +417,43 @@ String describing the SRS value. Default is "EPSG:4326"
 
 .TP
 .B type
-The type of layer. Options are: WMSLayer, MapnikLayer, MapServerLayer, ImageLayer
+The type of layer. Options are: WMSLayer, MapnikLayer, MapServerLayer,
+ImageLayer
 
 
 .TP
 .B url
 URL to use when requesting images from a remote WMS server. Required
 for WMSLayer.
+
+
+.TP
+.B watermarkImage
+The watermarkImage parameter is assigned on a per\-layer basis.
+This is a fully qualified path to an image you would like to apply to each
+tile. We recommend you use a watermark image the same size as your tiles.
+If using the default tile size, you should use a 256x256 image.
+NOTE: Python Imaging Library DOES NOT support interlaced images.
+
+
+.TP
+.B watermarkOpacity
+The watermarkOpacity parameter is assigned on a per\-layer basis.
+This configures the opacity of the watermark over the tile, it is a floating
+point number between 0 and 1. Usage is optional and will otherwise default.
+
+
+.TP
+.B extent_type
+Setting this to \'loose\' will allow TileCache to generate tiles outside the
+maximum bounding box. Useful for clients that don\'t know when to stop
+asking for tiles.
+
+
+.TP
+.B tms_type
+Setting this to "google" will cause tiles to switch vertical order (that
+is, following the Google style x/y pattern).
 
 
 .\" depart_block_quote
@@ -415,12 +473,22 @@ TileCache with the standalone HTTP Server or FastCGI.
 
 The most important thing to do is to ensure that the OpenLayers Layer
 has the same resolutions and bounding box as your TileCache layer. You can define
-the resolutions in OpenLayers via the \'resolutions\' option or the \'maxResolution\' 
+the resolutions in OpenLayers via the \'resolutions\' option or the \'maxResolution\'
 option on the layer. The maxExtent should be defined to match the bbox parameter
 of the TileCache layer.
 
 If you are using TileCache for overlays, you should set the \'reproject\' option
 on the layer to \'false\'.
+
+
+.SH USING TILECACHE WITH MAPSERVER
+MapServer has a map level metadata option, labelcache_map_edge_buffer, which
+is set automatically by TileCache to the metaBuffer plus five when metaTiling
+is on, if it is not set in the mapfile.
+
+If you are using MetaTiling, be aware that MapServer generates interlaced
+PNG files, which PIL will not read. See
+http://mapserver.gis.umn.edu/docs/faq/pil_mapscript on how to resolve this.
 
 
 .SH SEEDING YOUR TILECACHE
@@ -447,7 +515,7 @@ http://example.com/yourdir/tilecache.py
 
 
 .TP
-.B layer 
+.B layer
 same layer name that is in the tilecache.cfg
 
 
@@ -470,7 +538,7 @@ The bounding box to seed
 
 .SS Seeding by center point and radius
 If called without zoom level arguments, tilecache_seed.py will assume
-that it needs to read a list of points and radii from standard input, 
+that it needs to read a list of points and radii from standard input,
 in the form:
 
 
@@ -478,7 +546,7 @@ in the form:
 
 .nf
 <lat>,<lon>,<radius>
-<lat>,<lon>,<radius> 
+<lat>,<lon>,<radius>
 <lat>,<lon>,<radius>
 <lat>,<lon>,<radius>
 <ctrl + d>
@@ -514,7 +582,7 @@ An example with zoom levels 5 through 12 would be like;
 .\" visit_block_quote
 
 .nf
-$ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "\-118.12500,31.952162238,\-116.015625,34.3071438563"
+$ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "\-118.12500,31.952162238,\-116.015625,34.3071438563"
 .fi
 
 .\" depart_block_quote
@@ -524,7 +592,7 @@ The bbox can be dropped and defaults to world lonlat(\-180,\-90,180,90):
 .\" visit_block_quote
 
 .nf
-$ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
+$ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
 .fi
 
 .\" depart_block_quote
@@ -535,7 +603,7 @@ command\-line. An example usage might look like:
 .\" visit_block_quote
 
 .nf
-$ tilecache_client.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
+$ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
 \-118.12500,31.952162238,0.05
 \-121.46327,32.345345645,0.08
 <Ctrl+D>
@@ -610,6 +678,17 @@ filesystems use entire file blocks for files smaller than a block, running du
 cache size larger than you expect.
 
 
+.SH TROUBLESHOOTING
+Occasionally, for some reason, when using meta tiles, your server may leave
+behind lock files. If this happens, there will be files in your cache directory
+with the extension \'.lck\'. If you are seeing tiles not render and taking
+multiple minutes before returning a 500 error, you may be suffering under
+a stuck lock.
+
+Removing all files with extension \'.lck\' from the cache directory will
+resolve this problem.
+
+
 .SH SEE ALSO
 memcached(8)
 
@@ -629,5 +708,5 @@ labs@metacarta.com
 (c) 2006-2007 MetaCarta, Inc.
 Distributed under the BSD license.
 
-.\" Generated by docutils manpage writer on 2007-04-05 17:54.
+.\" Generated by docutils manpage writer on 2007-12-22 18:53.
 .\" 
