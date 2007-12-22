@@ -1,7 +1,7 @@
-EXAMPLES
-CONTRIBUTORS
-Example.py
-HACKING
-MANIFEST
-README
+docs/EXAMPLES.txt
+docs/CONTRIBUTORS.txt
+docs/Example.py
+docs/MANIFEST.txt
+docs/README.txt
+tests/HACKING.txt
 index.html
