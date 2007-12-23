@@ -2,7 +2,7 @@ Source: tilecache
 Section: contrib/web
 Priority: extra
 Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
-Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3)
+Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3), sed
 Standards-Version: 3.7.2
 
 Package: tilecache
