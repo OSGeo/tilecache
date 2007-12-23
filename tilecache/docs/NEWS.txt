@@ -1,3 +1,6 @@
+tilecache-next,  ??
+ * Add Amazon S3 Cache support.
+
 tilecache-2.0, Sat, 22 Dec 2007 23:35:03 -0500
  * Refactor TileCache to support drop in plugins for just about everything.
  * Upated TileCache release with KML SuperOverlay support
