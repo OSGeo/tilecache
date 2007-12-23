@@ -45,5 +45,6 @@ setup(name='TileCache',
       zip_safe=False,
       test_suite = 'tests.run_doc_tests',
       license="BSD",
+      classifiers=classifiers, 
       **extra 
      )
