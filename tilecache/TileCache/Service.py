@@ -74,28 +74,33 @@ class Service (object):
     loadFromSection = classmethod(_loadFromSection)
 
     def _load (cls, *files):
-        config = ConfigParser.ConfigParser()
-        config.read(files)
-        
+        cache = None
         metadata = {}
-        if config.has_section("metadata"):
-            for key in config.options("metadata"):
-                metadata[key] = config.get("metadata", key)
-        
-        if config.has_section("tilecache_options"):
-            if 'path' in config.options("tilecache_options"): 
-                for path in config.get("tilecache_options", "path").split(","):
-                    sys.path.insert(0, path)
-        
-        cache = cls.loadFromSection(config, "cache", Cache)
-
         layers = {}
-        for section in config.sections():
-            if section in cls.__slots__: continue
-            layers[section] = cls.loadFromSection(
-                                    config, section, Layer, 
-                                    cache = cache)
+        try:
+            config = ConfigParser.ConfigParser()
+            config.read(files)
+            
+            if config.has_section("metadata"):
+                for key in config.options("metadata"):
+                    metadata[key] = config.get("metadata", key)
+            
+            if config.has_section("tilecache_options"):
+                if 'path' in config.options("tilecache_options"): 
+                    for path in config.get("tilecache_options", "path").split(","):
+                        sys.path.insert(0, path)
+            
+            cache = cls.loadFromSection(config, "cache", Cache)
 
+            layers = {}
+            for section in config.sections():
+                if section in cls.__slots__: continue
+                layers[section] = cls.loadFromSection(
+                                        config, section, Layer, 
+                                        cache = cache)
+        except Exception, E:
+            metadata['exception'] = E
+            metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
         return cls(cache, layers, metadata)
     load = classmethod(_load)
 
@@ -136,6 +141,9 @@ class Service (object):
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
+        if self.metadata.has_key('exception'):
+            raise TileCacheException("%s\n%s" % (self.metadata['exception'], self.metadata['traceback']))
+        
         if path_info.split(".")[-1] == "kml":
             from TileCache.Services.KML import KML 
             return KML(self).parse(params, path_info, host)
