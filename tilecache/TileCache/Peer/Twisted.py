@@ -1,4 +1,3 @@
-# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 from Swarm import Message, Client
 from twisted.internet.protocol import DatagramProtocol
 from twisted.web import getPage
