@@ -2,8 +2,9 @@ Source: tilecache
 Section: contrib/web
 Priority: extra
 Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
-Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3), sed
-Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3), python-setuptools
+Standards-Version: 3.7.3
+Homepage: http://tilecache.org/
 
 Package: tilecache
 Architecture: all
@@ -21,4 +22,3 @@ Description: a web map tile caching system
  server, and use the result in any WMS-C supporting client, like OpenLayers,
  or any TMS supporting client, like OpenLayers and worldKit.
  .
- Homepage: http://tilecache.org/

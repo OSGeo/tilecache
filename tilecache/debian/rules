@@ -14,15 +14,13 @@ build-stamp:
 	dh_testdir
 	# Add here commands to compile the package.
 	sed -e 's!tilecache\.cgi!/cgi-bin/tilecache.cgi!' ./index.html > ./cgi-example.html
+	python ./setup.py test 
 	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp cgi-example.html
-
-	# Add here commands to clean up after the build process.
-	# -$(MAKE) clean
 
 	dh_clean *.pyc lib/TileCache/*.pyc
 
@@ -50,7 +48,7 @@ install: build
 binary-indep: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs docs/CHANGELOG.txt
+	dh_installchangelogs docs/NEWS.txt
 	dh_installdocs
 	dh_installexamples
 	dh_installman
@@ -64,5 +62,6 @@ binary-indep: build install
 	dh_builddeb
 
 binary: binary-indep
-
+binary-arch:
+	true
 .PHONY: build clean binary-indep binary install
