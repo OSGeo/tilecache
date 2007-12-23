@@ -36,6 +36,7 @@ install: build
 	# eliminates script-not-executable warning from lintian
 	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
 	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
+	rm $(PREFIX)$(PYSUPPORT)/TileCache/Caches/S3.py # Suggests python-boto instead. 
 
 	rm $(PREFIX)/usr/bin/tilecache_install_config.py # only used for eggs
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
