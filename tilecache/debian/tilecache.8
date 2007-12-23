@@ -364,7 +364,6 @@ Zoom level to end the process
 The bounding box to seed
 
 
-.\" depart_block_quote
 
 .SS Seeding by center point and radius
 If called without zoom level arguments, tilecache_seed.py will assume
@@ -372,7 +371,6 @@ that it needs to read a list of points and radii from standard input,
 in the form:
 
 
-.\" visit_block_quote
 
 .nf
 <lat>,<lon>,<radius>
@@ -382,11 +380,9 @@ in the form:
 <ctrl + d>
 .fi
 
-.\" depart_block_quote
 The format of this file is:
 
 
-.\" visit_block_quote
 
 .TP
 .B lon
@@ -403,34 +399,28 @@ the position(s) to seed latitude
 the radius around the lon/lat to seed in degrees
 
 
-.\" depart_block_quote
 
 .SS Examples
 An example with zoom levels 5 through 12 would be like;
 
 
-.\" visit_block_quote
 
 .nf
 $ /usr/sbin/tilecache_seed "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "\-118.12500,31.952162238,\-116.015625,34.3071438563"
 .fi
 
-.\" depart_block_quote
 The bbox can be dropped and defaults to world lonlat(\-180,\-90,180,90):
 
 
-.\" visit_block_quote
 
 .nf
 $ /usr/sbin/tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
 .fi
 
-.\" depart_block_quote
 In center point/radius mode, the zoom level range is not specifiable from the
 command\-line. An example usage might look like:
 
 
-.\" visit_block_quote
 
 .nf
 $ /usr/sbin/tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
@@ -439,7 +429,6 @@ $ /usr/sbin/tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Co
 <Ctrl+D>
 .fi
 
-.\" depart_block_quote
 ... the seeding will then commence ...
 
 
@@ -447,33 +436,24 @@ $ /usr/sbin/tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Co
 The tilecache_clean utility will remove the least recently accessed
 tiles from a cache, down to a specified size.
 
-
 .SS Usage
 
-.\" visit_block_quote
 /usr/sbin/tilecache_clean [options] <cache_location>
-
-
-.\" depart_block_quote
 
 .SS Options
 
-.\" visit_block_quote
 
 .TP
 .B \-\-version
 show program\'s version number and exit
 
-
 .TP
 .B \-h , \-\-help
 show this help message and exit
 
-
 .TP
 .BI \-s\  SIZE ,\ \-\-size\  SIZE
 Maximum cache size, in megabytes.
-
 
 .TP
 .BI \-e\  ENTRIES ,\ \-\-entries\  ENTRIES
@@ -481,8 +461,6 @@ Maximum cache entries. This limits the
 amount of memory that will be used to store
 information about tiles to remove.
 
-
-.\" depart_block_quote
 
 .SS Notes
 The \-\-entries option to tilecache_clean.py is optional, and is used to regulate
@@ -494,13 +472,9 @@ down to an appropriate size, try upping this value.
 tilecache_clean is designed to be run from a cronjob like so:
 
 
-.\" visit_block_quote
-
 .nf
 00 05 * * *  /usr/sbin/tilecache_clean.py \-s500 /var/www/tilecache
 .fi
-
-.\" depart_block_quote
 
 .SH TROUBLESHOOTING
 Occasionally, for some reason, when using meta tiles, your server may leave

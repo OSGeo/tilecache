@@ -42,8 +42,7 @@ install: build
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
 	mv $(PREFIX)/usr/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
 	mv $(PREFIX)/usr/bin/tilecache_clean.py $(PREFIX)/usr/sbin/tilecache_clean
-	mv $(PREFIX)/usr/bin/tilecache_http_server.py $(PREFIX)/usr/sbin/tilecache_http_server
-	rmdir $(PREFIX)/usr/bin
+	mv $(PREFIX)/usr/bin/tilecache_http_server.py $(PREFIX)/usr/bin/tilecache_http_server
 
 # Build architecture-independent files here.
 binary-indep: build install
