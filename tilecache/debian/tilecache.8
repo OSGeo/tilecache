@@ -294,15 +294,15 @@ is, following the Google style x/y pattern).
 .SH USING TILECACHE WITH OPENLAYERS
 To run OpenLayers with TileCache the URL passed to the OpenLayers.Layer.WMS
 constructor must point to the TileCache script, i.e. tilecache.cgi or
-tilecache.py. As an example see the index.html file included in the TileCache
-distribution, under /usr/share/doc/tilecache/examples/.
+tilecache.py. As an example see the example-cgi.html file included in the
+TileCache distribution, under /usr/share/doc/tilecache/examples/.
 
-Note: index.html assumes TileCache is set up under CGI (see above). If you set
-up TileCache under mod_python you\'d need to slighly modify index.html: the URL
-passed to the OpenLayers.Layer.WMS constructor must point to the mod_python
-script as opposed to the CGI script, so replace tilecache.cgi with
-tilecache.py. Similarly, you would need to edit this URL if you were to use
-TileCache with the standalone HTTP Server or FastCGI.
+Note: example-cgi.html assumes TileCache is set up under CGI (see above). If
+you set up TileCache under mod_python you\'d need to slighly modify
+example-cgi.html: the URL passed to the OpenLayers.Layer.WMS constructor must
+point to the mod_python script as opposed to the CGI script. Similarly, you
+would need to edit this URL if you were to use TileCache with the standalone
+HTTP Server or FastCGI.
 
 The most important thing to do is to ensure that the OpenLayers Layer
 has the same resolutions and bounding box as your TileCache layer. You can define
