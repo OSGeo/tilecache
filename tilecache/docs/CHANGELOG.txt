@@ -1,3 +1,11 @@
+tilecache-2.0, Sat, 22 Dec 2007 23:35:03 -0500
+ * Refactor TileCache to support drop in plugins for just about everything.
+ * Upated TileCache release with KML SuperOverlay support
+ * Add MGMaps service.
+ * Add ArcXML layer.
+ * Make code compatible with PyPI.
+ * Cleaning up and moving around a bunch of distribution related stuff.
+
 tilecache-1.9, Wed,  5 Sep 2007 11:14:16 -0400
  * Fix longstanding bug which made some non-geographic projections difficult
    to create tiles with
