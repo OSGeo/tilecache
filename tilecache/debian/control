@@ -2,7 +2,9 @@ Source: tilecache
 Section: contrib/web
 Priority: extra
 Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
-Build-Depends: debhelper (>= 5.0.0), python (>= 2.1), python-support (>= 0.3), python-setuptools
+Build-Depends: debhelper (>= 5.0.0)
+Build-Depends-Indep: python (>= 2.1), python-support (>= 0.3), 
+                     python-setuptools
 Standards-Version: 3.7.3
 Homepage: http://tilecache.org/
 
