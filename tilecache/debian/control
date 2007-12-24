@@ -23,4 +23,3 @@ Description: a web map tile caching system
  these resources, you can create your own local disk-based cache of any WMS
  server, and use the result in any WMS-C supporting client, like OpenLayers,
  or any TMS supporting client, like OpenLayers and worldKit.
- .
