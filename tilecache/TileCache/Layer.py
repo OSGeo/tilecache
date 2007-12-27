@@ -1,3 +1,5 @@
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
+
 import os, sys
 from warnings import warn
 from Client import WMS

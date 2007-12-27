@@ -1,3 +1,5 @@
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
+
 import struct, time
 from sha import sha
 from bisect import bisect_left

@@ -1,3 +1,4 @@
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
 from TileCache.Cache import Cache
 import time
 

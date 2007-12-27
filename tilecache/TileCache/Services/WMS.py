@@ -1,3 +1,5 @@
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
+
 from TileCache.Service import Request, Capabilities
 import TileCache.Layer as Layer
 

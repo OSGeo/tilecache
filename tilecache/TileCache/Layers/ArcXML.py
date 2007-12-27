@@ -1,3 +1,5 @@
+# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
+
 from TileCache.Layer import MetaLayer
 from TileCache.Service import TileCacheException
 
