@@ -43,11 +43,11 @@ tilecache_install_config.py. A full installation likely looks like::
   $ sudo easy_install TileCache
   ...
   Installed
-  /usr/lib/python2.5/site-packages/TileCache-2.0-py2.5.egg
+  /usr/lib/python2.5/site-packages/TileCache-2.01-py2.5.egg
   
   $ sudo tilecache_install_config.py
   Successfully copied file
-  /usr/lib/python2.5/site-packages/TileCache-2.0-py2.5.egg/TileCache/tilecache.cfg
+  /usr/lib/python2.5/site-packages/TileCache-2.01-py2.5.egg/TileCache/tilecache.cfg
   to /etc/tilecache.cfg.
   
 TileCache is also available as a Debian package from the TileCache homepage.
