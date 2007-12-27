@@ -1,0 +1,60 @@
+TileCache Caches
+================
+
+TileCache offers access to a number of different caches. These caches are used
+to store tiles. 
+
+Disk
+----
+Example Configuration::
+
+  [cache]
+  type=Disk
+  base=/var/lib/tilecache
+  umask=002
+
+Dependancies: None
+
+Memcached
+---------
+Example configuration::
+
+  [cache]
+  type=Memcached
+  servers=127.0.0.1:11211
+
+Dependencies:
+ * memcache Python module must be installed on your system path.
+   http://code.sixapart.com/svn/memcached/trunk/api/python/memcache.py
+
+Amazon S3
+---------
+Example configuration::
+
+  [cache]
+  type=AWSS3
+  access_key=833833ABC88838
+  secret_access_key=8234abyi3kdjby8so8idu
+
+This cache can use one of two libraries:
+
+Boto
+____
+Available from http://code.google.com/p/boto/, boto is a package that 
+wraps the Amazon APIs in a Pythonic wrapper. This is installable on
+recent Debian-based distributions as python-boto. It can be installed
+via easy_install from setuptools as well: simply easy_install boto.
+The boto library is more complete, and is more likely to properly
+handle error conditions than the Amazon Example Library.
+
+Amazon Example Library
+______________________
+Amazon provides an example Python library. This library provides a simple
+wrapper around the Amazon web services. The code is available from 
+http://developer.amazonwebservices.com/connect/entry.jspa?externalID=134&categoryID=47
+
+You must download, unpack, and place the s3-example-libraries/python/S3.py
+file on your PYTHONPATH/sys.path. The source distribution of TileCache
+includes this file in the TileCache/Caches/S3.py file. (Packagers are
+encouraged to remove this file from distributions and instead depend
+on the boto library described above.)
