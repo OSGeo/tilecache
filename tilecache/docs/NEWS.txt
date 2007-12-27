@@ -1,5 +1,8 @@
-tilecache-next,  ??
+tilecache-2.01,  Thu, 27 Dec 2007 08:40:43 -0500
  * Add Amazon S3 Cache support.
+ * Add cache documentation
+ * Improved error handling in server startup
+ * Many minor cleanups of documentation, etc.
 
 tilecache-2.0, Sat, 22 Dec 2007 23:35:03 -0500
  * Refactor TileCache to support drop in plugins for just about everything.

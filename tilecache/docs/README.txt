@@ -10,7 +10,7 @@ Cache and serve map tiles
 :Date:   2007-12-22 
 :Copyright: (c) 2006-2007 MetaCarta, Inc.
             Distributed under the BSD license.
-:Version: 2.0 
+:Version: 2.01 
 :Manual section: 8
 :Manual group: GIS Utilities
 
