@@ -1,5 +1,5 @@
 Source: tilecache
-Section: contrib/web
+Section: web
 Priority: extra
 Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
 Build-Depends: debhelper (>= 5.0.0)

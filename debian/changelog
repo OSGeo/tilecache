@@ -1,16 +1,23 @@
-tilecache (2.01) unstable; urgency=low
+tilecache (2.01-2) unstable; urgency=low
+
+  * Change section, add debian version numbering (keeping in line with earlier
+    releases)
+
+ -- Christopher Schmidt <crschmidt@alta.metacarta.com>  Thu, 27 Dec 2007 21:12:20 -0500
+
+tilecache (2.01-1) unstable; urgency=low
   
   * Updated release. 
  
  -- Christopher Schmidt <crschmidt@metacarta.com>  Thu, 27 Dec 2007 08:40:22 -0500
 
-tilecache (2.0) unstable; urgency=low
+tilecache (2.0-1) unstable; urgency=low
   
   * Updated release. 
  
  -- Christopher Schmidt <crschmidt@metacarta.com>  Sat, 22 Dec 2007 21:03:56 -0800
 
-tilecache (1.9) unstable; urgency=low
+tilecache (1.9-1) unstable; urgency=low
   
   * Updated release. 
  
