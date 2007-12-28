@@ -1,0 +1,14 @@
+The following people have contributed to TileCache development:
+
+Howard Butler
+Schuyler Erle
+Emily Gouge
+Suki Hirata
+Hani Howari
+Andrew Hughes
+Eric Lemoine
+Matthew Perry
+Tim Schaub
+Christopher Schmidt
+Ehud Shabtai
+Bill Woodall
