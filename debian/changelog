@@ -3,7 +3,7 @@ tilecache (2.01-2) unstable; urgency=low
   * Change section, add debian version numbering (keeping in line with earlier
     releases)
 
- -- Christopher Schmidt <crschmidt@alta.metacarta.com>  Thu, 27 Dec 2007 21:12:20 -0500
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Thu, 27 Dec 2007 21:12:20 -0500
 
 tilecache (2.01-1) unstable; urgency=low
   
