@@ -1,3 +1,10 @@
+tilecache (2.01-3) unstable; urgency=low
+
+  * Initial debian release. (Closes #458146)
+  * Minor updates to control file.
+
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Fri, 28 Dec 2007 20:07:29 -0500
+
 tilecache (2.01-2) unstable; urgency=low
 
   * Change section, add debian version numbering (keeping in line with earlier
