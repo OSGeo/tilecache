@@ -1,4 +1,4 @@
-# BSD Licensed, Copyright (c) 2006-2007 MetaCarta, Inc.
+# BSD Licensed, Copyright (c) 2006-2008 MetaCarta, Inc.
 
 from TileCache.Service import Request, Capabilities
 from TileCache.Services.TMS import TMS
