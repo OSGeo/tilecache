@@ -20,9 +20,8 @@ build-stamp:
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf build dist
+	rm -rf build dist TileCache.egg-info
 	rm -f build-stamp configure-stamp cgi-example.html
-
 
 	dh_clean *.pyc TileCache/*.pyc TileCache/Caches/*.pyc \
 		TileCache/Services/*.pyc TileCache/Layers/*.pyc tests/*.pyc
