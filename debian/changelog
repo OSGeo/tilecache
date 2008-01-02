@@ -1,3 +1,9 @@
+tilecache (2.01-4) unstable; urgency=low
+
+  * Remove entry for python-memcache (Closes: #458604) 
+
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Tue,  1 Jan 2008 21:36:17 -0500
+
 tilecache (2.01-3) unstable; urgency=low
 
   * Initial debian release. (Closes #458146)
