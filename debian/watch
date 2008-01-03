@@ -1,2 +1,2 @@
 version=3
-http://tilecache.org/ (./)?tilecache-([\d\.]+).tar.gz
+http://tilecache.org/ ./tilecache-([\d\.]+).tar.gz
