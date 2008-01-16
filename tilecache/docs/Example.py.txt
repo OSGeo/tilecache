@@ -8,7 +8,7 @@
 # probably doesn't solve all problems.
 
 from TileCache.Service import Service, modPythonHandler, cgiHandler
-from TileCache.Cache import DiskCache
+from TileCache.Cache import Disk
 import TileCache.Layers.WMS as WMS
 import TileCache.Layers.MapServer as MS
 
