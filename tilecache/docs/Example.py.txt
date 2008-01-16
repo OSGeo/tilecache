@@ -8,12 +8,12 @@
 # probably doesn't solve all problems.
 
 from TileCache.Service import Service, modPythonHandler, cgiHandler
-from TileCache.Cache import Disk
+from TileCache.Caches.Disk import Disk
 import TileCache.Layers.WMS as WMS
 import TileCache.Layers.MapServer as MS
 
 myService = Service (
-  DiskCache("/www/wms-c/cache"), 
+  Disk("/www/wms-c/cache"), 
   { 
     "basic"     : MS.MapServer( "basic", "/www/wms-c/basic.map" ),
     "satellite" : MS.MapServer( "satellite", "/www/wms-c/basic.map",
