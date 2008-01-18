@@ -22,7 +22,7 @@ class KML(TMS):
       <name>tile</name>
       <Region>
         <Lod>
-          <minLodPixels>128</minLodPixels><maxLodPixels>-1</maxLodPixels>
+          <minLodPixels>256</minLodPixels><maxLodPixels>-1</maxLodPixels>
         </Lod>
         <LatLonAltBox>
           <north>%s</north><south>%s</south>
@@ -42,7 +42,7 @@ class KML(TMS):
   <Document>
     <Region>
       <Lod>
-        <minLodPixels>128</minLodPixels><maxLodPixels>512</maxLodPixels>
+        <minLodPixels>256</minLodPixels><maxLodPixels>512</maxLodPixels>
       </Lod>
       <LatLonAltBox>
         <north>%s</north><south>%s</south>
