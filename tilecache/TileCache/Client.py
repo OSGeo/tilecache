@@ -14,7 +14,7 @@ class WMS (object):
     defaultParams = {'version': '1.1.1', 'request': 'GetMap', 'service': 'WMS'}
     __slots__ = ("base", "params", "client", "data", "response")
 
-    def __init__ (self, base, params):
+    def __init__ (self, base, params, user=None, password=None):
         self.base    = base
         if self.base[-1] not in "?&":
             if "?" in self.base:
@@ -23,7 +23,15 @@ class WMS (object):
                 self.base += "?"
 
         self.params  = {}
-        self.client  = urllib2.build_opener()
+        if user is not None and password is not None:
+           x = urllib2.HTTPPasswordMgrWithDefaultRealm()
+           x.add_password(None, base, user, password)
+           self.client  = urllib2.build_opener()
+           auth = urllib2.HTTPBasicAuthHandler(x)
+           self.client  = urllib2.build_opener(auth)
+        else:
+           self.client  = urllib2.build_opener()
+
         for key, val in self.defaultParams.items():
             if self.base.lower().rfind("%s=" % key.lower()) == -1:
                 self.params[key] = val

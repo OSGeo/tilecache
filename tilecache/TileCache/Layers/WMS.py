@@ -4,9 +4,11 @@ from TileCache.Layer import MetaLayer
 import TileCache.Client as WMSClient
 
 class WMS(MetaLayer):
-    def __init__ (self, name, url = None, **kwargs):
+    def __init__ (self, name, url = None, user = None, password = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.url = url
+        self.user = user
+        self.password = password
 
     def renderTile(self, tile):
         wms = WMSClient.WMS( self.url, {
@@ -16,6 +18,6 @@ class WMS(MetaLayer):
           "srs": self.srs,
           "format": self.format(),
           "layers": self.layers,
-        } )
+        }, self.user, self.password)
         tile.data, response = wms.fetch()
         return tile.data 
