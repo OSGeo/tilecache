@@ -106,6 +106,21 @@ class Service (object):
         return cls(cache, layers, metadata)
     load = classmethod(_load)
 
+    def generate_crossdomain_xml(self):
+        """Helper method for generating the XML content for a crossdomain.xml
+           file, to be used to allow remote sites to access this content."""
+        xml = ["""<?xml version="1.0"?>
+<!DOCTYPE cross-domain-policy SYSTEM
+  "http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd">
+<cross-domain-policy>
+        """]
+        if self.metadata.has_key('crossdomain_sites'):
+            sites = self.metadata['crossdomain_sites'].split(',')
+            for site in sites:
+                xml.append('  <allow-access-from domain="%s" />' % site)
+        xml.append("</cross-domain-policy>")        
+        return ('text/xml', "\n".join(xml))       
+
     def renderTile (self, tile, force = False):
         from warnings import warn
         start = time.time()
@@ -145,7 +160,9 @@ class Service (object):
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
         if self.metadata.has_key('exception'):
             raise TileCacheException("%s\n%s" % (self.metadata['exception'], self.metadata['traceback']))
-        
+        if path_info.find("crossdomain.xml") != -1:
+            return self.generate_crossdomain_xml()
+
         if path_info.split(".")[-1] == "kml":
             from TileCache.Services.KML import KML 
             return KML(self).parse(params, path_info, host)
