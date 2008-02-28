@@ -297,15 +297,21 @@ def cgiHandler (service):
             "".join(traceback.format_tb(sys.exc_traceback)))
 
 theService = None
-
+lastRead = None
 def handler (apacheReq):
-    global theService
+    global theService, lastRead
     options = apacheReq.get_options()
     cfgs    = cfgfiles
+    cfgTime = None
     if options.has_key("TileCacheConfig"):
         cfgs = (options["TileCacheConfig"],) + cfgs
-    if not theService:
+        try:
+            cfgTime = os.stat(options['TileCacheConfig'])[8]
+        except:
+            pass
+    if not theService or (lastRead and cfgTime and lastRead < cfgTime):
         theService = Service.load(*cfgs)
+        lastRead = time.time()
     return modPythonHandler(apacheReq, theService)
 
 def wsgiApp (environ, start_response):
