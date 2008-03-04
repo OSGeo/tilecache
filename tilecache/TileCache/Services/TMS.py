@@ -80,7 +80,7 @@ class TMS (Request):
         for z, res in enumerate(layer.resolutions):
             xml += """
                  <TileSet href="%s1.0.0/%s/%d"
-                          units-per-pixel="%.9f" order="%d" />""" % (
+                          units-per-pixel="%.20f" order="%d" />""" % (
                    host, layer.name, z, res, z)
                 
         xml += """

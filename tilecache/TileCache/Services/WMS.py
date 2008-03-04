@@ -96,7 +96,7 @@ class WMS (Request):
             </Exception>
             <VendorSpecificCapabilities>"""
         for name, layer in self.service.layers.items():
-            resolutions = " ".join(["%.9f" % r for r in layer.resolutions])
+            resolutions = " ".join(["%.20f" % r for r in layer.resolutions])
             xml += """
               <TileSet>
                 <SRS>%s</SRS>
