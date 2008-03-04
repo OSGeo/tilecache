@@ -116,14 +116,15 @@ class WMS (Request):
             </VendorSpecificCapabilities>
             <UserDefinedSymbolization SupportSLD="0" UserLayer="0"
                                       UserStyle="0" RemoteWFS="0"/>
-            <Layer>"""
+            <Layer>
+              <Title>TileCache Layers</title>"""
         for name, layer in self.service.layers.items():
             xml += """
             <Layer queryable="0" opaque="0" cascaded="1">
               <Name>%s</Name>
               <Title>%s</Title>
               <SRS>%s</SRS>
-              <BoundingBox srs="%s" minx="%f" miny="%f"
+              <BoundingBox SRS="%s" minx="%f" miny="%f"
                                     maxx="%f" maxy="%f" />
             </Layer>""" % (
                 name, layer.name, layer.srs, layer.srs,
