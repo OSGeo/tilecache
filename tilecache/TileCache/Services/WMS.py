@@ -117,7 +117,7 @@ class WMS (Request):
             <UserDefinedSymbolization SupportSLD="0" UserLayer="0"
                                       UserStyle="0" RemoteWFS="0"/>
             <Layer>
-              <Title>TileCache Layers</title>"""
+              <Title>TileCache Layers</Title>"""
         for name, layer in self.service.layers.items():
             xml += """
             <Layer queryable="0" opaque="0" cascaded="1">
