@@ -21,7 +21,16 @@ class Disk (Cache):
         
     def makedirs(self, path):
         old_umask = os.umask(self.umask)
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except OSError, E:
+            # os.makedirs can suffer a race condition because it doesn't check
+            # that the directory  doesn't exist at each step, nor does it
+            # catch errors. This lets 'directory exists' errors pass through,
+            # since they mean that as far as we're concerned, os.makedirs
+            # has 'worked'
+            if E.errno != 17:
+                raise E
         os.umask(old_umask)
         
     def access(self, path, type='read'):
