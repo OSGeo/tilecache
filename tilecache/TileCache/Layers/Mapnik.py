@@ -56,7 +56,13 @@ class Mapnik(MetaLayer):
                     
         im = mapnik.Image( *tile.size() )
         mapnik.render(m, im)
-        im = PIL.Image.fromstring('RGBA', tile.size(), mapnik.rawdata(im))
+        if hasattr(im, 'tostring'):
+            data = im.tostring()
+        elif hasattr(mapnik, 'rawdata'):
+            data = mapnik.rawdata(im)
+        else:
+            raise Exception("Something is wrong: your version of Mapnik can't create a string from an image.") 
+        im = PIL.Image.fromstring('RGBA', tile.size(), data)
         buffer = StringIO.StringIO()
         im.save(buffer, self.extension)
         buffer.seek(0)
