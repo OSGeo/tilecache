@@ -10,13 +10,13 @@ class Image(MetaLayer):
     
     def __init__ (self, name, file = None, filebounds = "-180,-90,180,90",
                               transparency = False, scaling = "nearest", **kwargs):
-        import Image
+        import PIL.Image as PILImage
         
         MetaLayer.__init__(self, name, **kwargs) 
         
         self.file = file
         self.filebounds  = map(float,filebounds.split(","))
-        self.image = Image.open(self.file)
+        self.image = PILImage.open(self.file)
         self.image_size = self.image.size
         self.image_res = [(self.filebounds[2] - self.filebounds[0]) / self.image_size[0], 
                     (self.filebounds[3] - self.filebounds[1]) / self.image_size[1]
@@ -27,7 +27,8 @@ class Image(MetaLayer):
         self.transparency = transparency
 
     def renderTile(self, tile):
-        import Image, StringIO
+        import PIL.Image as PILImage 
+        import StringIO
         bounds = tile.bounds()
         size = tile.size()
         min_x = (bounds[0] - self.filebounds[0]) / self.image_res[0]   
@@ -35,23 +36,23 @@ class Image(MetaLayer):
         max_x = (bounds[2] - self.filebounds[0]) / self.image_res[0]   
         max_y = (self.filebounds[3] - bounds[1]) / self.image_res[1]
         if self.scaling == "bilinear":
-            scaling = Image.BILINEAR
+            scaling = PILImage.BILINEAR
         elif self.scaling == "bicubic":
-            scaling = Image.BICUBIC
+            scaling = PILImage.BICUBIC
         elif self.scaling == "antialias":
-            scaling = Image.ANTIALIAS
+            scaling = PILImage.ANTIALIAS
         else:
-            scaling = Image.NEAREST
+            scaling = PILImage.NEAREST
 
         crop_size = (max_x-min_x, max_y-min_y)
         if min(min_x, min_y, max_x, max_y) < 0:
             if self.transparency and self.image.mode in ("L", "RGB"):
-                self.image.putalpha(Image.new("L", self.image_size, 255));
-            sub = self.image.transform(crop_size, Image.EXTENT, (min_x, min_y, max_x, max_y))
+                self.image.putalpha(PILImage.new("L", self.image_size, 255));
+            sub = self.image.transform(crop_size, PILImage.EXTENT, (min_x, min_y, max_x, max_y))
         else:
             sub = self.image.crop((min_x, min_y, max_x, max_y));
         if crop_size[0] < size[0] and crop_size[1] < size[1] and self.scaling == "antialias":
-            scaling = Image.BICUBIC
+            scaling = PILImage.BICUBIC
         sub = sub.resize(size, scaling)
 
         buffer = StringIO.StringIO()
