@@ -1,7 +1,7 @@
 # BSD Licensed, Copyright (c) 2006-2008 MetaCarta, Inc.
 
 from TileCache.Cache import Cache
-import sys, os, time
+import sys, os, time, warnings
 
 class Disk (Cache):
     def __init__ (self, base = None, umask = '002', **kwargs):
