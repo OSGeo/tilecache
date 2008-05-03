@@ -8,6 +8,11 @@ filebounds=0,0,5889,224
 maxresolution=16
 
 [avalon]
+type=GDAL
+file=/home/images/avalon.jpg
+bbox=0,0,4000,1870
+
+[avalon]
 type=ImageLayer
 filebounds=-180,-88.759,180,88.759
 file=/home/images/avalon.jpg
