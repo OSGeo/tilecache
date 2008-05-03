@@ -8,8 +8,24 @@ from Service import TileCacheException
 DEBUG = True
 
 class Tile (object):
+    """
+    >>> l = Layer("name", maxresolution=0.019914, size="256,256")
+    >>> t = Tile(l, 18, 20, 0)
+    """
     __slots__ = ( "layer", "x", "y", "z", "data" )
     def __init__ (self, layer, x, y, z):
+        """
+        >>> l = Layer("name", maxresolution=0.019914, size="256,256")
+        >>> t = Tile(l, 18, 20, 0)
+        >>> t.x 
+        18
+        >>> t.y
+        20
+        >>> t.z
+        0
+        >>> print t.data
+        None
+        """
         self.layer = layer
         self.x = x
         self.y = y
@@ -17,6 +33,12 @@ class Tile (object):
         self.data = None
 
     def size (self):
+        """
+        >>> l = Layer("name", maxresolution=0.019914, size="256,256")
+        >>> t = Tile(l, 18, 20, 0)
+        >>> t.size()
+        [256, 256]
+        """
         return self.layer.size
 
     def bounds (self):
@@ -34,10 +56,22 @@ class Tile (object):
         return (minx, miny, maxx, maxy)
 
     def bbox (self):
+        """
+        >>> l = Layer("name", maxresolution=0.019914)
+        >>> t = Tile(l, 18, 20, 0)
+        >>> t.bbox()
+        '-88.236288,11.95968,-83.138304,17.057664'
+        """
         return ",".join(map(str, self.bounds()))
 
 class MetaTile (Tile):
     def actualSize (self):
+        """
+        >>> l = MetaLayer("name")
+        >>> t = MetaTile(l, 0,0,0)
+        >>> t.actualSize()
+        (256, 256)
+        """
         metaCols, metaRows = self.layer.getMetaSize(self.z)
         return ( self.layer.size[0] * metaCols,
                  self.layer.size[1] * metaRows )
@@ -72,6 +106,15 @@ class Layer (object):
                         extension = "png", mime_type = None, cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
                         extent_type = "strict", units = None, tms_type = "" ):
+        """Take in parameters, usually from a config file, and create a Layer.
+
+        >>> l = Layer("Name", bbox="-12,17,22,36", debug="no")
+        >>> l.bbox
+        [-12.0, 17.0, 22.0, 36.0]
+        >>> l.debug
+        False
+        """
+        
         self.name   = name
         self.description = description
         self.layers = layers or name
@@ -140,6 +183,8 @@ class Layer (object):
 
     def getCell (self, (minx, miny, maxx, maxy), exact = True):
         """
+        Returns x, y, z
+
         >>> l = Layer("name")
         >>> l.bbox
         (-180, -90, 180, 90)
@@ -147,6 +192,8 @@ class Layer (object):
         0.703125
         >>> l.getCell((-180.,-90.,0.,90.))
         (0, 0, 0)
+        >>> l.getCell((-45.,-45.,0.,0.))
+        (3, 1, 2)
         """
         if exact and self.extent_type == "strict" and not self.contains((minx, miny)): 
             raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
@@ -177,26 +224,56 @@ class Layer (object):
         return (x, y, z)
 
     def getClosestCell (self, z, (minx, miny)):
+        """
+        >>> l = Layer("name")
+        >>> l.getClosestCell(2, (84, 17))
+        (6, 2, 2)
+        """
         res = self.resolutions[z]
         maxx = minx + self.size[0] * res
         maxy = miny + self.size[1] * res
         return self.getCell((minx, miny, maxx, maxy), False)
 
     def getTile (self, bbox):
+        """
+        >>> l = Layer("name")
+        >>> l.getTile((-180,-90,0,90)).bbox()
+        '-180.0,-90.0,0.0,90.0'
+        """
+        
         coord = self.getCell(bbox)
         if not coord: return None
         return Tile(self, *coord)
 
     def contains (self, (x, y)):
+        """
+        >>> l = Layer("name")
+        >>> l.contains((0,0))
+        True
+        >>> l.contains((185, 94))
+        False
+        """
         return x >= self.bbox[0] and x <= self.bbox[2] \
            and y >= self.bbox[1] and y <= self.bbox[3]
 
     def grid (self, z):
+        """
+        Returns size of grid at a particular zoom level
+
+        >>> l = Layer("name")
+        >>> l.grid(3)
+        (16.0, 8.0)
+        """
         width  = (self.bbox[2] - self.bbox[0]) / (self.resolutions[z] * self.size[0])
         height = (self.bbox[3] - self.bbox[1]) / (self.resolutions[z] * self.size[1])
         return (width, height)
 
     def format (self):
+        """
+        >>> l = Layer("name")
+        >>> l.format()
+        'image/png'
+        """
         return "image/" + self.extension
     
     def renderTile (self, tile):
