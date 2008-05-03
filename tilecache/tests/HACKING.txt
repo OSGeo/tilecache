@@ -95,7 +95,7 @@ This fails, because it's not an exact tile:
 >>> import TileCache
 >>> l.debug = False
 >>> try:
-...    cell = l.getCell((-180, -90.0, 0, 85))
+...    cell = l.getCell((-180, -90.0, 4, 75))
 ... except TileCache.TileCacheException:
 ...    print "Failed"
 Failed

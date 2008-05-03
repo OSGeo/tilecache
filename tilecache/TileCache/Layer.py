@@ -20,6 +20,12 @@ class Tile (object):
         return self.layer.size
 
     def bounds (self):
+        """
+        >>> l = Layer("name", maxresolution=0.019914)
+        >>> t = Tile(l, 18, 20, 0)
+        >>> t.bounds()
+        (-88.236288000000002, 11.959680000000006, -83.138303999999991, 17.057664000000003)
+        """
         res  = self.layer.resolutions[self.z]
         minx = self.layer.bbox[0] + (res * self.x * self.layer.size[0])
         miny = self.layer.bbox[1] + (res * self.y * self.layer.size[1])
@@ -106,10 +112,21 @@ class Layer (object):
         self.watermarkopacity = float(watermarkopacity)
 
     def getResolution (self, (minx, miny, maxx, maxy)):
-        return max( (maxx - minx) / self.size[0],
-                    (maxy - miny) / self.size[1] )
+        """
+        >>> l = Layer("name")
+        >>> l.getResolution((-180,-90,0,90))
+        0.703125
+        """
+        return max( float(maxx - minx) / self.size[0],
+                    float(maxy - miny) / self.size[1] )
 
     def getLevel (self, res, size = [256, 256]):
+        """
+        >>> l = Layer("name")
+        >>> l.getLevel(.703125)
+        0
+        """
+
         max_diff = res / max(size[0], size[1])
         z = None
         for i in range(len(self.resolutions)):
@@ -122,6 +139,15 @@ class Layer (object):
         return z
 
     def getCell (self, (minx, miny, maxx, maxy), exact = True):
+        """
+        >>> l = Layer("name")
+        >>> l.bbox
+        (-180, -90, 180, 90)
+        >>> l.resolutions[0]
+        0.703125
+        >>> l.getCell((-180.,-90.,0.,90.))
+        (0, 0, 0)
+        """
         if exact and self.extent_type == "strict" and not self.contains((minx, miny)): 
             raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
                      % (minx, miny, self.bbox))
@@ -281,3 +307,7 @@ class MetaLayer (Layer):
             watermarkedImage.save(buffer, self.extension)
         buffer.seek(0)
         return buffer.read()
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
