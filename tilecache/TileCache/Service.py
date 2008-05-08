@@ -166,7 +166,6 @@ class Service (object):
         if path_info.split(".")[-1] == "kml":
             from TileCache.Services.KML import KML 
             return KML(self).parse(params, path_info, host)
-            raise TileCacheException("What, you think we do KML?")
         
         if params.has_key("scale") or params.has_key("SCALE"): 
             from TileCache.Services.WMTS import WMTS
@@ -187,6 +186,9 @@ class Service (object):
              (params['v'] == "mgm" or params['v'] == "mgmaps"):
             from TileCache.Services.MGMaps import MGMaps 
             tile = MGMaps(self).parse(params, path_info, host)
+        elif params.has_key("tile"):
+            from TileCache.Services.VETMS import VETMS 
+            tile = VETMS(self).parse(params, path_info, host)
         else:
             from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
