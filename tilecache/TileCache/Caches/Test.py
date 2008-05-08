@@ -1,6 +1,6 @@
 from TileCache.Cache import Cache
 
-class None(Cache):
+class Test(Cache):
     """
     A Cache class which does not cache anything: useful for
     testing during development, or any other setup where 
