@@ -1,3 +1,19 @@
+tilecache-2.02,  Sat, 10 May 2008 09:21:47 -0400
+ * Add GoogleDisk cache, to save tiles to disk in z/x/y.ext format
+ * Add VETMS Service, provided by Steven Ottens
+ * Add "Test" cache, which doesn't cache anything, for debugging
+ * Fix Image Layer
+ * Add GDAL Layer, for reading images via GDAL directly
+ * Add support for reprojecting ArcXML layers
+ * Add threading support to standalone http server
+ * Support for Mapnik 0.5
+ * Support spitting out crossdomain.xml
+ * Username/password support for WMS Layers
+ * mod_python re-reads tilecache.cfg if it changed
+ * Protect disk cache from os.makedirs race condition
+ * Bump decimals in TMS,WMS-C units-per-pixel in caps output
+ * Minor Changes in KML SuperOverlays
+
 tilecache-2.01,  Thu, 27 Dec 2007 08:40:43 -0500
  * Add Amazon S3 Cache support.
  * Add cache documentation
