@@ -1,3 +1,9 @@
+tilecache (2.02-1) unstable; urgency=low
+
+  * New upstream release. (Closes #471405)
+
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Sat, 10 May 2008 09:48:31 -0400
+
 tilecache (2.01-4) unstable; urgency=low
 
   * Improved clean target of rules file to clean up all of setup.py's
