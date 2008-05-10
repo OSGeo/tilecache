@@ -105,7 +105,8 @@ class Layer (object):
                         size = (256, 256), levels = 20, resolutions = None,
                         extension = "png", mime_type = None, cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
-                        extent_type = "strict", units = None, tms_type = "" ):
+                        spherical_mercator = False,
+                        extent_type = "strict", units = "degrees", tms_type = "" ):
         """Take in parameters, usually from a config file, and create a Layer.
 
         >>> l = Layer("Name", bbox="-12,17,22,36", debug="no")
@@ -113,26 +114,47 @@ class Layer (object):
         [-12.0, 17.0, 22.0, 36.0]
         >>> l.debug
         False
+        
+        >>> l = Layer("name", spherical_mercator="yes")
+        >>> round(l.resolutions[0])
+        156543.0
         """
         
         self.name   = name
         self.description = description
         self.layers = layers or name
-        if isinstance(bbox, str): bbox = map(float,bbox.split(","))
+        
+        if spherical_mercator != False:
+            bbox = "-20037508.34,-20037508.34,20037508.34,20037508.34"
+            maxresolution = "156543.0339"
+            srs = "EPSG:900913"
+            units = "meters"
+
+        if isinstance(bbox, str): 
+            bbox = map(float, bbox.split(","))
         self.bbox = bbox
-        if isinstance(size, str): size = map(int,size.split(","))
+        
+        if isinstance(size, str): 
+            size = map(int, size.split(","))
         self.size = size
+        
         self.units = units
+        
         self.srs  = srs
-        if extension.lower() == 'jpg': extension = 'jpeg' # MIME
+        
+        if extension.lower() == 'jpg': 
+            extension = 'jpeg' # MIME
         self.extension = extension.lower()
         self.mime_type = mime_type or self.format() 
+        
         if isinstance(debug, str):
             debug = debug.lower() not in ("false", "off", "no", "0")
-        self.cache = cache
         self.debug = debug
+        
+        self.cache = cache
         self.extent_type = extent_type
         self.tms_type = tms_type
+        
         if resolutions:
             if isinstance(resolutions, str):
                 resolutions = map(float,resolutions.split(","))
@@ -151,7 +173,9 @@ class Layer (object):
             else:
                 maxRes = float(maxresolution)
             self.resolutions = [maxRes / 2 ** i for i in range(int(levels))]
+        
         self.watermarkimage = watermarkimage
+        
         self.watermarkopacity = float(watermarkopacity)
 
     def getResolution (self, (minx, miny, maxx, maxy)):
