@@ -1,6 +1,8 @@
 tilecache (2.02-1) unstable; urgency=low
 
   * New upstream release. (Closes #471405)
+  * Fix to packaging: install to python-support/tilecache instead of 
+    incorrect python-support/python-package.
 
  -- Christopher Schmidt <crschmidt@metacarta.com>  Sat, 10 May 2008 09:48:31 -0400
 
