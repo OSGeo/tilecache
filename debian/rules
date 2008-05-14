@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 PREFIX := debian/tilecache
-PYSUPPORT := /usr/share/python-support/python-package
+PYSUPPORT := /usr/share/python-support/tilecache
 
 build: build-stamp
 
@@ -33,12 +33,9 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tilecache.
-	python ./setup.py install --debian --no-compile --root=$(PREFIX) --install-lib=$(PYSUPPORT)
+	python ./setup.py install --debian --no-compile --root=$(PREFIX)
     
 	# eliminates script-not-executable warning from lintian
-	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
-	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
-	rm $(PREFIX)$(PYSUPPORT)/TileCache/Caches/S3.py # Suggests python-boto instead. 
 
 	rm $(PREFIX)/usr/bin/tilecache_install_config.py # only used for eggs
 	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
@@ -59,6 +56,9 @@ binary-indep: build install
 	dh_compress
 	dh_fixperms
 	dh_pysupport
+	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
+	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
+	rm $(PREFIX)$(PYSUPPORT)/TileCache/Caches/S3.py # Suggests python-boto instead. 
 	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
