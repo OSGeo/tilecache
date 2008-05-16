@@ -40,7 +40,7 @@ def import_module(name):
     return mod
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "tilecache_options")
+    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
@@ -79,6 +79,7 @@ class Service (object):
         cache = None
         metadata = {}
         layers = {}
+        config = None
         try:
             config = ConfigParser.ConfigParser()
             config.read(files)
@@ -103,7 +104,10 @@ class Service (object):
         except Exception, E:
             metadata['exception'] = E
             metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
-        return cls(cache, layers, metadata)
+        service = cls(cache, layers, metadata)
+        service.files = files
+        service.config = config
+        return service 
     load = classmethod(_load)
 
     def generate_crossdomain_xml(self):
