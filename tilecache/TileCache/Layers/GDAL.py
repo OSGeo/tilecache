@@ -32,6 +32,11 @@ class GDAL(MetaLayer):
      * numpy
     """
     
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'file', 'description': 'GDAL-readable file path.'},
+    ] + MetaLayer.config_properties 
+    
     def __init__ (self, name, file = None, **kwargs):
         
         MetaLayer.__init__(self, name, **kwargs) 

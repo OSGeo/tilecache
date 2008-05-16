@@ -100,6 +100,11 @@ class Layer (object):
                   "watermarkimage", "watermarkopacity",
                   "extent_type", "tms_type", "units", "mime_type")
     
+    config_properties = [
+      {'name':'layers', 'description': 'Comma seperated list of layers associated with this layer.'},
+      {'name':'bbox', 'description':'Bounding box of the layer', 'default':'-180,-90,180,90'}
+    ]  
+    
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
@@ -309,6 +314,15 @@ class Layer (object):
 
 class MetaLayer (Layer):
     __slots__ = ('metaTile', 'metaSize', 'metaBuffer')
+    
+    config_properties = Layer.config_properties + [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'metaTile', 'description': 'Should metatiling be used on this layer?', 'default': 'no'},
+      {'name': 'metaSize', 'description': 'Comma seperated-pair of numbers, defininig the tiles included in a single size', 'default': "5,5"},
+      {'name': 'metaBuffer', 'description': 'Number of pixels outside the metatile to include in the render request.'}
+    ]  
+
+
     def __init__ (self, name, metatile = "", metasize = (5,5),
                               metabuffer = (10,10), **kwargs):
         Layer.__init__(self, name, **kwargs)

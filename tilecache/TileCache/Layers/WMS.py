@@ -4,6 +4,13 @@ from TileCache.Layer import MetaLayer
 import TileCache.Client as WMSClient
 
 class WMS(MetaLayer):
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'url', 'description': 'URL of Remote Layer'},
+      {'name':'user', 'description': 'Username of remote server: used for basic-auth protected backend WMS layers.'},
+      {'name':'password', 'description': 'Password of remote server: Use for basic-auth protected backend WMS layers.'},
+    ] + MetaLayer.config_properties  
+     
     def __init__ (self, name, url = None, user = None, password = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.url = url

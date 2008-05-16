@@ -11,6 +11,14 @@ import urllib
 import xml.dom.minidom as m
 
 class ArcXML(MetaLayer):
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'url', 'description': 'URL of Remote Layer'},
+      {'name':'layers', 'description': 'Comma seperated list of layers associated with this layer.'},
+      {'name':'off_layers', 'description': 'Comma-seperated layers to turn on'},
+      {'name':'projection', 'description': 'WKT String, or, if the string starts with "@", a file containing a WKT string.'}
+    ] + MetaLayer.config_properties 
+    
     def __init__ (self, name, url = None, off_layers = "", 
                   projection = None, **kwargs):
         """

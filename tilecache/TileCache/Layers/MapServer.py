@@ -3,6 +3,12 @@
 from TileCache.Layer import MetaLayer 
 
 class MapServer(MetaLayer):
+    
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'mapfile', 'description': 'Location of MapServer map file.'},
+    ] + MetaLayer.config_properties 
+    
     def __init__ (self, name, mapfile = None, styles = "", **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.mapfile = mapfile

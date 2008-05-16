@@ -3,6 +3,14 @@
 from TileCache.Layer import MetaLayer
 
 class Mapnik(MetaLayer):
+    
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'mapfile', 'description': 'Location of Mapnik XML map description.'},
+      {'name':'projection', 'description': 'Target map projection.'},
+      {'name':'fonts', 'description': 'Comma-seperated list of fonts to add to the Mapik registered fonts list.'},
+    ] + MetaLayer.config_properties 
+    
     def __init__ (self, name, mapfile = None, projection = None, fonts = None, **kwargs):
         MetaLayer.__init__(self, name, **kwargs) 
         self.mapfile = mapfile

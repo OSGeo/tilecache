@@ -8,6 +8,11 @@ class Image(MetaLayer):
        Which is passed in as a single, comma seperated string in the form 
        minx,miny,maxx,maxy."""
     
+    config_properties = [
+      {'name':'name', 'description': 'Name of Layer'}, 
+      {'name':'file', 'description': 'Location of PIL-readable file.'},
+    ] + MetaLayer.config_properties 
+    
     def __init__ (self, name, file = None, filebounds = "-180,-90,180,90",
                               transparency = False, scaling = "nearest", **kwargs):
         import PIL.Image as PILImage
