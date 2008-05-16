@@ -8,6 +8,7 @@ class Memcached(Cache):
         Cache.__init__(self, **kwargs)
         import memcache
         if type(servers) is str: servers = map(str.strip, servers.split(","))
+        raise Exception(servers)
         self.cache = memcache.Client(servers, debug=0)
    
     def getKey(self, tile):
@@ -33,6 +34,6 @@ class Memcached(Cache):
                                time.time() + self.timeout)
     
     def unlock (self, tile):
-        self.cache.delete( self.getLockName() )
+        self.cache.delete( self.getLockName(tile) )
 
 
