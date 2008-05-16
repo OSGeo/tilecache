@@ -32,11 +32,11 @@ def mod_python (dispatch_function, apache_request):
     
     try:
         if apache_request.headers_in.has_key("X-Forwarded-Host"):
-            host = "http://" + apache_request.headers_in["X-Forwarded-Host"]
+            base_path = "http://" + apache_request.headers_in["X-Forwarded-Host"]
         else:
-            host = "http://" + apache_request.headers_in["Host"]
+            base_path = "http://" + apache_request.headers_in["Host"]
             
-        host += apache_request.uri[:-len(apache_request.path_info)]
+        base_path += apache_request.uri[:-len(apache_request.path_info)]
         
         accepts = "" 
         if apache_request.headers_in.has_key("Accept"):
@@ -54,7 +54,7 @@ def mod_python (dispatch_function, apache_request):
                 params[key.lower()] = fields[key] 
         
         format, data = dispatch_function( 
-          host = host, 
+          base_path = base_path, 
           path_info = apache_request.path_info, 
           params = params, 
           request_method = request_method, 
@@ -82,17 +82,17 @@ def mod_python (dispatch_function, apache_request):
 def wsgi (dispatch_function, environ, start_response):
     """handler for wsgiref simple_server"""
     try:
-        path_info = host = ""
+        path_info = base_path = ""
 
         if "PATH_INFO" in environ: 
             path_info = environ["PATH_INFO"]
 
         if "HTTP_X_FORWARDED_HOST" in environ:
-            host      = "http://" + environ["HTTP_X_FORWARDED_HOST"]
+            base_path      = "http://" + environ["HTTP_X_FORWARDED_HOST"]
         elif "HTTP_HOST" in environ:
-            host      = "http://" + environ["HTTP_HOST"]
+            base_path      = "http://" + environ["HTTP_HOST"]
 
-        host += environ["SCRIPT_NAME"]
+        base_path += environ["SCRIPT_NAME"]
         
         accepts = None 
         if environ.has_key("CONTENT_TYPE"):
@@ -116,7 +116,7 @@ def wsgi (dispatch_function, environ, start_response):
                 params[key.lower()] = value
         
         format, data = dispatch_function( 
-          host = host, 
+          base_path = base_path, 
           path_info = path_info, 
           params = params, 
           request_method = request_method, 
@@ -156,20 +156,20 @@ def cgi (dispatch_function):
         except TypeError:
             pass
         
-        path_info = host = ""
+        path_info = base_path = ""
 
         if "PATH_INFO" in os.environ: 
             path_info = os.environ["PATH_INFO"]
 
         if "HTTP_X_FORWARDED_HOST" in os.environ:
-            host      = "http://" + os.environ["HTTP_X_FORWARDED_HOST"]
+            base_path      = "http://" + os.environ["HTTP_X_FORWARDED_HOST"]
         elif "HTTP_HOST" in os.environ:
-            host      = "http://" + os.environ["HTTP_HOST"]
+            base_path      = "http://" + os.environ["HTTP_HOST"]
 
-        host += os.environ["SCRIPT_NAME"]
+        base_path += os.environ["SCRIPT_NAME"]
         
         format, data = dispatch_function( 
-          host = host, 
+          base_path = base_path, 
           path_info = path_info, 
           params = params, 
           request_method = request_method, 
