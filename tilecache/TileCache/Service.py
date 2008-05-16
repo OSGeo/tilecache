@@ -306,7 +306,7 @@ def handler (apacheReq):
     cfgs    = cfgfiles
     cfgTime = None
     if options.has_key("TileCacheConfig"):
-        cfgs = (options["TileCacheConfig"],) + cfgs
+        cfgs = cfgs + (options["TileCacheConfig"],)
         try:
             cfgTime = os.stat(options['TileCacheConfig'])[8]
         except:
