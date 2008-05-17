@@ -1,5 +1,8 @@
+<form method="post" action="/save/$layer.name">
 #for $obj in $layer.config_properties
   <p>  $obj.name: <input type="text" name="$obj.name" value="$getattr($layer, $obj.name)" size="100" />
    <br />
    $obj.description</p>
 #end for  
+<input type="submit" />
+</form>
