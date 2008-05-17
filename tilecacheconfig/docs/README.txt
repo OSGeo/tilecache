@@ -1,7 +1,7 @@
 Dependancies
 ============
 python-wsgiref (or Python 2.5)
-TileCache installed in your path
+SVN TileCache installed in your path: needs r282+ 
 
 Instructions
 ============
