@@ -1,3 +1,9 @@
+tilecache (2.03-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Christopher Schmidt <crschmidt@metacarta.com>  Mon, 19 May 2008 23:26:01 -0400
+
 tilecache (2.02-1) unstable; urgency=low
 
   * New upstream release. (Closes #471405)
