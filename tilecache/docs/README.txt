@@ -7,10 +7,10 @@ Cache and serve map tiles
 -------------------------
 
 :Author: labs@metacarta.com
-:Date:   2007-12-22 
+:Date:   2007-05-19
 :Copyright: (c) 2006-2008 MetaCarta, Inc.
             Distributed under the BSD license.
-:Version: 2.02 
+:Version: 2.03 
 :Manual section: 8
 :Manual group: GIS Utilities
 
@@ -43,11 +43,11 @@ tilecache_install_config.py. A full installation likely looks like::
   $ sudo easy_install TileCache
   ...
   Installed
-  /usr/lib/python2.5/site-packages/TileCache-2.02-py2.5.egg
+  /usr/lib/python2.5/site-packages/TileCache-2.03-py2.5.egg
   
   $ sudo tilecache_install_config.py
   Successfully copied file
-  /usr/lib/python2.5/site-packages/TileCache-2.02-py2.5.egg/TileCache/tilecache.cfg
+  /usr/lib/python2.5/site-packages/TileCache-2.03-py2.5.egg/TileCache/tilecache.cfg
   to /etc/tilecache.cfg.
   
 TileCache is also available as a Debian package from the TileCache homepage.

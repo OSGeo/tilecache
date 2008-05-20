@@ -1,3 +1,11 @@
+tilecache-2.03,  Mon, 19 May 2008 23:13:09 -0400
+ * Adding metadata about layers, etc. for allowing external clients
+   to better understand the parameters used by a layer.
+ * Improve programatic access to KML SuperOverlay output
+ * Add SuperOverlay documentation designed to assist integrators.
+ * Fix a bug in Memcache support with Metatiles.
+ * Fix ordering of mod_python cache loading to load local paths first.
+
 tilecache-2.02,  Sat, 10 May 2008 09:21:47 -0400
  * Add GoogleDisk cache, to save tiles to disk in z/x/y.ext format
  * Add VETMS Service, provided by Steven Ottens
