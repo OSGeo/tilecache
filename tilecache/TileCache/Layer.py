@@ -192,6 +192,15 @@ class Layer (object):
         return max( float(maxx - minx) / self.size[0],
                     float(maxy - miny) / self.size[1] )
 
+    def getClosestLevel (self, res, size = [256, 256]):
+        diff = sys.maxint
+        z = None
+        for i in range(len(self.resolutions)):
+            if diff > abs( self.resolutions[i] - res ):
+                diff = abs( self.resolutions[i] - res ) 
+                z = i
+        return z
+
     def getLevel (self, res, size = [256, 256]):
         """
         >>> l = Layer("name")
@@ -232,7 +241,10 @@ class Layer (object):
         res = self.getResolution((minx, miny, maxx, maxy))
         x = y = None
 
-        z = self.getLevel(res, self.size)
+        if exact:
+            z = self.getLevel(res, self.size)
+        else:
+            z = self.getClosestLevel(res, self.size)
 
         res = self.resolutions[z]
         x0 = (minx - self.bbox[0]) / (res * self.size[0])
