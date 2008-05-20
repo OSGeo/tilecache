@@ -1,0 +1,35 @@
+Using KML SuperOverlays from TileCache
+======================================
+
+TileCache has support for KML superoverlays. For any TileCache layer for which
+the source data is EPSG:4326, the KML Service provides GroundOverlay
+data with LevelOfDetail NetworkLinks to deeper levels of data.
+
+How to Use
+----------
+
+In order to display the KML data, there are two options:
+ * Create a link to a single tile which contains your tile of interest.
+   The tiling scheme for your data determines what the tile identifiers
+   are. Tiles match those used by TMS.
+ * Create a service that assembles multiple KML tile links into a single
+   KML document. This service should use NetworkLinks to point to other KML 
+   files to include. This service does not need to be comple: it simply
+   needs to create small KML documents which include only a small number of
+   networklinks, needed to link the user to an area.
+
+A simple document which does this -- for a given layername -- is included
+in doc/examples/overlay.kml.
+
+This sample document is designed to make available an entire worldwide set
+of tiles via TileCache: typically, one would create a more complex KML 
+generator that would, for example, specify a LookAt tag as well, so that a user could open the data in Google Earth based on where they were looking.
+Also, this KML file will let them zoom out -- but it means that the server 
+does need to generate (possibly many) KML documents to get the viewer to 
+where they want to be, because the KML Client will need to trawl its way
+through the entire Pyramid down to where the user is viewing. However,
+the image data is not included with the KML document, so this should be
+a lightweight server side operation: it's just somewhat slow to do many
+round trips, in general, so specifying (as a top level) some reasonaable
+compromise between the whole world and the targeted viewing plane might make
+sense.
