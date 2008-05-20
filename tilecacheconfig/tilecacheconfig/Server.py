@@ -5,9 +5,15 @@ import ConfigParser
 
 from Cheetah.Template import Template
 
+from mako.lookup import TemplateLookup
+
+template_lookup = TemplateLookup(directories=['templates'])
+
 def home(service, parts=None, **kwargs):
-    data = Template(open("templates/home_template.tmpl").read(), searchList=[{'layers':service.layers, 'cache':service.cache}])
-    return data
+    template = template_lookup.get_template("home_template.tmpl")
+    return template.render(cache=service.cache, layers=service.layers)
+    #data = Template(open("templates/home_template.tmpl").read(), searchList=[{'layers':service.layers, 'cache':service.cache}])
+    #return data
 
 def edit(service, parts=None, **kwargs):
     if not parts or (not service.layers.has_key(parts[0]) and parts[0] != "cache"):
@@ -17,7 +23,7 @@ def edit(service, parts=None, **kwargs):
             data = Template(open("templates/edit_cache.tmpl").read(), searchList=[{'cache':cache}])
         else:
             layer = service.layers[parts[0]]
-            data = Template(open("templates/edit_layer.tmpl").read(), searchList=[{'layer':layer}])
+            data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer)
         return str(data)
 
 def save(service, parts=None, params = {}, **kwargs):

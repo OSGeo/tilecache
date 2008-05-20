@@ -1,8 +1,15 @@
-<form method="post" action="/save/$layer.name">
-#for $obj in $layer.config_properties
-  <p>  $obj.name: <input type="text" name="$obj.name" value="$getattr($layer, $obj.name)" size="100" />
+<%inherit file="base.html"/>
+<form method="post" action="/save/${layer.name}">
+% for obj in layer.config_properties:
+<% 
+    
+    name = getattr(layer, obj['name'])
+    if isinstance(name, list):
+        name = ",".join(map(str, name))
+%>
+  <p>  ${obj['name']}: <input type="text" name="${obj['name']}" value="${name}" size="100" />
    <br />
-   $obj.description</p>
-#end for  
+   ${obj['description']}</p>
+% endfor  
 <input type="submit" />
 </form>

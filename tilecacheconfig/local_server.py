@@ -3,7 +3,7 @@ from web_request.handlers import wsgi
 from tilecacheconfig.Server import run
 
 def run_app(*args, **kwargs):
-    return run("/Users/crschmidt/tilecache/tilecache.cfg", *args, **kwargs) 
+    return run("/Users/crschmidt/tilecache-2.03/tilecache.cfg", *args, **kwargs) 
 
 def wsgiApp (environ, start_response):
     return wsgi(run_app, environ, start_response)
