@@ -33,3 +33,50 @@ a lightweight server side operation: it's just somewhat slow to do many
 round trips, in general, so specifying (as a top level) some reasonaable
 compromise between the whole world and the targeted viewing plane might make
 sense.
+
+Finding KML/Tile URLS
+---------------------
+TileCache KML documents are based around the TMS URL scheme. This means that
+for a TMS tile:
+
+  http://tile.openaerialmap.org/tiles/1.0.0/openaerialmap/0/0/0.png 
+
+the corresponding KML document is
+  
+  http://tile.openaerialmap.org/tiles/1.0.0/openaerialmap/0/0/0.kml
+
+By default, TileCache uses a 'whole world' extent, split into two tiles:
+western hemisphere and eastern. This means that to get the whole world into
+Google Earth, you would need to include links to 0/0/0.kml and 0/0/1.kml.
+
+TileCache can calculate a tile z/x/y from a bounding box using the getCell
+function on a layer. To use this::
+
+  >>> import TileCache.Service 
+  >>> s = TileCache.Service.load("tilecache.cfg")
+  >>> s.layers # doctest: +ELLIPSIS
+  {'basic': <TileCache.Layers.WMS.WMS object at ...>}
+  >>> s.layers['basic'] # doctest: +ELLIPSIS
+  <TileCache.Layers.WMS.WMS object at ...>
+  >>> basic = s.layers['basic']
+  >>> basic.getCell((-180,-90,0,90))
+  (0, 0, 0)
+  >>> cell = basic.getCell((-10,-90,12,-80), exact=False)
+  >>> cell
+  (8, 0, 3)
+
+Once you've done this, you can then use Python to construct a KML doc for the
+tile::
+
+  >>> from TileCache.Layer import Tile 
+  >>> tile = Tile(basic, cell[0], cell[1], cell[2])
+  >>> from TileCache.Services.KML import KML
+  >>> kml = KML(s)
+  >>> doc = kml.generate_kml_doc(tile, base_path="http://example.com/tilecache.cgi", include_wrapper=False)
+  >>> len(doc)
+  2546
+  >>> doc[550:600]
+  '\n    </GroundOverlay>\n    <NetworkLink>\n      <nam'
+
+.. test runner: 
+   python -c "import doctest; doctest.testfile('docs/SuperOverlays.txt', optionflags=doctest.ELLIPSIS)"
