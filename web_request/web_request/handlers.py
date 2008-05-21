@@ -53,13 +53,19 @@ def mod_python (dispatch_function, apache_request):
             for key in fields.keys():
                 params[key.lower()] = fields[key] 
         
-        format, data = dispatch_function( 
+        returned_data = dispatch_function( 
           base_path = base_path, 
           path_info = apache_request.path_info, 
           params = params, 
           request_method = request_method, 
           post_data = post_data, 
           accepts = accepts )
+        
+        format, data = returned_data[0:2]
+        headers = {'Content-Type': format}
+        if len(returned_data) == 3:
+            for key, value in returned_data[2].items():
+                apache_request.headers_out[key] = value
 
         apache_request.content_type = format
         apache_request.send_http_header()
@@ -115,14 +121,20 @@ def wsgi (dispatch_function, environ, start_response):
             for key, value in cgimod.parse_qsl(environ['QUERY_STRING']):
                 params[key.lower()] = value
         
-        format, data = dispatch_function( 
+        returned_data = dispatch_function( 
           base_path = base_path, 
           path_info = path_info, 
           params = params, 
           request_method = request_method, 
           post_data = post_data, 
           accepts = accepts )
-        start_response("200 OK", [('Content-Type', format)])
+        
+        format, data = returned_data[0:2]
+        headers = {'Content-Type': format}
+        if len(returned_data) == 3:
+            headers.update(returned_data[2])
+              
+        start_response("200 OK", headers.items())
         return [data]
 
     except ApplicationException, error:
@@ -168,7 +180,7 @@ def cgi (dispatch_function):
 
         base_path += os.environ["SCRIPT_NAME"]
         
-        format, data = dispatch_function( 
+        returned_data = dispatch_function( 
           base_path = base_path, 
           path_info = path_info, 
           params = params, 
@@ -176,7 +188,15 @@ def cgi (dispatch_function):
           post_data = post_data, 
           accepts = accepts )
         
+        format, data = returned_data[0:2]
+              
+        
+        if len(returned_data) == 3:
+            for (key, value) in returned_data[2].items():
+                print "%s: %s" % (key, value)
+
         print "Content-type: %s\n" % format
+        
 
         if sys.platform == "win32":
             binary_print(data)
