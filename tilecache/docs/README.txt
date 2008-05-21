@@ -338,6 +338,17 @@ If you are using MetaTiling, be aware that MapServer generates interlaced
 PNG files, which PIL will not read. See 
 http://mapserver.gis.umn.edu/docs/faq/pil_mapscript on how to resolve this. 
 
+USING WITH PYTHON-MAPSCRIPT
+===========================
+Several users have reported cases where large mapfiles combined with 
+python-mapscript has caused memory leaks, which eventually lead to 
+segfaults. If you are having problems with Apache/TileCache segfaults
+when using python-mapscript, then you should switch to using a WMS
+Layer instead of a MapServer Layer.
+
+All reported cases thus far have been on SuSE Linux: if you have this problem,
+please report it, with your platform, to the TileCache mailing list.  
+
 SEEDING YOUR TILECACHE
 ======================
 
