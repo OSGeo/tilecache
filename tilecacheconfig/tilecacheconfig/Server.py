@@ -33,7 +33,7 @@ def save(service, parts=None, params = {}, **kwargs):
         name = params['name']
         f = open(service.files[0], "w")
         for key, value in params.items():
-            if key == "name": continue
+            if key == "name" or value == "None" or value == "none" or value == "": continue
             service.config.set(name, key, value)
         service.config.write(f)
         f.close()
