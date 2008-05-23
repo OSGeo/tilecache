@@ -110,7 +110,7 @@ def wsgi (dispatch_function, environ, start_response):
         
         params = {}
         post_data = None
-        if environ['CONTENT_LENGTH']:
+        if environ.has_key('CONTENT_LENGTH') and environ['CONTENT_LENGTH']:
             post_data = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
         
         if post_data:
@@ -135,7 +135,7 @@ def wsgi (dispatch_function, environ, start_response):
             headers.update(returned_data[2])
               
         start_response("200 OK", headers.items())
-        return [data]
+        return [str(data)]
 
     except ApplicationException, error:
         start_response(error.get_error(), [('Content-Type','text/plain')])
