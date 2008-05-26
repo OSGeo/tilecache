@@ -1,5 +1,7 @@
 <%inherit file="base.html"/>
 <form name="edit_layer" method="post" action="/save/${layer.name}">
+<h2>Layer Configuration</h2>
+<table>
 <% 
   seen = {}
 %>  
@@ -19,7 +21,11 @@
     continue   
   %>
   % endif  
-  <p>  ${obj['name']}: 
+<tr>
+<td>
+  ${obj['name']}: 
+</td>
+<td>
    % if obj.has_key('type') and obj['type'] == "boolean":
        <select name="${obj['name']}">
          <option></option>
@@ -38,8 +44,23 @@
      <input type="text" name="${obj['name']}" value="${name}" size="100" />
    % endif
    <br />
-   ${obj['description']}</p>
-% endfor  
+   ${obj['description']}
+</td></tr>   
+% endfor 
+</table>
+<h2>Layer Metadata</h2>
+<table>
+% for key in extras:
+<% 
+  if layer.metadata.has_key(key):  
+    value = layer.metadata[key]
+  else: 
+    value = ""
+%>
+     <tr><td>${key}:</td><td> <input type="text" name="metadata_${key}" value="${value}" size="100" /></td></tr>
+% endfor
+</table>
+    
 <input type="submit" />
 </form>
 

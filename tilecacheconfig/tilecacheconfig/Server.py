@@ -23,7 +23,7 @@ def edit(service, parts=None, **kwargs):
             data = Template(open("templates/edit_cache.tmpl").read(), searchList=[{'cache':cache}])
         else:
             layer = service.layers[parts[0]]
-            data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer)
+            data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer, extras = service.metadata['additional_keys'])
         return str(data)
 
 def save(service, parts=None, params = {}, **kwargs):
@@ -33,8 +33,14 @@ def save(service, parts=None, params = {}, **kwargs):
         name = params['name']
         f = open(service.files[0], "w")
         for key, value in params.items():
-            if key == "name" or value == "None" or value == "none" or value == "": continue
+            if key == "name": continue
+            if value == "None" or value == "none" or value == "":
+                print name, key
+                service.config.remove_option(name, key)
+                continue
+            print name, key, repr(value)   
             service.config.set(name, key, value)
+        
         service.config.write(f)
         f.close()
         
@@ -51,8 +57,14 @@ dispatch_urls = {
  'save': save, 
 } 
 
-def run(config_path = "/etc/tilecache.cfg", path_info = None, **kwargs):
+def run(config_path = "/etc/tilecache.cfg", path_info = None, additional_metadata = None, **kwargs):
     s = Service.load(config_path)
+    
+    if additional_metadata == None:
+        additional_metadata = [] 
+    
+    s.metadata['additional_keys'] = additional_metadata
+
     if s.metadata.has_key('exception'):
         data = [
           "Current TileCache config is invalid.", 
