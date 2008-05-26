@@ -11,7 +11,7 @@ class JSON(TMS):
               'resolutions': layer.resolutions,
               'metadata': layer.metadata,
               'srs': layer.srs,
-              'units': layers.units,
+              'units': layer.units,
             }
         
         obj = {'layers': layers}
