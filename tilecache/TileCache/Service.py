@@ -193,6 +193,9 @@ class Service (object):
         elif params.has_key("tile"):
             from TileCache.Services.VETMS import VETMS 
             tile = VETMS(self).parse(params, path_info, host)
+        elif params.has_key("format") and params['format'].lower() == "json":
+            from TileCache.Services.JSON import JSON 
+            return JSON(self).parse(params, path_info, host)
         else:
             from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
