@@ -135,7 +135,7 @@ class Layer (object):
         self.layers = layers or name
         
         self.spherical_mercator = spherical_mercator and spherical_mercator.lower() in ["yes", "y", "t", "true"]
-        if spherical_mercator:
+        if self.spherical_mercator:
             bbox = "-20037508.34,-20037508.34,20037508.34,20037508.34"
             maxresolution = "156543.0339"
             srs = "EPSG:900913"
