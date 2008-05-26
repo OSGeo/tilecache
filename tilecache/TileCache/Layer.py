@@ -98,11 +98,16 @@ class Layer (object):
                   "size", "resolutions", "extension", "srs",
                   "cache", "debug", "description", 
                   "watermarkimage", "watermarkopacity",
-                  "extent_type", "tms_type", "units", "mime_type")
+                  "extent_type", "tms_type", "units", "mime_type",
+                  "spherical_mercator", "metadata")
     
     config_properties = [
+      {'name':'description', 'description':'Description for layer'},
+      {'name':'spherical_mercator', 'description':'Layer is in spherical mercator. (Overrides bbox, maxresolution, SRS, Units)', 'type': 'boolean'},
       {'name':'layers', 'description': 'Comma seperated list of layers associated with this layer.'},
-      {'name':'bbox', 'description':'Bounding box of the layer', 'default':'-180,-90,180,90'}
+      {'name':'extension', 'description':'File type extension', 'default':'png'},
+      {'name':'bbox', 'description':'Bounding box of the layer', 'default':'-180,-90,180,90'},
+      {'name':'srs', 'description':'Spatial Reference System for the layer', 'default':'EPSG:4326'},
     ]  
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
@@ -111,7 +116,7 @@ class Layer (object):
                         extension = "png", mime_type = None, cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
                         spherical_mercator = False,
-                        extent_type = "strict", units = "degrees", tms_type = "" ):
+                        extent_type = "strict", units = "degrees", tms_type = "", **kwargs ):
         """Take in parameters, usually from a config file, and create a Layer.
 
         >>> l = Layer("Name", bbox="-12,17,22,36", debug="no")
@@ -129,7 +134,8 @@ class Layer (object):
         self.description = description
         self.layers = layers or name
         
-        if spherical_mercator != False:
+        self.spherical_mercator = spherical_mercator and spherical_mercator.lower() in ["yes", "y", "t", "true"]
+        if spherical_mercator:
             bbox = "-20037508.34,-20037508.34,20037508.34,20037508.34"
             maxresolution = "156543.0339"
             srs = "EPSG:900913"
@@ -182,6 +188,15 @@ class Layer (object):
         self.watermarkimage = watermarkimage
         
         self.watermarkopacity = float(watermarkopacity)
+        
+        self.metadata = {}
+
+        prefix_len = len("metadata_")
+        for key in kwargs:
+            if key.startswith("metadata_"):
+                self.metadata[key[prefix_len:]] = kwargs[key]
+                
+                
 
     def getResolution (self, (minx, miny, maxx, maxy)):
         """
@@ -329,7 +344,7 @@ class MetaLayer (Layer):
     
     config_properties = Layer.config_properties + [
       {'name':'name', 'description': 'Name of Layer'}, 
-      {'name':'metaTile', 'description': 'Should metatiling be used on this layer?', 'default': 'no'},
+      {'name':'metaTile', 'description': 'Should metatiling be used on this layer?', 'default': 'false', 'type':'boolean'},
       {'name': 'metaSize', 'description': 'Comma seperated-pair of numbers, defininig the tiles included in a single size', 'default': "5,5"},
       {'name': 'metaBuffer', 'description': 'Number of pixels outside the metatile to include in the render request.'}
     ]  
