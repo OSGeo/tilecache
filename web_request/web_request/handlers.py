@@ -114,11 +114,11 @@ def wsgi (dispatch_function, environ, start_response):
             post_data = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
         
         if post_data:
-            for key, value in cgimod.parse_qsl(post_data):
+            for key, value in cgimod.parse_qsl(post_data, keep_blank_values=True):
                 params[key.lower()] = value
         
         if environ.has_key('QUERY_STRING'):
-            for key, value in cgimod.parse_qsl(environ['QUERY_STRING']):
+            for key, value in cgimod.parse_qsl(environ['QUERY_STRING'], keep_blank_values=True):
                 params[key.lower()] = value
         
         returned_data = dispatch_function( 
