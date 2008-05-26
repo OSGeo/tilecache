@@ -5,7 +5,14 @@ class JSON(TMS):
     def parse(self, fields, path, host):
         layers = {} 
         for name, layer in self.service.layers.items():
-            layers[name] = {'bbox': layer.bbox, 'metadata': layer.metadata,}
+            
+            layers[name] = {
+              'bbox': layer.bbox,
+              'resolutions': layer.resolutions,
+              'metadata': layer.metadata,
+              'srs': layer.srs,
+              'units': layers.units,
+            }
         
         obj = {'layers': layers}
         data = simplejson.dumps(obj)
