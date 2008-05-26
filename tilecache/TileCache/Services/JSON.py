@@ -6,4 +6,9 @@ class JSON(TMS):
         layers = {} 
         for name, layer in self.service.layers.items():
             layers[name] = {'bbox': layer.bbox, 'metadata': layer.metadata,}
-        return ("application/json", simplejson.dumps(layers)) 
+        
+        obj = {'layers': layers}
+        data = simplejson.dumps(obj)
+        if 'callback' in fields:
+            data = "%s(%s)" % (fields['callback'], data)
+        return ("application/json", data) 
