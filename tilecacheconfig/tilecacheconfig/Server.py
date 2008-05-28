@@ -1,4 +1,7 @@
 from TileCache.Service import Service
+import TileCache.Layers
+
+import pkgutil
 
 from StringIO import StringIO
 import ConfigParser
@@ -50,11 +53,21 @@ def save(service, parts=None, params = {}, **kwargs):
         
         return ['text/plain', data]
 
+def new(service, parts=None, params = {}, **kwargs):
+    paths = TileCache.Layers.__path__
+    types = []
+    for mod in pkgutil.iter_modules(TileCache.Layers.__path__):
+        types.append(mod[1])
+    
+    data = template_lookup.get_template("new_layer.tmpl").render(types=types)
+    return ['text/html', data]
+
 dispatch_urls = {
  '': home,
  'home': home,
  'edit': edit,
  'save': save, 
+ 'new': new,
 } 
 
 def run(config_path = "/etc/tilecache.cfg", path_info = None, additional_metadata = None, **kwargs):
