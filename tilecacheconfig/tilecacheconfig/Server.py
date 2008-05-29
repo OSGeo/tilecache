@@ -38,10 +38,8 @@ def save(service, parts=None, params = {}, **kwargs):
         for key, value in params.items():
             if key == "name": continue
             if value == "None" or value == "none" or value == "":
-                print name, key
                 service.config.remove_option(name, key)
                 continue
-            print name, key, repr(value)   
             service.config.set(name, key, value)
         
         service.config.write(f)
@@ -54,13 +52,32 @@ def save(service, parts=None, params = {}, **kwargs):
         return ['text/plain', data]
 
 def new(service, parts=None, params = {}, **kwargs):
-    paths = TileCache.Layers.__path__
-    types = []
-    for mod in pkgutil.iter_modules(TileCache.Layers.__path__):
-        types.append(mod[1])
-    
-    data = template_lookup.get_template("new_layer.tmpl").render(types=types)
-    return ['text/html', data]
+    if params.has_key('submit'):
+        
+        f = open(service.files[0], "w")
+        name = params['name']
+        type = params['type']
+        
+        service.config.add_section(name)
+        service.config.set(name, "type", type)
+        
+        service.config.write(f)
+        f.close()
+        
+        f = open(service.files[0])
+        data = f.read()
+        f.close()
+        return ['text/plain', data]
+
+
+    else:
+        paths = TileCache.Layers.__path__
+        types = []
+        for mod in pkgutil.iter_modules(TileCache.Layers.__path__):
+            types.append(mod[1])
+        
+        data = template_lookup.get_template("new_layer.tmpl").render(types=types)
+        return ['text/html', data]
 
 dispatch_urls = {
  '': home,
