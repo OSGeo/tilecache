@@ -6,8 +6,6 @@ import pkgutil
 from StringIO import StringIO
 import ConfigParser
 
-from Cheetah.Template import Template
-
 from mako.lookup import TemplateLookup
 
 template_lookup = TemplateLookup(directories=['templates'])
