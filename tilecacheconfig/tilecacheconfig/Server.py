@@ -12,11 +12,11 @@ from web_request.response import Response
 
 from mako.lookup import TemplateLookup
 
-template_lookup = TemplateLookup(directories=['templates'])
+template_lookup = TemplateLookup(directories=['/home/user/tilecacheconfig/templates'])
 
 def home(service, parts=None, **kwargs):
     template = template_lookup.get_template("home_template.tmpl")
-    return template.render(cache=service.cache, layers=service.layers)
+    return template.render(cache=service.cache, layers=service.layers, base=kwargs['base_path'])
     #data = Template(open("templates/home_template.tmpl").read(), searchList=[{'layers':service.layers, 'cache':service.cache}])
     #return data
 
@@ -24,11 +24,8 @@ def edit(service, parts=None, **kwargs):
     if not parts or (not service.layers.has_key(parts[0]) and parts[0] != "cache"):
         return "Error"
     else:
-        if parts[0] == "cache": 
-            data = Template(open("templates/edit_cache.tmpl").read(), searchList=[{'cache':cache}])
-        else:
-            layer = service.layers[parts[0]]
-            data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer, extras = service.metadata['additional_keys'])
+        layer = service.layers[parts[0]]
+        data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer, extras = service.metadata['additional_keys'], base = kwargs['base_path'])
         return str(data)
 
 def save(service, parts=None, params = {}, **kwargs):
@@ -90,7 +87,7 @@ def new(service, parts=None, params = {}, **kwargs):
     else:
         types = find_packages(TileCache.Layers)
         
-        data = template_lookup.get_template("new_layer.tmpl").render(types=types)
+        data = template_lookup.get_template("new_layer.tmpl").render(types=types, base = kwargs['base_path'])
         return ['text/html', data]
 
 dispatch_urls = {
