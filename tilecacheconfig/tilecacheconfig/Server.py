@@ -1,31 +1,46 @@
 from TileCache.Service import Service
 import TileCache.Layers
 
+import ConfigParser
+
 from pydoc import ispackage
 
 import os, inspect
 
 from StringIO import StringIO
-import ConfigParser
 
 from web_request.response import Response
 
 from mako.lookup import TemplateLookup
 
-template_lookup = TemplateLookup(directories=['/home/user/tilecacheconfig/templates'])
+
+template_lookup = None 
 
 def home(service, parts=None, **kwargs):
     template = template_lookup.get_template("home_template.tmpl")
     return template.render(cache=service.cache, layers=service.layers, base=kwargs['base_path'])
-    #data = Template(open("templates/home_template.tmpl").read(), searchList=[{'layers':service.layers, 'cache':service.cache}])
-    #return data
 
-def edit(service, parts=None, **kwargs):
+def view(service, parts=None, tilecache_location = None, **kwargs):
+    if not tilecache_location:
+        return "No TileCache location is configured. Add tilecache_location to your config to use."
+
     if not parts or (not service.layers.has_key(parts[0]) and parts[0] != "cache"):
         return "Error"
     else:
         layer = service.layers[parts[0]]
-        data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer, extras = service.metadata['additional_keys'], base = kwargs['base_path'])
+        data = template_lookup.get_template("view_layer.tmpl").render(layer=layer, 
+            tilecache_location=tilecache_location,
+            base = kwargs['base_path'])
+        return str(data)
+
+def edit(service, parts=None, additional_keys = None, **kwargs):
+    if not parts or (not service.layers.has_key(parts[0]) and parts[0] != "cache"):
+        return "Error"
+    else:
+        layer = service.layers[parts[0]]
+        data = template_lookup.get_template("edit_layer.tmpl").render(layer=layer, 
+            extras = additional_keys, 
+            base = kwargs['base_path'])
         return str(data)
 
 def save(service, parts=None, params = {}, **kwargs):
@@ -53,17 +68,13 @@ def save(service, parts=None, params = {}, **kwargs):
         return r
 
 def find_packages(object):
-    modpkgs = []
     modnames = []
     for file in os.listdir(object.__path__[0]):
         path = os.path.join(object.__path__[0], file)
         modname = inspect.getmodulename(file)
         if modname != '__init__':
             if modname and modname not in modnames:
-                modpkgs.append((modname, 0, 0))
                 modnames.append(modname)
-            elif ispackage(path):
-                modpkgs.append((file, 1, 0))
     return modnames
 
 
@@ -96,15 +107,33 @@ dispatch_urls = {
  'edit': edit,
  'save': save, 
  'new': new,
+ 'view': view,
 } 
 
-def run(config_path = "/etc/tilecache.cfg", path_info = None, additional_metadata = None, **kwargs):
-    s = Service.load(config_path)
+def run(config_path = "config.cfg", path_info = None, **kwargs):
+    global template_lookup
     
-    if additional_metadata == None:
-        additional_metadata = [] 
+    c = ConfigParser.ConfigParser()
+    c.read(config_path)
+
+    tc_path = c.get("config", "tilecache_config")
+
+    s = Service.load(tc_path)
     
-    s.metadata['additional_keys'] = additional_metadata
+    template_path = c.get("config", "template_path")
+
+    tilecache_location = None
+    if c.has_option('config', "tilecache_location"):
+        tilecache_location = c.get("config", "tilecache_location")
+
+    template_lookup = TemplateLookup(directories=[template_path])
+    
+    additional_metadata = [] 
+    
+    try:
+        additional_metadata = [i[0] for i in c.items("properties")]
+    except ConfigParser.NoSectionError:
+        pass
 
     if s.metadata.has_key('exception'):
         data = [
@@ -113,11 +142,15 @@ def run(config_path = "/etc/tilecache.cfg", path_info = None, additional_metadat
           "Traceback: \n %s" % s.metadata['traceback']
         ]
         return ['text/plain', "\n".join(data)]
+    
     data = ""
     stripped = path_info.strip("/")
     stripped_split = stripped.split("/")
     if dispatch_urls.has_key(stripped_split[0]):
-        data = dispatch_urls[stripped_split[0]](s, parts=stripped_split[1:], **kwargs)
+        data = dispatch_urls[stripped_split[0]](s, parts=stripped_split[1:], 
+                                                additional_keys = additional_metadata, 
+                                                tilecache_location = tilecache_location,
+                                                **kwargs)
     
     if isinstance(data, list) or isinstance(data, Response):
         return data
