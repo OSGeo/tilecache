@@ -107,7 +107,7 @@ class Layer (object):
       {'name':'extension', 'description':'File type extension', 'default':'png'},
       {'name':'bbox', 'description':'Bounding box of the layer grid', 'default':'-180,-90,180,90'},
       {'name':'srs', 'description':'Spatial Reference System for the layer', 'default':'EPSG:4326'},
-      {'name':'data_extent', 'description':'Bounding box of the layer data. (Same SRS as the layer grid.)', 'default':'-180,-90,180,90', 'type': 'map'},
+      {'name':'data_extent', 'description':'Bounding box of the layer data. (Same SRS as the layer grid.)', 'default':"", 'type': 'map'},
     ]  
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
@@ -139,7 +139,8 @@ class Layer (object):
         if self.spherical_mercator:
             bbox = "-20037508.34,-20037508.34,20037508.34,20037508.34"
             maxresolution = "156543.0339"
-            srs = "EPSG:900913"
+            if srs == "EPSG:4326":
+                srs = "EPSG:900913"
             units = "meters"
 
         if isinstance(bbox, str): 
@@ -148,7 +149,7 @@ class Layer (object):
         
         if isinstance(data_extent, str): 
             data_extent = map(float, data_extent.split(","))
-        self.data_extent = data_extent
+        self.data_extent = data_extent or bbox
         
         if isinstance(size, str): 
             size = map(int, size.split(","))
