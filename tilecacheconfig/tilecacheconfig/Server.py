@@ -36,7 +36,6 @@ def save(service, parts=None, params = {}, **kwargs):
         return "Error"
     else:
         name = params['name']
-        f = open(service.files[0], "w")
         for key, value in params.items():
             if key == "name": continue
             if value == "None" or value == "none" or value == "":
@@ -44,6 +43,7 @@ def save(service, parts=None, params = {}, **kwargs):
                 continue
             service.config.set(name, key, value)
         
+        f = open(service.files[0], "w")
         service.config.write(f)
         f.close()
         
@@ -51,7 +51,9 @@ def save(service, parts=None, params = {}, **kwargs):
         data = f.read()
         f.close()
         
-        return ['text/plain', data]
+        r = Response("Redirecting...", headers={'Location': "%s" % (kwargs['base_path'])}, status_code=302)
+
+        return r
 
 def find_packages(object):
     modpkgs = []
@@ -70,14 +72,13 @@ def find_packages(object):
 
 def new(service, parts=None, params = {}, **kwargs):
     if params.has_key('submit'):
-        
-        f = open(service.files[0], "w")
         name = params['name']
         type = params['type']
         
         service.config.add_section(name)
         service.config.set(name, "type", type)
         
+        f = open(service.files[0], "w")
         service.config.write(f)
         f.close()
         
