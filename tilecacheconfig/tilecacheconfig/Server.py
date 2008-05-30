@@ -8,6 +8,8 @@ import os, inspect
 from StringIO import StringIO
 import ConfigParser
 
+from web_request.response import Response
+
 from mako.lookup import TemplateLookup
 
 template_lookup = TemplateLookup(directories=['templates'])
@@ -79,10 +81,9 @@ def new(service, parts=None, params = {}, **kwargs):
         service.config.write(f)
         f.close()
         
-        f = open(service.files[0])
-        data = f.read()
-        f.close()
-        return ['text/plain', data]
+        r = Response("Redirecting...", headers={'Location': "%s/edit/%s" % (kwargs['base_path'], name)}, status_code=302)
+
+        return r
 
 
     else:
@@ -120,7 +121,7 @@ def run(config_path = "/etc/tilecache.cfg", path_info = None, additional_metadat
     if dispatch_urls.has_key(stripped_split[0]):
         data = dispatch_urls[stripped_split[0]](s, parts=stripped_split[1:], **kwargs)
     
-    if isinstance(data, list):
+    if isinstance(data, list) or isinstance(data, Response):
         return data
     
     return ['text/html', str(data)]
