@@ -1,5 +1,7 @@
 # BSD Licensed, Copyright (c) 2006-2008 MetaCarta, Inc.
 
+import sys
+
 from TileCache.Layer import MetaLayer
 
 class Mapnik(MetaLayer):
