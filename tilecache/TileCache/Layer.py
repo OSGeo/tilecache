@@ -254,11 +254,6 @@ class Layer (object):
         >>> l.getCell((-45.,-45.,0.,0.))
         (3, 1, 2)
         """
-        if exact and self.extent_type == "strict" and not self.contains((minx, miny)): 
-            raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
-                     % (minx, miny, self.bbox))
-            return None
-
         res = self.getResolution((minx, miny, maxx, maxy))
         x = y = None
 
@@ -268,6 +263,12 @@ class Layer (object):
             z = self.getClosestLevel(res, self.size)
 
         res = self.resolutions[z]
+        
+        if exact and self.extent_type == "strict" and not self.contains((minx, miny), res): 
+            raise TileCacheException("Lower left corner (%f, %f) is outside layer bounds %s. \nTo remove this condition, set extent_type=loose in your configuration." 
+                     % (minx, miny, self.bbox))
+            return None
+
         x0 = (minx - self.bbox[0]) / (res * self.size[0])
         y0 = (miny - self.bbox[1]) / (res * self.size[1])
         
@@ -307,7 +308,7 @@ class Layer (object):
         if not coord: return None
         return Tile(self, *coord)
 
-    def contains (self, (x, y)):
+    def contains (self, (x, y), res = 0):
         """
         >>> l = Layer("name")
         >>> l.contains((0,0))
@@ -315,8 +316,12 @@ class Layer (object):
         >>> l.contains((185, 94))
         False
         """
-        return x >= self.bbox[0] and x <= self.bbox[2] \
-           and y >= self.bbox[1] and y <= self.bbox[3]
+        diff_x1 = abs(x - self.bbox[0])
+        diff_x2 = abs(x - self.bbox[2])
+        diff_y1 = abs(y - self.bbox[1]) 
+        diff_y2 = abs(y - self.bbox[3]) 
+        return (x >= self.bbox[0] or diff_x1 < res) and (x <= self.bbox[2] or diff_x2 < res) \
+           and (y >= self.bbox[1] or diff_y1 < res) and (y <= self.bbox[3] or diff_y2 < res)
 
     def grid (self, z):
         """
