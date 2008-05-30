@@ -102,12 +102,12 @@ class Layer (object):
                   "spherical_mercator", "metadata")
     
     config_properties = [
-      {'name':'description', 'description':'Description for layer'},
       {'name':'spherical_mercator', 'description':'Layer is in spherical mercator. (Overrides bbox, maxresolution, SRS, Units)', 'type': 'boolean'},
       {'name':'layers', 'description': 'Comma seperated list of layers associated with this layer.'},
       {'name':'extension', 'description':'File type extension', 'default':'png'},
-      {'name':'bbox', 'description':'Bounding box of the layer', 'default':'-180,-90,180,90'},
+      {'name':'bbox', 'description':'Bounding box of the layer grid', 'default':'-180,-90,180,90'},
       {'name':'srs', 'description':'Spatial Reference System for the layer', 'default':'EPSG:4326'},
+      {'name':'data_extent', 'description':'Bounding box of the layer data. (Same SRS as the layer grid.)', 'default':'-180,-90,180,90', 'type': 'map'},
     ]  
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
