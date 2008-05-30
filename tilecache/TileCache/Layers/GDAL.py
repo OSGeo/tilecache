@@ -49,7 +49,7 @@ class GDAL(MetaLayer):
             self.geo_transform = (0.0, 1.0, 0.0, self.ds.RasterYSize, 0.0, -1.0)
         size = [self.ds.RasterXSize, self.ds.RasterYSize]
         xform = self.geo_transform
-        self.bounds = [
+        self.data_extent = [
            xform[0] + self.ds.RasterYSize * xform[2],
            xform[3] + self.ds.RasterYSize * xform[5],  
            xform[0] + self.ds.RasterXSize * xform[1],
@@ -65,10 +65,8 @@ class GDAL(MetaLayer):
         # If the image is entirely outside the bounds, don't bother doing anything with it:
         # just return an 'empty' tile.
         
-        print bounds
-        print self.bounds
-        if not (bounds[2] < self.bounds[0] or bounds[0] > self.bounds[2] or
-            bounds[3] < self.bounds[1] or bounds[1] > self.bounds[3]):
+        if not (bounds[2] < self.data_extent[0] or bounds[0] > self.data_extent[2] or
+            bounds[3] < self.data_extent[1] or bounds[1] > self.data_extent[3]):
             tile_offset_left = tile_offset_top = 0
             
             target_size = tile.size()
