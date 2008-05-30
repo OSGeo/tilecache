@@ -94,7 +94,7 @@ class MetaTile (Tile):
         return (minx, miny, maxx, maxy)
 
 class Layer (object):
-    __slots__ = ( "name", "layers", "bbox", 
+    __slots__ = ( "name", "layers", "bbox", "data_extent", 
                   "size", "resolutions", "extension", "srs",
                   "cache", "debug", "description", 
                   "watermarkimage", "watermarkopacity",
@@ -111,6 +111,7 @@ class Layer (object):
     ]  
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
+                        data_extent = None,
                         srs  = "EPSG:4326", description = "", maxresolution = None,
                         size = (256, 256), levels = 20, resolutions = None,
                         extension = "png", mime_type = None, cache = None,  debug = True, 
@@ -144,6 +145,10 @@ class Layer (object):
         if isinstance(bbox, str): 
             bbox = map(float, bbox.split(","))
         self.bbox = bbox
+        
+        if isinstance(data_extent, str): 
+            data_extent = map(float, data_extent.split(","))
+        self.data_extent = data_extent
         
         if isinstance(size, str): 
             size = map(int, size.split(","))

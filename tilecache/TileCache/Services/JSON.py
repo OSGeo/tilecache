@@ -8,6 +8,7 @@ class JSON(TMS):
             
             layers[name] = {
               'bbox': layer.bbox,
+              'data_extent': layer.data_extent,
               'resolutions': layer.resolutions,
               'metadata': layer.metadata,
               'srs': layer.srs,
