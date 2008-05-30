@@ -1,7 +1,9 @@
 from TileCache.Service import Service
 import TileCache.Layers
 
-import pkgutil
+from pydoc import ispackage
+
+import os, inspect
 
 from StringIO import StringIO
 import ConfigParser
@@ -49,6 +51,21 @@ def save(service, parts=None, params = {}, **kwargs):
         
         return ['text/plain', data]
 
+def find_packages(object):
+    modpkgs = []
+    modnames = []
+    for file in os.listdir(object.__path__[0]):
+        path = os.path.join(object.__path__[0], file)
+        modname = inspect.getmodulename(file)
+        if modname != '__init__':
+            if modname and modname not in modnames:
+                modpkgs.append((modname, 0, 0))
+                modnames.append(modname)
+            elif ispackage(path):
+                modpkgs.append((file, 1, 0))
+    return modnames
+
+
 def new(service, parts=None, params = {}, **kwargs):
     if params.has_key('submit'):
         
@@ -69,10 +86,7 @@ def new(service, parts=None, params = {}, **kwargs):
 
 
     else:
-        paths = TileCache.Layers.__path__
-        types = []
-        for mod in pkgutil.iter_modules(TileCache.Layers.__path__):
-            types.append(mod[1])
+        types = find_packages(TileCache.Layers)
         
         data = template_lookup.get_template("new_layer.tmpl").render(types=types)
         return ['text/html', data]
