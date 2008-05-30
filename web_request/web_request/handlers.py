@@ -4,6 +4,8 @@
 
 import sys, os, traceback
 import cgi as cgimod
+from web_request.response import Response
+
 
 class ApplicationException(Exception): 
     """Any application exception should be subclassed from here. """
@@ -61,15 +63,25 @@ def mod_python (dispatch_function, apache_request):
           post_data = post_data, 
           accepts = accepts )
         
-        format, data = returned_data[0:2]
-        headers = {'Content-Type': format}
-        if len(returned_data) == 3:
-            for key, value in returned_data[2].items():
-                apache_request.headers_out[key] = value
+        if isinstance(returned_data, list) or isinstance(returned_data, tuple): 
+            format, data = returned_data[0:2]
+            if len(returned_data) == 3:
+                for key, value in returned_data[2].items():
+                    apache_request.headers_out[key] = value
 
-        apache_request.content_type = format
-        apache_request.send_http_header()
-        apache_request.write(data)
+            apache_request.content_type = format
+            apache_request.send_http_header()
+            apache_request.write(data)
+        else:
+            obj = returned_data
+            if obj.extra_headers:
+                for key, value in obj.extra_headers.items():
+                    apache_request.headers_out[key] = value
+
+            apache_request.content_type = obj.content_type
+            apache_request.send_http_header()
+            apache_request.write(obj.data)
+
     except ApplicationException, error:
         apache_request.content_type = "text/plain"
         apache_request.status = error.status_code 
@@ -129,13 +141,23 @@ def wsgi (dispatch_function, environ, start_response):
           post_data = post_data, 
           accepts = accepts )
         
-        format, data = returned_data[0:2]
-        headers = {'Content-Type': format}
-        if len(returned_data) == 3:
-            headers.update(returned_data[2])
-              
-        start_response("200 OK", headers.items())
-        return [str(data)]
+        if isinstance(returned_data, list) or isinstance(returned_data, tuple): 
+
+            format, data = returned_data[0:2]
+            headers = {'Content-Type': format}
+            if len(returned_data) == 3:
+                headers.update(returned_data[2])
+                  
+            start_response("200 OK", headers.items())
+            return [str(data)]
+        else:
+            # This is a a web_request.Response.Response object
+            headers = { 'Content-Type': returned_data.content_type }
+            if returned_data.extra_headers:
+                headers.update(returned_data.extra_headers)
+            start_response("%s Message" % returned_data.status_code,
+                           headers.items())
+            return [str(returned_data.data)]
 
     except ApplicationException, error:
         start_response(error.get_error(), [('Content-Type','text/plain')])
@@ -188,20 +210,33 @@ def cgi (dispatch_function):
           post_data = post_data, 
           accepts = accepts )
         
-        format, data = returned_data[0:2]
-              
-        
-        if len(returned_data) == 3:
-            for (key, value) in returned_data[2].items():
-                print "%s: %s" % (key, value)
+        if isinstance(returned_data, list) or isinstance(returned_data, tuple): 
+            format, data = returned_data[0:2]
+            
+            if len(returned_data) == 3:
+                for (key, value) in returned_data[2].items():
+                    print "%s: %s" % (key, value)
 
-        print "Content-type: %s\n" % format
-        
+            print "Content-type: %s\n" % format
 
-        if sys.platform == "win32":
-            binary_print(data)
+            if sys.platform == "win32":
+                binary_print(data)
+            else:    
+                print data 
+        
         else:    
-            print data 
+            # Returned object is a 'response'
+            obj = returned_data
+            if obj.extra_headers:
+                for (key, value) in obj.extra_headers.items(): 
+                    print "%s: %s" % (key, value)
+
+            print "Content-type: %s\n" % obj.content_type
+
+            if sys.platform == "win32":
+                binary_print(obj.data)
+            else:    
+                print obj.data 
     
     except ApplicationException, error:
         print "Cache-Control: max-age=10, must-revalidate" # make the client reload        
