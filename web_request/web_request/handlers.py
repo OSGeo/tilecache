@@ -183,6 +183,11 @@ def cgi (dispatch_function):
             post_data = sys.stdin.read()
         
         params = {}
+        if post_data:
+            for key, value in cgimod.parse_qsl(post_data, keep_blank_values=True):
+                params[key.lower()] = value
+
+
         fields = cgimod.FieldStorage()
         try:
             for key in fields.keys(): 
@@ -248,4 +253,5 @@ def cgi (dispatch_function):
         print "An error occurred: %s\n%s\n" % (
             str(error), 
             "".join(traceback.format_tb(sys.exc_traceback)))
+        print params    
 
