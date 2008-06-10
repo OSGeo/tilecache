@@ -67,7 +67,7 @@
 <script>
   function update_disabled() { 
     var form = document.forms.edit_layer;
-    var keys = {'spherical_mercator': {'items':['bbox', 'srs'], 'on':false}, 'metaTile': {'items':['metaSize','metaBuffer'], 'on': true}};  
+    var keys = {'metaTile': {'items':['metaSize','metaBuffer'], 'on': true}};  
     for (var key in keys) {
         var key_list = keys[key]['items'];
         for (var i = 0; i < key_list.length; i++) {
