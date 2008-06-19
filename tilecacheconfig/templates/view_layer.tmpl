@@ -1,8 +1,9 @@
 <%inherit file="base.html"/>
 <h2>${layer.name}</h2>
-<div id="map" style="width:400px;height:400px"></div>
+<div id="map" style="width:700px;height:700px;border: 1px solid black "></div>
 <script src="http://openlayers.org/api/OpenLayers.js"></script> 
 <script>
+OpenLayers.Util.onImageLoadError = function() { }
 function load_data(data) {
     var l = data.layers['${layer.name}'];
     var string = "";
