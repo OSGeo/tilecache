@@ -63,7 +63,7 @@ def save(service, parts=None, params = {}, **kwargs):
         data = f.read()
         f.close()
         
-        r = Response("Redirecting...", headers={'Location': "%s" % (kwargs['base_path'])}, status_code=302)
+        r = Response("Redirecting...", headers={'Location': "%s/" % (kwargs['base_path'])}, status_code=302)
 
         return r
 
@@ -112,7 +112,6 @@ dispatch_urls = {
 
 def run(config_path = "config.cfg", path_info = None, **kwargs):
     global template_lookup
-    
     c = ConfigParser.ConfigParser()
     c.read(config_path)
 
