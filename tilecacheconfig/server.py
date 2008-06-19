@@ -12,8 +12,8 @@ def handler(apache_request):
     options = apache_request.get_options() 
     config = options.get("ConfigFile", "/etc/tilecacheconfig.cfg")
     def run_mod_python(*args, **kwargs):
-        run(config, *args, **kwargs)
-    mod_python(run, apache_request)   
+         return run(config, *args, **kwargs)
+    return mod_python(run_mod_python, apache_request)   
 
 if __name__ == "__main__":
 
