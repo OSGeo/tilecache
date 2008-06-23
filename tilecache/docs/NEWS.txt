@@ -1,3 +1,10 @@
+tilecache-2.04,  Mon, 23 Jun 2008 14:00:54 -0400
+ * Add support for JSON-output of layer information
+ * Add 'data_extent' property to allow for informing remote clients of
+   extent of data (seperate from grid extent)
+ * Minor fixes to layer initialization with regard to spherical mercator,
+   error logging, and others.
+
 tilecache-2.03,  Mon, 19 May 2008 23:13:09 -0400
  * Adding metadata about layers, etc. for allowing external clients
    to better understand the parameters used by a layer.
