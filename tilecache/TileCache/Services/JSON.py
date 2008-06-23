@@ -8,8 +8,15 @@ class JSON(TMS):
         if fields.has_key("type") and fields['type'] == "list":
             layers = []
             type = "list"    
+        
+        match_srs = False
+        if 'srs' in fields:
+            match_srs = fields['srs']
+        
         for name, layer in self.service.layers.items():
-            
+            if match_srs and layer.srs != match_srs:
+                continue
+
             data = {
               'bbox': layer.bbox,
               'data_extent': layer.data_extent,
