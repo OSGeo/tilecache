@@ -32,7 +32,7 @@ else:
    extra['data_files']=[('TileCache', ['tilecache.cfg'])]
     
 setup(name='TileCache',
-      version='2.03',
+      version='2.04',
       description='a web map tile caching system',
       author='MetaCarta Labs',
       author_email='tilecache@openlayers.org',
