@@ -125,7 +125,7 @@ def run(config_path = "config.cfg", path_info = None, **kwargs):
     if c.has_option('config', "tilecache_location"):
         tilecache_location = c.get("config", "tilecache_location")
 
-    template_lookup = TemplateLookup(directories=[template_path])
+    template_lookup = TemplateLookup(directories=template_path.split(","))
     
     additional_metadata = [] 
     
