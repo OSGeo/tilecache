@@ -173,6 +173,7 @@ def wsgi (dispatch_function, environ, start_response):
 def cgi (dispatch_function):
     """cgi handler""" 
     try:
+        accepts = ""
         if "CONTENT_TYPE" in os.environ:
             accepts = os.environ['CONTENT_TYPE']
         elif "HTTP_ACCEPT" in os.environ:
