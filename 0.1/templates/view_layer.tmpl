@@ -3,7 +3,7 @@
 <div id="map" style="width:700px;height:700px;border: 1px solid black "></div>
 <script src="http://openlayers.org/api/OpenLayers.js"></script> 
 <script>
-OpenLayers.Util.onImageLoadError = function() { }
+OpenLayers.Util.onImageLoadError = function() { this.style.display = ""; }
 function load_data(data) {
     var l = data.layers['${layer.name}'];
     var string = "";
