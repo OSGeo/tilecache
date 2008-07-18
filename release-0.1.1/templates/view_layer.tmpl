@@ -1,0 +1,25 @@
+<%inherit file="base.html"/>
+<h2>${layer.name}</h2>
+<div id="map" style="width:700px;height:700px;border: 1px solid black "></div>
+<script src="http://openlayers.org/api/OpenLayers.js"></script> 
+<script>
+OpenLayers.Util.onImageLoadError = function() { this.style.display = ""; }
+function load_data(data) {
+    var l = data.layers['${layer.name}'];
+    var string = "";
+    string += "BBOX: " + l.bbox + "<br />";
+    for (var key in l.metadata) {
+        string += key + ": " + l.metadata[key] + "<br />";
+    }
+    document.getElementById("metadata").innerHTML = string;
+    var map = new OpenLayers.Map("map", {resolutions: l.resolutions, maxExtent: OpenLayers.Bounds.fromArray(l.bbox)});
+    var layer = new OpenLayers.Layer.WMS("", '${tilecache_location}', {layers: '${layer.name}'});
+    map.addLayer(layer);
+    map.zoomToExtent(OpenLayers.Bounds.fromArray(l.data_extent)); 
+}
+var s = document.createElement("script");
+s.src="${tilecache_location}?format=JSON&callback=load_data";
+document.body.appendChild(s);
+</script>
+<div id="metadata">
+</div>

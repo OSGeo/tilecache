@@ -1,0 +1,86 @@
+<%inherit file="base.html"/>
+<form name="edit_layer" method="post" action="${base}/save/${layer.name}">
+<h2>Layer Configuration</h2>
+<table>
+<% 
+  seen = {}
+%>  
+% for obj in layer.config_properties:
+<% 
+    if seen.has_key(obj['name']):
+        continue
+    seen[obj['name']] = True     
+        
+    name = getattr(layer, obj['name'])
+    if isinstance(name, list) or isinstance(name, tuple):
+        name = ",".join(map(str, name))
+%>
+  %  if obj['name'] == 'name':
+     <input type="hidden" name="name" value="${name}" />
+  <% 
+    continue   
+  %>
+  % endif  
+<tr>
+<td>
+  ${obj['name']}: 
+</td>
+<td>
+   % if obj.has_key('type') and obj['type'] == "boolean":
+       <select name="${obj['name']}">
+         <option></option>
+         <option value='yes' 
+         % if getattr(layer, obj['name']) == True:
+           selected=selected
+         % endif
+         >True</option>
+         <option value='no' 
+         % if getattr(layer, obj['name']) == False:
+           selected=selected
+         % endif
+         >False</option>
+       </select> 
+   % else:    
+     <input type="text" name="${obj['name']}" value="${name}" size="100" />
+   % endif
+   <br />
+   ${obj['description']}
+</td></tr>   
+% endfor 
+</table>
+<h2>Layer Metadata</h2>
+<table>
+% for key in extras:
+<% 
+  if layer.metadata.has_key(key):  
+    value = layer.metadata[key]
+  else: 
+    value = ""
+%>
+     <tr><td>${key}:</td><td> <input type="text" name="metadata_${key}" value="${value}" size="100" /></td></tr>
+% endfor
+</table>
+    
+<input type="submit" />
+</form>
+
+<script>
+  function update_disabled() { 
+    var form = document.forms.edit_layer;
+    var keys = {'metaTile': {'items':['metaSize','metaBuffer'], 'on': true}};  
+    for (var key in keys) {
+        var key_list = keys[key]['items'];
+        for (var i = 0; i < key_list.length; i++) {
+            key_val = key_list[i];
+            if (form[key].value=="yes") {
+                form[key_val].disabled = !keys[key]['on'];
+            } else {
+                form[key_val].disabled = keys[key]['on'];
+            }    
+        }
+    }    
+  }
+  document.forms.edit_layer.spherical_mercator.onchange = update_disabled; 
+  document.forms.edit_layer.metaTile.onchange = update_disabled; 
+  update_disabled();
+</script>  

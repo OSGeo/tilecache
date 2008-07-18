@@ -1,0 +1,15 @@
+<%inherit file="base.html"/>
+<h2>New Layer</h2>
+<form>
+Name: 
+<input type="text" name="name" /><br />
+Type: 
+<select name="type"> 
+<option value="">
+% for type in types:
+  <option value="${type}">${type}</option>
+% endfor
+</select>
+<br />
+<input type="submit" value="Create Layer" name="submit" />
+</form>
