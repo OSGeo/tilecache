@@ -358,14 +358,11 @@ need to have TileCache set up in one of the previously described configurations.
 Usage
 -----
 
-     tilecache_seed.py <url> <layer> [<zoom start> <zoom stop> [<bbox>]]
+     tilecache_seed.py <layer> [<zoom start> <zoom stop> [<bbox>] [padding]]
 
 Arguments
 ---------
 
-    url
-       http://example.com/yourdir/tilecache.cgi? or
-       http://example.com/yourdir/tilecache.py
     layer 
        same layer name that is in the tilecache.cfg
     zoom start
@@ -374,6 +371,9 @@ Arguments
        Zoom level to end the process
     bbox
        The bounding box to seed
+    padding
+        Defaults to 0 (some edge tiles might be missing); a value of 1 ensures
+        all tiles will be created, but some tiles may be wholly outside your bbox
 
 Seeding by center point and radius
 ----------------------------------
@@ -402,17 +402,17 @@ The format of this file is:
 Examples
 --------
 
-An example with zoom levels 5 through 12 would be like;
+An example with zoom levels 5 through 12 and ~2 extra tiles around each zoom level would be like:
 
     ::
  
-      $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 5 12 "-118.12500,31.952162238,-116.015625,34.3071438563"
+      $ tilecache_seed.py Zip_Codes 5 12 "-118.12500,31.952162238,-116.015625,34.3071438563" 2
 
 The bbox can be dropped and defaults to world lonlat(-180,-90,180,90):
 
     ::
 
-      $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes 0 9
+      $ tilecache_seed.py Zip_Codes 0 9
  
 
 In center point/radius mode, the zoom level range is not specifiable from the
@@ -420,7 +420,7 @@ command-line. An example usage might look like:
 
      ::
 
-       $ tilecache_seed.py "http://example.com/yourdir/tilecache.cgi?" Zip_Codes
+       $ tilecache_seed.py Zip_Codes
        -118.12500,31.952162238,0.05
        -121.46327,32.345345645,0.08
        <Ctrl+D>

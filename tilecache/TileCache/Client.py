@@ -69,8 +69,12 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (svc, base, layer, levels = (0, 5), bbox = None):
+def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0):
     from Layer import Tile
+    try:
+        padding = int(padding)
+    except:
+        raise Exception('Your padding parameter is %s, but should be an integer' % padding)
 
     if not bbox: bbox = layer.bbox
 
@@ -84,8 +88,8 @@ def seed (svc, base, layer, levels = (0, 5), bbox = None):
         zcount = 0 
         metaSize = layer.getMetaSize(z)
         ztiles = int(math.ceil(float(topright[1] - bottomleft[1]) / metaSize[0]) * math.ceil(float(topright[0] - bottomleft[0]) / metaSize[1])) 
-        for y in range(bottomleft[1], topright[1], metaSize[1]):
-            for x in range(bottomleft[0], topright[0], metaSize[0]):
+        for y in range(bottomleft[1] - (1 * padding), topright[1] + metaSize[1] + (1 * padding), metaSize[1]):
+            for x in range(bottomleft[0] - (1 * padding), topright[0] + metaSize[0] + (1 * padding), metaSize[0]):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
@@ -99,19 +103,20 @@ def seed (svc, base, layer, levels = (0, 5), bbox = None):
 def main ():
     from Service import Service, cfgfiles
     from Layer import Layer
-    base  = sys.argv[1]
     svc = Service.load(*cfgfiles)
-    layer = svc.layers[sys.argv[2]]
-    if len(sys.argv) == 5:
-        seed(svc, base, layer, map(int, sys.argv[3:]))
+    layer = svc.layers[sys.argv[1]]
+    if len(sys.argv) == 4:
+        seed(svc, layer, map(int, sys.argv[2:]))
+    elif len(sys.argv) == 5:
+        seed(svc, layer, map(int, sys.argv[2:4]), map(float, sys.argv[4].split(",")))
     elif len(sys.argv) == 6:
-        seed(svc, base, layer, map(int, sys.argv[3:5]), map(float, sys.argv[5].split(",")))
+        seed(svc, layer, map(int, sys.argv[2:4]), map(float, sys.argv[4].split(",")), sys.argv[5])
     else:
         for line in sys.stdin.readlines():
             lat, lon, delta = map(float, line.split(","))
             bbox = (lon - delta, lat - delta, lon + delta, lat + delta)
             print "===> %s <===" % (bbox,)
-            seed(svc, base, layer, (5, 17), bbox)
+            seed(svc, layer, (5, 17), bbox)
 
 if __name__ == '__main__':
     main()
