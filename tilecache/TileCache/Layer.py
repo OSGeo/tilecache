@@ -134,6 +134,7 @@ class Layer (object):
         self.name   = name
         self.description = description
         self.layers = layers or name
+        self.paletted = False
         
         self.spherical_mercator = spherical_mercator and spherical_mercator.lower() in ["yes", "y", "t", "true"]
         if self.spherical_mercator:
@@ -161,6 +162,9 @@ class Layer (object):
         
         if extension.lower() == 'jpg': 
             extension = 'jpeg' # MIME
+        elif extension.lower() == 'png256':
+            extension = 'png'
+            self.paletted = True
         self.extension = extension.lower()
         self.mime_type = mime_type or self.format() 
         
