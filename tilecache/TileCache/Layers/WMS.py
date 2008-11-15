@@ -23,7 +23,7 @@ class WMS(MetaLayer):
           "width": tile.size()[0],
           "height": tile.size()[1],
           "srs": self.srs,
-          "format": self.format(),
+          "format": self.mime_type,
           "layers": self.layers,
         }, self.user, self.password)
         tile.data, response = wms.fetch()

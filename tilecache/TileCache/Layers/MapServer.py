@@ -38,7 +38,7 @@ class MapServer(MetaLayer):
         req.setParameter("width", str(tile.size()[0]))
         req.setParameter("height", str(tile.size()[1]))
         req.setParameter("srs", self.srs)
-        req.setParameter("format", self.format())
+        req.setParameter("format", self.mime_type)
         req.setParameter("layers", self.layers)
         req.setParameter("styles", self.styles)
         req.setParameter("request", "GetMap")
