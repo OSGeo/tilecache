@@ -21,6 +21,8 @@ class KML(TMS):
         network_links = []
         
         for single_tile in tiles:
+            if single_tile.z >= len(tile.layer.resolutions):
+                continue
             b = single_tile.bounds()
             network_links.append("""<NetworkLink>
       <name>tile</name>
@@ -44,11 +46,15 @@ class KML(TMS):
         if include_wrapper: 
             kml.append( """<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://earth.google.com/kml/2.1">""")
+        if tile.z == len(tile.layer.resolutions) - 1:
+            max_lod_pixels = -1
+        else:
+            max_lod_pixels = 512
         kml.append("""
   <Document>
     <Region>
       <Lod>
-        <minLodPixels>256</minLodPixels><maxLodPixels>512</maxLodPixels>
+        <minLodPixels>256</minLodPixels><maxLodPixels>%d</maxLodPixels>
       </Lod>
       <LatLonAltBox>
         <north>%s</north><south>%s</south>
@@ -66,7 +72,7 @@ class KML(TMS):
       </LatLonBox>
     </GroundOverlay>
     %s
-    """ % (b[3], b[1], b[2], b[0], tile.z, base_path, tile.layer.name, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links)))
+    """ % (max_lod_pixels, b[3], b[1], b[2], b[0], tile.z, base_path, tile.layer.name, tile.z, tile.x, tile.y, b[3], b[1], b[2], b[0], "\n".join(network_links)))
         if include_wrapper:
             kml.append("""</Document></kml>""" )
         kml = "\n".join(kml)       
