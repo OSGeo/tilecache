@@ -206,6 +206,38 @@ class Service (object):
                 return ('text/plain', 'OK')
             else:
                 return self.renderTile(tile, params.has_key('FORCE'))
+        elif isinstance(tile, list):
+            if req_method == 'DELETE':
+                [self.expireTile(t) for t in tile]
+                return ('text/plain', 'OK')
+            else:
+                try:
+                    import PIL.Image as Image
+                except ImportError:
+                    raise Exception("Combining multiple layers requires Python Imaging Library.")
+                try:
+                    import cStringIO as StringIO
+                except ImportError:
+                    import StringIO
+                
+                result = None
+                
+                for t in tile:
+                    (format, data) = self.renderTile(t, params.has_key('FORCE'))
+                    image = Image.open(StringIO.StringIO(data))
+                    if not result:
+                        result = image
+                    else:
+                        try:
+                            result.paste(image, None, image)
+                        except Exception, E:
+                            raise Exception("Could not combine images: Is it possible that some layers are not \n8-bit transparent images? \n(Error was: %s)" % E) 
+                
+                buffer = StringIO.StringIO()
+                result.save(buffer, result.format)
+                buffer.seek(0)
+
+                return (format, buffer.read())
         else:
             return (tile.format, tile.data)
 
