@@ -13,7 +13,7 @@ Architecture: all
 XS-Python-Version: >= 2.1
 Depends: ${python:Depends}
 Recommends: python-imaging
-Suggests: python-mapscript (>= 4.10), python-mapnik, memcached, python-memcache, python-boto, python-flup, python-paste, python-wsgiref
+Suggests: python-mapscript (>= 4.10), python-mapnik, memcached, python-memcache, python-boto, python-flup, python-paste, python-wsgiref, python-simplejson
 Description: a web map tile caching system
  TileCache is an implementation of a WMS-C compliant server made available by
  MetaCarta. TileCache provides a Python-based WMS/TMS server, with pluggable
