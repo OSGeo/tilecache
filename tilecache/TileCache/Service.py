@@ -337,23 +337,30 @@ def cgiHandler (service):
             str(E), 
             "".join(traceback.format_tb(sys.exc_traceback)))
 
-theService = None
-lastRead = None
+theService = {}
+lastRead = {}
 def handler (apacheReq):
     global theService, lastRead
     options = apacheReq.get_options()
     cfgs    = cfgfiles
-    cfgTime = None
+    fileChanged = False
     if options.has_key("TileCacheConfig"):
-        cfgs = cfgs + (options["TileCacheConfig"],)
+        configFile = options["TileCacheConfig"]
+        lastRead[configFile] = time.time()
+        
+        cfgs = cfgs + (configFile,)
         try:
-            cfgTime = os.stat(options['TileCacheConfig'])[8]
+            cfgTime = os.stat(configFile)[8]
+            fileChanged = lastRead[configFile] < cfgTime
         except:
             pass
-    if not theService or (lastRead and cfgTime and lastRead < cfgTime):
-        theService = Service.load(*cfgs)
-        lastRead = time.time()
-    return modPythonHandler(apacheReq, theService)
+    else:
+        configFile = 'default'
+        
+    if not theService.has_key(configFile) or fileChanged:
+        theService[configFile] = Service.load(*cfgs)
+        
+    return modPythonHandler(apacheReq, theService[configFile])
 
 def wsgiApp (environ, start_response):
     global theService
