@@ -13,7 +13,21 @@ Example Configuration::
   base=/var/lib/tilecache
   umask=002
 
-Dependancies: None
+Dependencies: None
+
+GoogleDisk
+----
+Example Configuration::
+
+  [cache]
+  type=GoogleDisk
+  base=/var/lib/tilecache
+
+Dependencies: None
+Note: A simple subclass of the Disk cache, this switches the Y tile ordering
+on the disk, so Google Maps users can easily access tiles directly (e.g. 
+bypassing tilecache.py, if all tiles have been pre-rendered) with a simple 
+CustomTileUrl function.
 
 Memcached
 ---------
