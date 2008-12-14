@@ -4,7 +4,7 @@ import time
 
 class AWSS3(Cache):
     import_error = "Problem importing S3 support library. You must have either boto or the Amazon S3 library.\nErrors:\n * %s"
-    def __init__ (self, access_key, secret_access_key, **kwargs):
+    def __init__ (self, access_key, secret_access_key, use_tms_paths = "False", **kwargs):
         self.module = None
         try:
             import boto.s3
@@ -21,6 +21,11 @@ class AWSS3(Cache):
                 raise Exception(self.import_error % ('\n * '.join(exceptions)))
         Cache.__init__(self, **kwargs)
         self.bucket_name = "%s-tilecache" % access_key.lower() 
+        if use_tms_paths.lower() in ("true", "yes", "1"):
+            use_tms_paths = True
+        elif use_tms_paths.lower() == "flipped":
+            use_tms_paths = "google"
+        self.use_tms_paths = use_tms_paths
         if self.module == "amazon":
             self.cache = self.s3.AWSAuthConnection(access_key, secret_access_key)
             self.cache.create_bucket(self.bucket_name)
@@ -34,8 +39,18 @@ class AWSS3(Cache):
         return boto_key
     
     def getKey(self, tile):
-         return "-".join(map(str, [tile.layer.name, tile.z , tile.x, tile.y]))
-    
+        if self.use_tms_paths == True or self.use_tms_paths = "flipped":
+            grid = tile.layer.grid(tile.z) 
+            y = tile.y
+            if self.use_tms_paths == "flipped":
+                y = int(grid[1] - 1 - tile.y)
+            version = "1.0.0"
+            path = "/".join(map(str, [version, tile.layer.name, tile.z, tile.x, y]))
+            path = ".".join(map(str, [path, tile.layer.extension]))
+        else: 
+           path = "-".join(map(str, [tile.layer.name, tile.z , tile.x, tile.y]))
+        return path
+
     def get(self, tile):
         key = self.getKey(tile)
         tile.data = self.getObject(key)

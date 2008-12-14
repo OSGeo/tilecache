@@ -49,6 +49,18 @@ Example configuration::
   type=AWSS3
   access_key=833833ABC88838
   secret_access_key=8234abyi3kdjby8so8idu
+  use_tms_paths=true
+
+The use_tms_paths will make the files more accessible to other clients,
+though at this time, ACLs are not set on the TMS structure to make them
+available publicly.
+
+The use_tms_paths can also be set to "flipped": if so, it will result in
+'flipped' TMS, with typical paths like:
+
+  /1.0.0/9/82/63.png
+
+But with 0 starting at the top of the map, instead of the bottom. 
 
 This cache can use one of two libraries:
 
