@@ -1,3 +1,16 @@
+tilecache-2.10,  Sun, 14 Dec 2008 10:07:49 -0500
+ * APPLICATION CHANGE: tilecache_seed.py now uses optparse for options
+   parsing, which may require changes in scripts which call tilecache_seed
+   programatically. See the docs for the new style of command line.
+ * Add support to S3 cache for TMS-style URLs (thx stvn)
+ * Fixes for Caches/Disk.py under Jython
+ * Support multiple TileCacheConfigs in the same mod_python server (thx fredj)
+ * Add support for combining multiple tilecache layers into a single image when
+   using WMS. (thx fredj)
+ * allow custom mime_types in MapServer, WMS layers (thx fredj)
+ * improve KML links to not link to invalid tiles (thx Graham Carlyle)
+ * add png256 support to TileCache using Mapnik (thx Dane Springmeyer)
+
 tilecache-2.04,  Mon, 23 Jun 2008 14:00:54 -0400
  * Add support for JSON-output of layer information
  * Add 'data_extent' property to allow for informing remote clients of
