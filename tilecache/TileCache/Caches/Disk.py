@@ -20,7 +20,8 @@ class Disk (Cache):
             self.makedirs(base)
         
     def makedirs(self, path):
-        old_umask = os.umask(self.umask)
+        if hasattr(os, "umask"):
+            old_umask = os.umask(self.umask)
         try:
             os.makedirs(path)
         except OSError, E:
@@ -31,7 +32,8 @@ class Disk (Cache):
             # has 'worked'
             if E.errno != 17:
                 raise E
-        os.umask(old_umask)
+        if hasattr(os, "umask"):
+            os.umask(old_umask)
         
     def access(self, path, type='read'):
         if self.platform == "jython":
@@ -74,11 +76,13 @@ class Disk (Cache):
         if not self.access(dirname, 'write'):
             self.makedirs(dirname)
         tmpfile = filename + ".%d.tmp" % os.getpid()
-        old_umask = os.umask(self.umask)
+        if hasattr(os, "umask"):
+            old_umask = os.umask(self.umask)
         output = file(tmpfile, "wb")
         output.write(data)
         output.close()
-        os.umask( old_umask );
+        if hasattr(os, "umask"):
+            os.umask( old_umask );
         try:
             os.rename(tmpfile, filename)
         except OSError:
