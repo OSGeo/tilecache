@@ -4,6 +4,7 @@
 
 import sys, urllib, urllib2, time, os, math
 import httplib
+from optparse import OptionParser
 
 # setting this to True will exchange more useful error messages
 # for privacy, hiding URLs and error messages.
@@ -69,7 +70,7 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0):
+def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False ):
     from Layer import Tile
     try:
         padding = int(padding)
@@ -93,7 +94,7 @@ def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
-                svc.renderTile(tile)
+                svc.renderTile(tile,force=force)
                 total += 1
                 zcount += 1
                 box = "(%.4f %.4f %.4f %.4f)" % bounds
@@ -101,22 +102,41 @@ def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0):
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
 
 def main ():
+    
+    usage = "usage: %prog <layer> [<zoom start> <zoom stop>]"
+    
+    parser = OptionParser(usage=usage, version="%prog $Id$")
+    
+    parser.add_option("-f","--force", action="store_true", dest="force", default = False,
+                      help="force recreation of tiles even if they are already in cache")
+    
+    parser.add_option("-b","--bbox",action="store", type="string", dest="bbox", default = None,
+                      help="restrict to specified bounding box")
+    
+    parser.add_option("-p","--pading",action="store", type="int", dest="padding", default = 0,
+                      help="extra margin tiles to seed around target area")
+   
+    (options, args) = parser.parse_args()
+    
     from Service import Service, cfgfiles
     from Layer import Layer
     svc = Service.load(*cfgfiles)
-    layer = svc.layers[sys.argv[1]]
-    if len(sys.argv) == 4:
-        seed(svc, layer, map(int, sys.argv[2:]))
-    elif len(sys.argv) == 5:
-        seed(svc, layer, map(int, sys.argv[2:4]), map(float, sys.argv[4].split(",")))
-    elif len(sys.argv) == 6:
-        seed(svc, layer, map(int, sys.argv[2:4]), map(float, sys.argv[4].split(",")), sys.argv[5])
+    layer = svc.layers[args[0]]
+    
+    if options.bbox:
+        bboxlist = map(float,options.bbox.split(","))
+    else:
+        bboxlist=None
+    
+        
+    if len(args)>1:    
+        seed(svc, layer, map(int, args[1:3]), bboxlist , padding=options.padding, force = options.force)
     else:
         for line in sys.stdin.readlines():
             lat, lon, delta = map(float, line.split(","))
             bbox = (lon - delta, lat - delta, lon + delta, lat + delta)
             print "===> %s <===" % (bbox,)
-            seed(svc, layer, (5, 17), bbox)
+            seed(svc, layer, (5, 17), bbox , force = options.force )
 
 if __name__ == '__main__':
     main()

@@ -358,8 +358,18 @@ need to have TileCache set up in one of the previously described configurations.
 Usage
 -----
 
-     tilecache_seed.py <layer> [<zoom start> <zoom stop> [<bbox>] [padding]]
+     tilecache_seed.py [options] <layer> [<zoom start> <zoom stop>]
 
+Options
+-------
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -f, --force           force recreation of tiles even if they are already in
+                        cache
+  -b BBOX, --bbox=BBOX  restrict to specified bounding box
+  -p PADDING, --pading=PADDING
+                        extra margin tiles to seed around target area
+                        
 Arguments
 ---------
 
