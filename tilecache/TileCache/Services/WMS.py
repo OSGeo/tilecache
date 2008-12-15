@@ -30,7 +30,11 @@ class WMS (Request):
                     "couldn't calculate tile index for layer %s from (%s)"
                     % (layer.name, bbox))
             tiles.append(tile)
-        return tiles
+
+        if len(tiles) > 1:
+            return tiles
+        else:
+            return tiles[0]
 
     def getCapabilities (self, host, param):
         if host[-1] not in "?&":
