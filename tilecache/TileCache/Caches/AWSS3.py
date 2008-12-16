@@ -39,7 +39,7 @@ class AWSS3(Cache):
         return boto_key
     
     def getKey(self, tile):
-        if self.use_tms_paths == True or self.use_tms_paths = "flipped":
+        if self.use_tms_paths == True or self.use_tms_paths == "flipped":
             grid = tile.layer.grid(tile.z) 
             y = tile.y
             if self.use_tms_paths == "flipped":
