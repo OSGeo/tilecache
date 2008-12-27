@@ -1,17 +1,20 @@
+Contributors
+------------
+
 The following people have contributed to TileCache development:
 
-Tibor Arpas
-Howard Butler
-Schuyler Erle
-Emily Gouge
-Suki Hirata
-Hani Howari
-Andrew Hughes
-Eric Lemoine
-Steven Ottens
-Matthew Perry
-Tim Schaub
-Christopher Schmidt
-Ehud Shabtai
-Dane Springmeyer
-Bill Woodall
+| Tibor Arpas
+| Howard Butler
+| Schuyler Erle
+| Emily Gouge
+| Suki Hirata
+| Hani Howari
+| Andrew Hughes
+| Eric Lemoine
+| Steven Ottens
+| Matthew Perry
+| Tim Schaub
+| Christopher Schmidt
+| Ehud Shabtai
+| Dane Springmeyer
+| Bill Woodall

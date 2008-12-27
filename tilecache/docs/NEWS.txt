@@ -1,3 +1,6 @@
+Changelog
+=========
+
 tilecache-2.10,  Sun, 14 Dec 2008 10:07:49 -0500
  * APPLICATION CHANGE: tilecache_seed.py now uses optparse for options
    parsing, which may require changes in scripts which call tilecache_seed

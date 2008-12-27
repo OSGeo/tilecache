@@ -1,6 +1,6 @@
-===========
- tilecache
-===========
+=================
+ Getting Started
+=================
 
 -------------------------
 Cache and serve map tiles
@@ -14,7 +14,7 @@ Cache and serve map tiles
 :Manual section: 8
 :Manual group: GIS Utilities
 
-DESCRIPTION
+Description
 ===========
 TileCache is a BSD licensed tile caching mechanism.  The goal is to make it
 easy to set up a WMS or TMS frontend to any backend data services you might be
@@ -30,7 +30,7 @@ setting up TileCache for use with OpenLayers, please feel free to stop by
 #openlayers, on irc.freenode.net, or to send email to
 tilecache@openlayers.org. 
 
-INSTALLING TILECACHE
+Installing TileCache
 ====================
 
 Generally, installing TileCache is as simple as downloading a source
@@ -54,7 +54,7 @@ TileCache is also available as a Debian package from the TileCache homepage.
 This Debian package is designed to install on Debian etch releases or later.
 This Debian package should install on Ubuntu Feisty or Gutsy.  
 
-RUNNING UNDER CGI
+Running Under CGI
 =================
 
 * Extract the code to some web directory (e.g. in /var/www).
@@ -119,7 +119,7 @@ of tilecache.cgi to read:
 C:/Python should match the location Python is installed under on your 
 system. In Python 2.5, this location is C:/Python25 by default.  
 
-RUNNING UNDER MOD_PYTHON
+Running Under mod_python
 ========================
 
 * Extract the code to some web directory (e.g. /var/www).
@@ -153,8 +153,8 @@ RUNNING UNDER MOD_PYTHON
   tilecache.py
 * If you see a tile you have set up your configuration correctly. Congrats!
 
-RUNNING STANDALONE (UNDER WSGI)
-===============================
+Running Standalone under WSGI
+=============================
 
 TileCache as of version 1.4 comes with a standalone HTTP server which uses
 the WSGI handler. This implementation depends on *Python Paste*, which can be
@@ -182,7 +182,7 @@ be able to open:
 
 to see your first tile.
 
-RUNNING UNDER FASTCGI
+Running Under FastCGI
 =====================
 
 TileCache as of version 1.4 comes with a fastcgi implementation. In 
@@ -201,7 +201,7 @@ tilecache.fcgi.
 
 Configuring FastCGI is beyond the scope of this documentation.
 
-RUNNING UNDER IIS
+Running Under IIS
 =================
 
 Installing TileCache for use with IIS requires some additional configuration.
@@ -225,7 +225,7 @@ topic. If you do not do this, you will get an error message like:
  "The requested layer (tilecache.cgi) does not exist."
 
 
-CONFIGURATION
+Configuration
 =============
 TileCache is configured by a config file, defaulting to tilecache.cfg.
 There are several parameters to control TileCache layers that are applicable
@@ -304,7 +304,7 @@ to all layers:
     Setting this to "google" will cause tiles to switch vertical order (that
     is, following the Google style x/y pattern).
 
-USING TILECACHE WITH OPENLAYERS
+Using TileCache With OpenLayers
 ===============================
 
 To run OpenLayers with TileCache the URL passed to the OpenLayers.Layer.WMS
@@ -328,8 +328,9 @@ of the TileCache layer.
 If you are using TileCache for overlays, you should set the 'reproject' option
 on the layer to 'false'.
 
-USING TILECACHE WITH MAPSERVER
+Using TileCache With MapServer
 ==============================
+
 MapServer has a map level metadata option, labelcache_map_edge_buffer, which
 is set automatically by TileCache to the metaBuffer plus five when metaTiling
 is on, if it is not set in the mapfile.
@@ -338,18 +339,16 @@ If you are using MetaTiling, be aware that MapServer generates interlaced
 PNG files, which PIL will not read. See 
 http://mapserver.gis.umn.edu/docs/faq/pil_mapscript on how to resolve this. 
 
-USING WITH PYTHON-MAPSCRIPT
+Using With Python-Mapscript
 ===========================
+
 Several users have reported cases where large mapfiles combined with 
 python-mapscript has caused memory leaks, which eventually lead to 
 segfaults. If you are having problems with Apache/TileCache segfaults
 when using python-mapscript, then you should switch to using a WMS
 Layer instead of a MapServer Layer.
 
-All reported cases thus far have been on SuSE Linux: if you have this problem,
-please report it, with your platform, to the TileCache mailing list.  
-
-SEEDING YOUR TILECACHE
+Seeding your TileCache
 ======================
 
 The tilecache_seed.py utility will seed tiles in a cache automatically. You will
@@ -437,7 +436,7 @@ command-line. An example usage might look like:
 
 ... the seeding will then commence ...
 
-CLEANING YOUR TILECACHE
+Cleaning your TileCache
 =======================
 
 The tilecache_clean.py utility will remove the least recently accessed
@@ -477,7 +476,7 @@ filesystems use entire file blocks for files smaller than a block, running du
 -s or similar on your disk cache after a cleaning may still return a total
 cache size larger than you expect.
 
-TROUBLESHOOTING
+TroubleShooting
 ===============
 
 Occasionally, for some reason, when using meta tiles, your server may leave
