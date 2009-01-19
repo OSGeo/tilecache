@@ -367,7 +367,10 @@ Options
                         cache
   -b BBOX, --bbox=BBOX  restrict to specified bounding box
   -p PADDING, --pading=PADDING
-                        extra margin tiles to seed around target area
+                        extra margin tiles to seed around target area.
+                        Defaults to 0 (some edge tiles might be missing).
+                        A value of 1 ensures all tiles will be created, but
+                        some tiles may be wholly outside your bbox                        
                         
 Arguments
 ---------
@@ -378,11 +381,6 @@ Arguments
        Zoom level to start the process
     zoom end
        Zoom level to end the process
-    bbox
-       The bounding box to seed
-    padding
-        Defaults to 0 (some edge tiles might be missing); a value of 1 ensures
-        all tiles will be created, but some tiles may be wholly outside your bbox
 
 Seeding by center point and radius
 ----------------------------------

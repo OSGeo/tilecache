@@ -117,11 +117,16 @@ def main ():
     parser.add_option("-b","--bbox",action="store", type="string", dest="bbox", default = None,
                       help="restrict to specified bounding box")
     
-    parser.add_option("-p","--pading",action="store", type="int", dest="padding", default = 0,
-                      help="extra margin tiles to seed around target area")
+    parser.add_option("-p","--padding",action="store", type="int", dest="padding", default = 0,
+                      help="extra margin tiles to seed around target area. Defaults to 0 "+
+                      "(some edge tiles might be missing).      A value of 1 ensures all tiles "+
+                      "will be created, but some tiles may be wholly outside your bbox")
    
     (options, args) = parser.parse_args()
     
+    if len(args)>3:
+        parser.error("Incorrect number of arguments. bbox and padding are now options (-b and -p)")
+
     from Service import Service, cfgfiles
     from Layer import Layer
     svc = Service.load(*cfgfiles)
