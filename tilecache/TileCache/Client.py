@@ -73,7 +73,7 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False ):
+def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False, reverse = False ):
     from Layer import Tile
     try:
         padding = int(padding)
@@ -88,12 +88,29 @@ def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False )
     for z in range(*levels):
         bottomleft = layer.getClosestCell(z, bbox[0:2])
         topright   = layer.getClosestCell(z, bbox[2:4])
-        print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
+        # Why Are we printing to sys.stderr??? It's not an error.
+        # This causes a termination if run from cron or in background if shell is terminated
+        #print >>sys.stderr, "###### %s, %s" % (bottomleft, topright)
+        print "###### %s, %s" % (bottomleft, topright)
         zcount = 0 
         metaSize = layer.getMetaSize(z)
-        ztiles = int(math.ceil(float(topright[1] - bottomleft[1]) / metaSize[0]) * math.ceil(float(topright[0] - bottomleft[0]) / metaSize[1])) 
-        for y in range(bottomleft[1] - (1 * padding), topright[1] + metaSize[1] + (1 * padding), metaSize[1]):
-            for x in range(bottomleft[0] - (1 * padding), topright[0] + metaSize[0] + (1 * padding), metaSize[0]):
+        ztiles = int(math.ceil(float(topright[1] - bottomleft[1]) / metaSize[0]) * math.ceil(float(topright[0] - bottomleft[0]) / metaSize[1]))
+        if reverse:
+            startX = topright[0] + metaSize[0] + (1 * padding)
+            endX = bottomleft[0] - (1 * padding)
+            stepX = -metaSize[0]
+            startY = topright[1] + metaSize[1] + (1 * padding)
+            endY = bottomleft[1] - (1 * padding)
+            stepY = -metaSize[1]
+        else:
+            startX = bottomleft[0] - (1 * padding)
+            endX = topright[0] + metaSize[0] + (1 * padding)
+            stepX = metaSize[0]
+            startY = bottomleft[1] - (1 * padding)
+            endY = topright[1] + metaSize[1] + (1 * padding)
+            stepY = metaSize[1]
+        for y in range(startY, endY, stepY):
+            for x in range(startX, endX, stepX):
                 tileStart = time.time()
                 tile = Tile(layer,x,y,z)
                 bounds = tile.bounds()
@@ -122,6 +139,9 @@ def main ():
                       "(some edge tiles might be missing).      A value of 1 ensures all tiles "+
                       "will be created, but some tiles may be wholly outside your bbox")
    
+    parser.add_option("-r","--reverse", action="store_true", dest="reverse", default = False,
+                      help="Reverse order of seeding tiles")
+    
     (options, args) = parser.parse_args()
     
     if len(args)>3:
@@ -139,7 +159,7 @@ def main ():
     
         
     if len(args)>1:    
-        seed(svc, layer, map(int, args[1:3]), bboxlist , padding=options.padding, force = options.force)
+        seed(svc, layer, map(int, args[1:3]), bboxlist , padding=options.padding, force = options.force, reverse = options.reverse)
     else:
         for line in sys.stdin.readlines():
             lat, lon, delta = map(float, line.split(","))
