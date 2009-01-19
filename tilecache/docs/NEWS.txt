@@ -1,7 +1,7 @@
 Changelog
 =========
 
-tilecache-2.10,  Sun, 14 Dec 2008 10:07:49 -0500
+tilecache-2.10,  Sun, 18 Jan 2009 21:07:49 -0500
  * APPLICATION CHANGE: tilecache_seed.py now uses optparse for options
    parsing, which may require changes in scripts which call tilecache_seed
    programatically. See the docs for the new style of command line.
@@ -13,6 +13,7 @@ tilecache-2.10,  Sun, 14 Dec 2008 10:07:49 -0500
  * allow custom mime_types in MapServer, WMS layers (thx fredj)
  * improve KML links to not link to invalid tiles (thx Graham Carlyle)
  * add png256 support to TileCache using Mapnik (thx Dane Springmeyer)
+ * A number of other patches from the mailing list. 
 
 tilecache-2.04,  Mon, 23 Jun 2008 14:00:54 -0400
  * Add support for JSON-output of layer information
