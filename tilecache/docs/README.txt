@@ -206,25 +206,9 @@ Running Under IIS
 
 Installing TileCache for use with IIS requires some additional configuration.
 
-* Install Python for Windows
-* Follow "Using Python Scripts with IIS" to setup Python CGI for IIS.
-  http://support.microsoft.com/kb/276494
-* Edit metabase.xml to get correct Security Permissions for IIS 6.0.
-  http://blogs.msdn.com/david.wang/archive/2005/04/20/IIS6-CGI-Web-Service-Extension.aspx
-* Edit tilecache.cgi to specify your configuration file explicitly:
-
-  ::
+A nice document for setting up TileCache on IIS is available from Vish's
+weblog: http://viswaug.wordpress.com/2008/02/03/setting-up-tilecache-on-iis/ .
   
-     svc = Service.load("C:\\TileCache\\tilecache.cfg")
-
-When using Tilecache with TMS style requests, you will need to change your
-IIS configuration to allow PATH_INFO to be delivered to the CGI script.
-http://support.microsoft.com/kb/q184320/ provides information on this
-topic. If you do not do this, you will get an error message like:
-
- "The requested layer (tilecache.cgi) does not exist."
-
-
 Configuration
 =============
 TileCache is configured by a config file, defaulting to tilecache.cfg.
