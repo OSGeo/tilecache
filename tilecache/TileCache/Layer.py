@@ -423,12 +423,14 @@ class MetaLayer (Layer):
 
         return tile.data
 
-    def render (self, tile):
+    def render (self, tile, force=False):
         if self.metaTile:
             metatile = self.getMetaTile(tile)
             try:
                 self.cache.lock(metatile)
-                image = self.cache.get(tile)
+                image = None
+                if not force:
+                    image = self.cache.get(tile)
                 if not image:
                     image = self.renderMetaTile(metatile, tile)
             finally:

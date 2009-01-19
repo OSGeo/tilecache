@@ -135,7 +135,7 @@ class Service (object):
         image = None
         if not force: image = self.cache.get(tile)
         if not image:
-            data = layer.render(tile)
+            data = layer.render(tile, force=force)
             if (data): image = self.cache.set(tile, data)
             else: raise Exception("Zero length data returned from layer.")
             if layer.debug:
