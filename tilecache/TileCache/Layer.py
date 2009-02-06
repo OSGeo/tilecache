@@ -276,8 +276,8 @@ class Layer (object):
         x0 = (minx - self.bbox[0]) / (res * self.size[0])
         y0 = (miny - self.bbox[1]) / (res * self.size[1])
         
-        x = int(round(x0))
-        y = int(round(y0))
+        x = int(x0)
+        y = int(y0)
         
         tilex = ((x * res * self.size[0]) + self.bbox[0])
         tiley = ((y * res * self.size[1]) + self.bbox[1])
