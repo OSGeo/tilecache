@@ -320,7 +320,7 @@ is on, if it is not set in the mapfile.
 
 If you are using MetaTiling, be aware that MapServer generates interlaced
 PNG files, which PIL will not read. See 
-http://mapserver.gis.umn.edu/docs/faq/pil_mapscript on how to resolve this. 
+http://www.mapserver.org/faq.html#why-doesn-t-pil-python-imaging-library-open-my-pngs on how to resolve this. 
 
 Using With Python-Mapscript
 ===========================
