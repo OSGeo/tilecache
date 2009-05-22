@@ -118,7 +118,7 @@ def wsgi (dispatch_function, environ, start_response):
         if environ.has_key("CONTENT_TYPE"):
             accepts = environ['CONTENT_TYPE']
         else:
-            accepts = environ['HTTP_ACCEPT']
+            accepts = environ.get('HTTP_ACCEPT', '')
 
         request_method = environ["REQUEST_METHOD"]
         
