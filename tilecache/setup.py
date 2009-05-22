@@ -26,10 +26,10 @@ classifiers = [
 # otherwise. 
 extra = { }
 if "--debian" in sys.argv:
-   extra['data_files']=[('/etc', ['tilecache.cfg'])]
+   extra['data_files']=[('/etc', ['tilecache.cfg']),('.',['dev.ini'])]
    sys.argv.remove("--debian")
 else:
-   extra['data_files']=[('TileCache', ['tilecache.cfg'])]
+   extra['data_files']=[('TileCache', ['tilecache.cfg']),('.',['dev.ini'])]
     
 setup(name='TileCache',
       version='2.10',
@@ -45,6 +45,10 @@ setup(name='TileCache',
       zip_safe=False,
       test_suite = 'tests.run_doc_tests',
       license="BSD",
-      classifiers=classifiers, 
+      classifiers=classifiers,
+      entry_points = """
+    [paste.app_factory]
+        main = TileCache.Service:paste_deploy_app
+ """,
       **extra 
      )

@@ -207,6 +207,43 @@ Installing TileCache for use with IIS requires some additional configuration.
 
 A nice document for setting up TileCache on IIS is available from Vish's
 weblog: http://viswaug.wordpress.com/2008/02/03/setting-up-tilecache-on-iis/ .
+
+Running Standalone with PasteScript and CherryPy
+================================================
+
+One component of the CherryPy web framework is a pure Python, fast,
+HTTP/1.1-compliant, WSGI thread-pooled webserver.
+To deploy Tilecache using this option you have to:
+
+ * Install prerequisites:
+
+    easy_install PasteScript
+    easy_install CherryPy
+
+ * Create a deployment config file specifying the http server and the
+   application with options.  The format of the configuration file is
+   documented here: http://pythonpaste.org/deploy/#the-config-file
+
+Example configuration file follows. Copy the lines into tc.ini, tweak
+the tilecache_config variable, run paster serve tc.ini and enjoy at
+http://127.0.0.1:5000/tc
+
+::
+
+  [server:main]
+  #tested with Paste#http and PasteScript#wsgiutils, PasteScript#twisted
+  also possible after installing dependencies
+  use = egg:PasteScript#cherrypy
+  host = 127.0.0.1
+  port = 5000
+
+  [composite:main]
+  use = egg:Paste#urlmap
+  /tc = tilecache1
+
+  [app:tilecache1]
+  use = egg:TileCache
+  tilecache_config = tilecache.cfg
   
 Configuration
 =============

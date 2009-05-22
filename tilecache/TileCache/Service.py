@@ -382,6 +382,20 @@ def binaryPrint(binary_data):
         pass
     sys.stdout.write(binary_data)    
 
+def paste_deploy_app(global_conf, full_stack=True, **app_conf):
+    if 'tilecache_config' in app_conf:
+        cfgfiles = (app_conf['tilecache_config'],)
+    else:
+        raise TileCacheException("No tilecache_config key found in configuration. Please specify location of tilecache config file in your ini file.")
+    theService = Service.load(*cfgfiles)
+    if 'exception' in theService.metadata:
+        raise theService.metadata['exception']
+    
+    def pdWsgiApp (environ,start_response):
+        return wsgiHandler(environ,start_response,theService)
+    
+    return pdWsgiApp
+
 if __name__ == '__main__':
     svc = Service.load(*cfgfiles)
     cgiHandler(svc)
