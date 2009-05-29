@@ -19,7 +19,7 @@ class Disk (Cache):
         if not self.access(base, 'read'):
             self.makedirs(base)
         
-    def makedirs(self, path):
+    def makedirs(self, path, hide_dir_exists=True):
         if hasattr(os, "umask"):
             old_umask = os.umask(self.umask)
         try:
@@ -30,7 +30,7 @@ class Disk (Cache):
             # catch errors. This lets 'directory exists' errors pass through,
             # since they mean that as far as we're concerned, os.makedirs
             # has 'worked'
-            if E.errno != 17:
+            if E.errno != 17 or not hide_dir_exists:
                 raise E
         if hasattr(os, "umask"):
             os.umask(old_umask)
@@ -99,7 +99,7 @@ class Disk (Cache):
     def attemptLock (self, tile):
         name = self.getLockName(tile)
         try: 
-            self.makedirs(name)
+            self.makedirs(name, hide_dir_exists=False)
             return True
         except OSError:
             pass
