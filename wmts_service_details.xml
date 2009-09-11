@@ -1,0 +1,36 @@
+
+	<!-- Tested against 07-057r6 WMTS schema. Document version 0.6.0 --> 
+    <ows:ServiceIdentification>
+        <ows:Title>Web Map Tiling Service</ows:Title>
+        <ows:Abstract>Service that constrains a WMS to some TileMatrixSets</ows:Abstract>
+        <ows:Keywords>
+        	<ows:Keyword>OWS-6</ows:Keyword>
+        	<ows:Keyword>Testbed</ows:Keyword>
+        </ows:Keywords>
+        <ows:ServiceType>OGC WMTS</ows:ServiceType>
+        <ows:ServiceTypeVersion>%(version)s</ows:ServiceTypeVersion>
+        <ows:Fees>none</ows:Fees>
+        <ows:AccessConstraints>none</ows:AccessConstraints>
+    </ows:ServiceIdentification>
+    <ows:ServiceProvider>
+        <ows:ProviderName>your company name</ows:ProviderName>
+        <ows:ProviderSite xlink:href="http://your.domain.com/"/>
+        <ows:ServiceContact>
+			<ows:IndividualName>John Doe</ows:IndividualName>
+			<ows:PositionName>Senior Software Engineer</ows:PositionName>
+			<ows:ContactInfo>
+				<ows:Phone>
+					<ows:Voice>+61 8 8200 0000</ows:Voice>
+					<ows:Facsimile>+61 8 8200 0001</ows:Facsimile>
+				</ows:Phone>
+				<ows:Address>
+					<ows:DeliveryPoint>1 King William Street Adelaide SA 5000</ows:DeliveryPoint>
+					<ows:City>Adelaide</ows:City>
+					<ows:AdministrativeArea>South Australia</ows:AdministrativeArea>
+					<ows:PostalCode>5000</ows:PostalCode>
+					<ows:Country>Australia</ows:Country>
+					<ows:ElectronicMailAddress>your.email@your.domain.com</ows:ElectronicMailAddress>
+				</ows:Address>
+			</ows:ContactInfo>
+		</ows:ServiceContact>
+    </ows:ServiceProvider>

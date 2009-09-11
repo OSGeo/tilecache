@@ -14,7 +14,8 @@ except ImportError:
 HIDE_ALL = False 
 
 class WMS (object):
-    fields = ("bbox", "srs", "width", "height", "format", "layers", "styles")
+    featureInfoFields = ("query_layers", "feature_count", "info_format")
+    fields = ("bbox", "srs", "width", "height", "format", "layers", "styles") + featureInfoFields
     defaultParams = {'version': '1.1.1', 'request': 'GetMap', 'service': 'WMS'}
     __slots__ = ("base", "params", "client", "data", "response")
 
@@ -44,11 +45,16 @@ class WMS (object):
                 self.params[key] = params[key]
             elif self.base.lower().rfind("%s=" % key.lower()) == -1:
                 self.params[key] = ""
+                
+        # allow dimensions through
+        for key in params:
+            if key.lower().startswith("dim_") or key.lower() in ("time", "elevation"):
+                self.params[key] = params[key]
 
     def url (self):
         return self.base + urllib.urlencode(self.params)
     
-    def fetch (self):
+    def fetch (self, content_type=None):
         urlrequest = urllib2.Request(self.url())
         # urlrequest.add_header("User-Agent",
         #    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)" )
@@ -61,11 +67,11 @@ class WMS (object):
                 msg = response.info()
                 if msg.has_key("Content-Type"):
                     ctype = msg['Content-Type']
-                    if ctype[:5].lower() != 'image':
+                    if (content_type and ctype.lower() != content_type.lower()) or (not content_type and ctype[:5].lower() != 'image'):
                         if HIDE_ALL:
-                            raise Exception("Did not get image data back. (Adjust HIDE_ALL for more detail.)")
+                            raise Exception("Did not get %s data back. (Adjust HIDE_ALL for more detail.)" % content_type)
                         else:
-                            raise Exception("Did not get image data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (self.url(), ctype, data))
+                            raise Exception("Did not get %s data back. \nURL: %s\nContent-Type Header: %s\nResponse: \n%s" % (content_type, self.url(), ctype, data))
             except httplib.BadStatusLine:
                 response = None # try again
         return data, response

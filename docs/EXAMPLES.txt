@@ -50,3 +50,13 @@ Some Example Layer Configurations::
   projection=@/path/to/target_projection # Either a string, or if prefixed by @, an absolute path to a projection in WKT. 
   layers=14
   bbox=218337.16112593404,889611.9317974453,248183.9359890727,914312.7109945256
+
+  [basic]
+  type=WMTS
+  url=http://labs.metacarta.com/wms/vmap0
+  extension=png
+  srs=EPSG:4326
+  title=Basic
+  description=Default layer as an example of WMTS configuration.
+  units=111319.49079327355
+  tile_matrix_sets=WholeWorld_CRS_84,World84-90_CRS_84

@@ -1,0 +1,282 @@
+==========
+WMTS GUIDE
+==========
+
+Description
+===========
+This guide to WMTS using TileCache provides configuration details  
+and a discussion of capabilities. This guide assumes you are 
+familiar with TileCache. Read the TileCache README.txt first
+if you haven't already done so.
+
+Capabilities
+============
+This implementation of WMTS supports GetCapabilities, GetTile and 
+GetFeatureInfo requests. The GetFeatureInfo requests rely on the 
+capabilities of the underlying WMS service, forwarding through the 
+results without interpreting them.
+
+Configuration
+=============
+The file wmts_service_details.xml is used in the capabilities 
+document to set Service Identification and Provider information. 
+You can change this to suit your installation.
+
+WMTS Layers
+===========
+In TileCache one WMTS layer is managed internally as many layers. 
+Each possible combination of styles, dimensions and tile matrix sets 
+is extrapolated to many layers, and can be accessed directly using TMS 
+or WMS-C. If a WMTS request is received, the WMTS Service is used to 
+resolve the request.
+
+Multiple styles, dimensions and tile matrix sets is supported for a 
+WMTS layer. Meta-tiling is also supported.
+
+At least one Tile Matrix Set (discussed later in this guide) must be 
+configured as this is a required value of WMTS layers. 
+
+WMTS Layer Configuration
+========================
+description
+	Used in the capabilities document.
+dimensions
+	A comma separated list of the names of dimensions to support.
+	Example: dimensions=Elevation,Wavelength,Time
+dimensionvals
+	Each dimension can have multiple possible values. Set this 
+	to a list of possible values for each dimension. This is done as 
+	a list of lists. Example: 
+    dimensionvals=[["5", "10"],["a", "b", "c"],["2008-01", "2008-03"]]
+feature_count
+	Used to support feature info requests. Maximum number of features 
+	to return.
+info_formats
+	List of info formats to support. This is as a dictionary with 
+	keys of extension names and values of mime types. EG:  
+	{"gml":"application/vnd.ogc.gml"}
+keywords
+	Used in the capabilities document.
+pixel_coord_params
+	Used to support feature info requests. This allows you to specify 
+	the parameter names to use for the pixel co-ordinates in the 
+	feature info query. This was done because some WMS use x,y instead 
+	of i and j.  
+query_layers
+	Used to support feature info requests. The layers to query as 
+	a comma separated list.
+styles
+	Comma separated list of styles to support. Each value is treated as 
+	a named WMTS style. Example: styles=thickblue,thickred
+stylevals
+	By default the name of the style is passed to the WMS getMap request 
+	when generating a tile. This configuraiton allows you to override 
+	this with a specific value, such as a list of styles to match the 
+	layers list. As these values will likely contain commas, this is 
+	expected as a list of strings. Example:
+	stylevals=["thick,blue","thick,red"]  
+tile_matrix_set
+	Comma separated list of tile matrix sets this layer supports.
+title
+	Title meta information used in the capabilities document.
+units
+	Units in meters used to determine a resolution from the scale 
+	specified in the tile matrix. Can be set to 'degrees', 'meters',  
+	'feet', 'GlobalCRS84Pixel'. Can also be set to a float value 
+	instead of one of the prefixed values.
+
+WMTS Cache
+==========
+The WMTS cache is an extension of the TileCache disk cache that 
+stores tiles in the WMTS structure. If you use a WMTS cache instead 
+of Disk or another cache format then ALL layers will need to be 
+WMTS layers as non-WMTS layers do not have required information 
+such as TileMatrixSet to map to the WMTS structure.
+
+Tile Matrix Sets
+================
+WMTS requires the ability to define Tile Matrix Sets. A tile 
+matrix set controls what tiles are available for a layer. 
+In TileCache terms a Tile Matrix Set replaces the layer bounding 
+box, resolutions list, image size and CRS.
+
+In the TileCache configuration file, each section represents a 
+TileCache layer except for two special sections - the [cache] and 
+[tilecache_options] sections. To define a Tile Matrix Set, add 
+the following option to the [tilecache_options] section:
+
+  tile_matrix_sets=WholeWorld_CRS_84,World84-90_CRS_84
+
+This is a comma separated list of configuration file section names 
+to treat as TileMatrixSets instead of a TileCache layer. 
+
+A Tile Matrix Set consists of a series of Tile Matrices and some 
+common parameters. As per TileCache layers, the section name becomes 
+the name of the tile matrix set.
+
+TileMatrixSet Configuration
+=========================
+crs
+	CRS of the tile matrix set. Default is EPSG:4326. The tile matrix 
+	set CRS and the layer CRS don't need to match.
+identifiers
+	Comma separated list of tile matrix identifiers.
+top_left
+	Upper left point of the matrix set in the CRS specified. 
+	Applied to every tile matrix. EG: -180,90
+	A warning: Being named top_left causes confusion as co-ordinates  
+	must be in the order specified by the CRS, which for the 
+	default EPSG:4326 is LEFT,TOP.
+tile_size
+	Width and height of each tile in the tile matrix set. EG: 256,256
+wellknown_scale_set
+	If set, the WMTS capabilities document will verify that the  
+	tile matrix set conforms to (and can be overlayed with) tiles from 
+	a tile matrix set that uses the same well known scale set. Does not 
+	enforce conformity. Example: GlobalCRS84Pixel
+<identifier>__matrix_size
+	Width and height of the tile matrix in tiles.  
+<identifier>__scale_denominator
+	The scale denominator for the tile matrix identified by <identifier>  
+<identifier>__tile_size
+	You can set the tile size per tile matrix if you need to.  
+<identifier>__top_left
+	You can set the top left coordinate per tile matrix if you need to.
+	This overrides the top_left setting for the tile matrix set if 
+	there is one. Remember that this is a point using the CRS of this 
+	tile matrix set, so not necessarily top,left (in fact by default 
+	it's left,top). 
+
+Example Requests
+================
+RESTful capabilities example
+http://your.domain.com/tilecache.py/1.0.0/WMTSCapabilities.xml
+
+KVP capabilities example
+http://your.domain.com/tilecache.py?request=getCapabilities&version=1.0.0&service=WMTS
+
+Simple tile request
+http://your.domain.com/tilecache.py/basic/WholeWorld_CRS_84/20m/0/0.png
+http://your.domain.com/tilecache.py/{layer}/{tile matrix set}/{tile matrix}/{tile row}/{tile col}.png
+
+Simple feature info request (must be supported by underlying WMS)
+http://your.domain.com/tilecache.py/basic/WholeWorld_CRS_84/20m/0/0/5/4.gml
+http://your.domain.com/tilecache.py/{layer}/{tile matrix set}/{tile matrix}/{tile pos x}/{tile pos y}/{pixel pos j}/{pixel pos i}.gml
+
+Tile request with style and dimension
+http://your.domain.com/tilecache.py/dimtest/thickblue/5/a/2008-01/WholeWorld_CRS_84/20m/0/0.png
+http://your.domain.com/tilecache.py/{layer}/{style}/{dim val 1}/{dim val 2}/{dim val 3}/{tile matrix set}/{tile matrix}/{tile row}/{tile col}.{format}
+
+Example Configurations
+======================
+Example WMTS configured cache.
+
+  [cache]
+  type=WMTS
+  base=/tmp/tilecache/WMTS
+
+Example Tile Matrix Set configuration.
+
+  [WholeWorld_CRS_84]
+  wellknown_scale_set=GlobalCRS84Pixel
+  crs=urn:ogc:def:crs:OGC:1.3:CRS84
+  identifiers=2g,1g,30m,20m,10m,5m,2m
+  top_left=-180,90
+  tile_size=320,200
+
+  2g__scale_denominator=795139219.951954
+  2g__matrix_size=1,1
+
+  1g__scale_denominator=397569609.975977
+  1g__matrix_size=2,1
+
+  30m__scale_denominator=198784804.987989
+  30m__matrix_size=3,2
+
+  20m__scale_denominator=132523203.325326
+  20m__matrix_size=4,3
+
+  10m__scale_denominator=66261601.6626630
+  10m__matrix_size=7,6
+
+  5m__scale_denominator=33130800.8313314
+  5m__matrix_size=14,11
+
+  2m__scale_denominator=13252320.3325326
+  2m__matrix_size=34,28
+
+Alternate example Tile Matrix Set configuration that shows 
+overriding some of the tile matrix set level configuration 
+with specific values for particular tile matrix.
+
+  [World84-90_CRS_84]
+  crs=urn:ogc:def:crs:OGC:1.3:CRS84
+  identifiers=2g,1g,30m,20m,10m,5m,2m
+  top_left=-180,84
+  tile_size=320,200
+
+  2g__scale_denominator=795139219.951954
+  2g__matrix_size=1,1
+
+  1g__scale_denominator=397569609.975977
+  1g__matrix_size=2,1
+
+  30m__scale_denominator=198784804.987989
+  30m__matrix_size=3,2
+
+  20m__scale_denominator=132523203.325326
+  20m__top_left=-180,83.6666666666667
+  20m__matrix_size=4,3
+
+  10m__scale_denominator=66261601.6626630
+  10m__top_left=-180,83.6666666666667
+  10m__matrix_size=7,6
+
+  5m__scale_denominator=33130800.8313314
+  5m__top_left=-180,83.6666666666667
+  5m__matrix_size=14,11
+
+  2m__scale_denominator=13252320.3325326
+  2m__top_left=-180,83.6333333333332
+  2m__matrix_size=34,27 
+
+Simple WMTS layer example
+
+  [basic]
+  type=WMTS
+  url=http://labs.metacarta.com/wms/vmap0
+  extension=png
+  srs=EPSG:4326
+  title=Basic
+  description=Default layer as an example of WMTS configuration.
+  units=111319.49079327355
+  tile_matrix_sets=WholeWorld_CRS_84
+  metaTile=yes
+  metaSize=4,4
+
+WMTS layer example with multiple styles, dimensions, tile matrix sets and 
+feature info settings.
+
+  [dimstest]
+  type=WMTS
+  url=http://labs.metacarta.com/wms/vmap0
+  extension=png
+  srs=EPSG:4326
+  title=Dimensions and Styles Test
+  description=Tests the dimensions and styles settings of a WMTS layer.
+  keywords=dimension,style,test
+  units=111319.49079327355
+  styles=thickblue,thickred
+  stylevals=["thick,blue","thick,red"]
+  layers=basic
+  dimensions=Elevation,Wavelength,Time
+  dimensionvals=[["5", "10"],["a", "b", "c"],["2008-01", "2008-03"]]
+  tile_matrix_sets=WholeWorld_CRS_84,World84-90_CRS_84
+  query_layers=basic
+  info_formats={"gml":"application/vnd.ogc.gml"}
+  pixel_coord_params=x,y
+  
+Complete Example Configuration File
+===================================
+In the same folder as this guide should be wmts.cfg - an example configuration 
+file that can be used to try out WMTS TileCache. 

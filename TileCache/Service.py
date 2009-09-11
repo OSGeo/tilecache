@@ -7,6 +7,8 @@ class TileCacheException(Exception): pass
 import sys, cgi, time, os, traceback, ConfigParser
 import Cache, Caches
 import Layer, Layers
+from TileCache.Layers.TileMatrixSet import TileMatrixSet, TileMatrix
+
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
@@ -40,7 +42,7 @@ def import_module(name):
     return mod
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files")
+    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files", "tile_matrix_sets")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
@@ -79,6 +81,7 @@ class Service (object):
         cache = None
         metadata = {}
         layers = {}
+        tile_matrix_sets = {}
         config = None
         try:
             config = ConfigParser.ConfigParser()
@@ -92,21 +95,56 @@ class Service (object):
                 if 'path' in config.options("tilecache_options"): 
                     for path in config.get("tilecache_options", "path").split(","):
                         sys.path.insert(0, path)
+                if 'tile_matrix_sets' in config.options("tilecache_options"):
+                    tile_matrix_set_sections = config.get("tilecache_options", "tile_matrix_sets").split(",")
+                    
+                    for section in tile_matrix_set_sections:
+                        if config.has_section(section):
+                            objargs = {}
+
+                            for opt in config.options(section):
+                                objargs[opt] = config.get(section, opt)
+                                    
+                            tile_matrix_sets[section] = TileMatrixSet(section, **objargs)
             
             cache = cls.loadFromSection(config, "cache", Cache)
 
             layers = {}
             for section in config.sections():
                 if section in cls.__slots__: continue
-                layers[section] = cls.loadFromSection(
-                                        config, section, Layer, 
-                                        cache = cache)
+                
+                if section in tile_matrix_sets.keys(): continue
+                
+                if (config.has_option(section, "type") and config.get(section, "type").lower() == "wmts"):
+                    # Detected a WMTS layer. These get loaded into many Tilecache layers
+                    from TileCache.Layers.WMTS import load_wmts_layer, check_tile_matrix_set
+                    
+                    objargs = {}
+
+                    for opt in config.options(section):
+                        if opt not in ["type", "module"]:
+                            objargs[opt] = config.get(section, opt)
+
+                    new_layers = load_wmts_layer(section, cache=cache, **objargs)
+                    
+                    for layer in new_layers:
+                        layers[layer.name] = layer
+                        
+                        tile_matrix_set = check_tile_matrix_set(layer, tile_matrix_sets)
+                        if tile_matrix_set:
+                            tile_matrix_sets[tile_matrix_set.name] = tile_matrix_set 
+                else:
+                    layers[section] = cls.loadFromSection(
+                                            config, section, Layer, 
+                                            cache = cache)
+                
         except Exception, E:
             metadata['exception'] = E
             metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
         service = cls(cache, layers, metadata)
         service.files = files
         service.config = config
+        service.tile_matrix_sets = tile_matrix_sets
         return service 
     load = classmethod(_load)
 
@@ -171,14 +209,19 @@ class Service (object):
             from TileCache.Services.KML import KML 
             return KML(self).parse(params, path_info, host)
         
-        if params.has_key("scale") or params.has_key("SCALE"): 
-            from TileCache.Services.WMTS import WMTS
-            tile = WMTS(self).parse(params, path_info, host)
-        elif params.has_key("service") or params.has_key("SERVICE") or \
+        if params.has_key("service") or params.has_key("SERVICE") or \
            params.has_key("REQUEST") and params['REQUEST'] == "GetMap" or \
-           params.has_key("request") and params['request'] == "GetMap": 
-            from TileCache.Services.WMS import WMS
-            tile = WMS(self).parse(params, path_info, host)
+           params.has_key("request") and params['request'] == "GetMap":
+            if params.has_key("service") and params['service'] == "WMTS" or \
+               params.has_key("SERVICE") and params['SERVICE'] == "WMTS": 
+                # Except for the capabilities request, Parameter based 
+                # KVP WMTS support in TileCache is out of date. Use the 
+                # RESTful approach instead.  
+                from TileCache.Services.WMTS import WMTS
+                tile = WMTS(self).parse(params, path_info, host)
+            else:
+                from TileCache.Services.WMS import WMS
+                tile = WMS(self).parse(params, path_info, host)
         elif params.has_key("L") or params.has_key("l") or \
              params.has_key("request") and params['request'] == "metadata":
             from TileCache.Services.WorldWind import WorldWind
@@ -197,8 +240,12 @@ class Service (object):
             from TileCache.Services.JSON import JSON 
             return JSON(self).parse(params, path_info, host)
         else:
-            from TileCache.Services.TMS import TMS
-            tile = TMS(self).parse(params, path_info, host)
+            if self.isWmtsRequest(path_info, host):
+                from TileCache.Services.WMTS import WMTS
+                tile = WMTS(self).parse(params, path_info, host)
+            else:
+                from TileCache.Services.TMS import TMS
+                tile = TMS(self).parse(params, path_info, host)
         
         if isinstance(tile, Layer.Tile):
             if req_method == 'DELETE':
@@ -240,6 +287,21 @@ class Service (object):
                 return (format, buffer.read())
         else:
             return (tile.format, tile.data)
+    
+    def isWmtsRequest(self, path_info, host):
+        """Check the request URI information to see if it's a WMTS style request.
+        if the URL contains the name of a tile matrix set then it will be 
+        treated as WMTS"""
+        
+        if len(self.tile_matrix_sets) > 0:
+            for tile_matrix_set in self.tile_matrix_sets.keys():
+                if path_info.find("/%s/" % tile_matrix_set) != -1:
+                    return True
+                
+        if path_info.find("WMTSCapabilities") != -1:
+            return True
+
+        return False
 
 def modPythonHandler (apacheReq, service):
     from mod_python import apache, util
