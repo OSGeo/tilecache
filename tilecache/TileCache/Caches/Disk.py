@@ -4,11 +4,11 @@ from TileCache.Cache import Cache
 import sys, os, time, warnings
 
 class Disk (Cache):
-    def __init__ (self, base = None, umask = '002', **kwargs):
+    def __init__ (self, base = None, sendfile = False, umask = '002', **kwargs):
         Cache.__init__(self, **kwargs)
         self.basedir = base
         self.umask = int(umask, 0)
-        
+        self.sendfile = sendfile and sendfile.lower() in ["yes", "y", "t", "true"]
         if sys.platform.startswith("java"):
             from java.io import File
             self.file_module = File
@@ -64,8 +64,11 @@ class Disk (Cache):
     def get (self, tile):
         filename = self.getKey(tile)
         if self.access(filename, 'read'):
-            tile.data = file(filename, "rb").read()
-            return tile.data
+            if self.sendfile:
+                return filename
+            else:
+                tile.data = file(filename, "rb").read()
+                return tile.data
         else:
             return None
 

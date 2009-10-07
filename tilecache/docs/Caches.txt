@@ -12,8 +12,16 @@ Example Configuration::
   type=Disk
   base=/var/lib/tilecache
   umask=002
+  sendfile=yes
+  expire=3600
 
 Dependencies: None
+
+The sendfile=yes option instructs TileCache to send an X-SendFile header to
+the web server rather than the contents of the image.
+
+See http://blog.lighttpd.net/articles/2006/07/02/x-sendfile and
+http://tn123.ath.cx/mod_xsendfile/
 
 GoogleDisk
 ----
@@ -84,3 +92,11 @@ file on your PYTHONPATH/sys.path. The source distribution of TileCache
 includes this file in the TileCache/Caches/S3.py file. (Packagers are
 encouraged to remove this file from distributions and instead depend
 on the boto library described above.)
+
+All Caches
+----------
+
+All Caches support the expire option.
+
+The expire=n option instructs TileCache to send an Expires header, with the
+date set 'n' seconds into the future.

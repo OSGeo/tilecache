@@ -4,7 +4,7 @@
 
 class TileCacheException(Exception): pass
 
-import sys, cgi, time, os, traceback, ConfigParser
+import sys, cgi, time, os, traceback, email, ConfigParser
 import Cache, Caches
 import Layer, Layers
 
@@ -158,7 +158,7 @@ class Service (object):
             topright   = layer.getClosestCell(z, bbox[2:4])
             for y in range(bottomleft[1], topright[1] + 1):
                 for x in range(bottomleft[0], topright[0] + 1):
-                    coverage = Tile(layer,x,y,z)
+                    coverage = Layer.Tile(layer,x,y,z)
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
@@ -256,8 +256,17 @@ def modPythonHandler (apacheReq, service):
                                 host )
         apacheReq.content_type = format
         apacheReq.status = apache.HTTP_OK
+        if format.startswith("image/"):
+            if service.cache.sendfile:
+                apacheReq.headers_out['X-SendFile'] = image
+            if service.cache.expire:
+                apacheReq.headers_out['Expires'] = email.Utils.formatdate(time.time() + service.cache.expire, False, True)
+                
         apacheReq.send_http_header()
-        apacheReq.write(image)
+        if format.startswith("image/") and service.cache.sendfile:
+            apacheReq.write("")
+        else: 
+            apacheReq.write(image)
     except TileCacheException, E:
         apacheReq.content_type = "text/plain"
         apacheReq.status = apache.HTTP_NOT_FOUND
@@ -291,8 +300,18 @@ def wsgiHandler (environ, start_response, service):
         fields = parse_formvars(environ)
 
         format, image = service.dispatchRequest( fields, path_info, req_method, host )
-        start_response("200 OK", [('Content-Type',format)])
-        return [image]
+        headers = [('Content-Type',format)]
+        if format.startswith("image/"):
+            if service.cache.sendfile:
+                headers.append(('X-SendFile', image))
+            if service.cache.expire:
+                headers.append(('Expires', email.Utils.formatdate(time.time() + service.cache.expire, False, True)))
+
+        start_response("200 OK", headers)
+        if service.cache.sendfile and format.startswith("image/"):
+            return []
+        else:
+            return [image]
 
     except TileCacheException, E:
         start_response("404 Tile Not Found", [('Content-Type','text/plain')])
@@ -321,12 +340,18 @@ def cgiHandler (service):
         host += os.environ["SCRIPT_NAME"]
         req_method = os.environ["REQUEST_METHOD"]
         format, image = service.dispatchRequest( params, path_info, req_method, host )
-        print "Content-type: %s\n" % format
-
-        if sys.platform == "win32":
-            binaryPrint(image)
-        else:    
-            print image
+        print "Content-type: %s" % format
+        if format.startswith("image/"):
+            if service.cache.sendfile:
+                print "X-SendFile: %s" % image
+            if service.cache.expire:
+                print "Expires: %s" % email.Utils.formatdate(time.time() + service.cache.expire, False, True)
+        print "\n"
+        if (not service.cache.sendfile) or (not format.startswith("image/")):
+            if sys.platform == "win32":
+                binaryPrint(image)
+            else:    
+                print image
     except TileCacheException, E:
         print "Cache-Control: max-age=10, must-revalidate" # make the client reload        
         print "Content-type: text/plain\n"
