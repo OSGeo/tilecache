@@ -133,7 +133,8 @@ def main ():
     
     parser.add_option("-b","--bbox",action="store", type="string", dest="bbox", default = None,
                       help="restrict to specified bounding box")
-    
+    parser.add_option("-c", "--config", action="store", type="string", dest="tilecacheconfig", 
+        default=None, help="path to configuration file")                 
     parser.add_option("-p","--padding",action="store", type="int", dest="padding", default = 0,
                       help="extra margin tiles to seed around target area. Defaults to 0 "+
                       "(some edge tiles might be missing).      A value of 1 ensures all tiles "+
@@ -149,7 +150,14 @@ def main ():
 
     from Service import Service, cfgfiles
     from Layer import Layer
-    svc = Service.load(*cfgfiles)
+    cfgs = cfgfiles
+    if options.tilecacheconfig:
+        configFile = options.tilecacheconfig
+        print "Config file set to %s" % (configFile)
+        cfgs = cfgs + (configFile,)
+ 
+    svc = Service.load(*cfgs)
+
     layer = svc.layers[args[0]]
     
     if options.bbox:
