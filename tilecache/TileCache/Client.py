@@ -3,6 +3,7 @@
 # BSD Licensed, Copyright (c) 2006-2008 MetaCarta, Inc.
 
 import sys, urllib, urllib2, time, os, math
+import time
 import httplib
 try:
     from optparse import OptionParser
@@ -73,7 +74,7 @@ class WMS (object):
     def setBBox (self, box):
         self.params["bbox"] = ",".join(map(str, box))
 
-def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False, reverse = False ):
+def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False, reverse = False, delay = 0 ):
     from Layer import Tile
     try:
         padding = int(padding)
@@ -120,6 +121,8 @@ def seed (svc, layer, levels = (0, 5), bbox = None, padding = 0, force = False, 
                 box = "(%.4f %.4f %.4f %.4f)" % bounds
                 print "%02d (%06d, %06d) = %s [%.4fs : %.3f/s] %s/%s" \
                      % (z,x,y, box, time.time() - tileStart, total / (time.time() - start + .0001), zcount, ztiles)
+                if delay:
+                    time.sleep(delay)
 
 def main ():
     if not OptionParser:
@@ -135,6 +138,8 @@ def main ():
                       help="restrict to specified bounding box")
     parser.add_option("-c", "--config", action="store", type="string", dest="tilecacheconfig", 
         default=None, help="path to configuration file")                 
+    parser.add_option("-d","--delay",action="store", type="int", dest="delay", default = 0,
+        help="Delay time between requests.")
     parser.add_option("-p","--padding",action="store", type="int", dest="padding", default = 0,
                       help="extra margin tiles to seed around target area. Defaults to 0 "+
                       "(some edge tiles might be missing).      A value of 1 ensures all tiles "+
@@ -167,7 +172,7 @@ def main ():
     
         
     if len(args)>1:    
-        seed(svc, layer, map(int, args[1:3]), bboxlist , padding=options.padding, force = options.force, reverse = options.reverse)
+        seed(svc, layer, map(int, args[1:3]), bboxlist , padding=options.padding, force = options.force, reverse = options.reverse, delay=options.delay)
     else:
         for line in sys.stdin.readlines():
             lat, lon, delta = map(float, line.split(","))
