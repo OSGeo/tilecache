@@ -262,6 +262,7 @@ def modPythonHandler (apacheReq, service):
             if service.cache.expire:
                 apacheReq.headers_out['Expires'] = email.Utils.formatdate(time.time() + service.cache.expire, False, True)
                 
+        apacheReq.set_content_length(len(image))
         apacheReq.send_http_header()
         if format.startswith("image/") and service.cache.sendfile:
             apacheReq.write("")
