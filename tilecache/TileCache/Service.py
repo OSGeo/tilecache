@@ -347,7 +347,7 @@ def cgiHandler (service):
                 print "X-SendFile: %s" % image
             if service.cache.expire:
                 print "Expires: %s" % email.Utils.formatdate(time.time() + service.cache.expire, False, True)
-        print "\n"
+        print ""
         if (not service.cache.sendfile) or (not format.startswith("image/")):
             if sys.platform == "win32":
                 binaryPrint(image)
