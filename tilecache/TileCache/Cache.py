@@ -3,11 +3,12 @@ import os, sys, time
 from warnings import warn
 
 class Cache (object):
-    def __init__ (self, timeout = 30.0, stale_interval = 300.0, readonly = False, expire = False, **kwargs):
+    def __init__ (self, timeout = 30.0, stale_interval = 300.0, readonly = False, expire = False, sendfile = False, **kwargs):
         self.stale    = float(stale_interval)
         self.timeout = float(timeout)
         self.readonly = readonly
         self.expire = expire
+        self.sendfile = sendfile and sendfile.lower() in ["yes", "y", "t", "true"]
         if expire != False:
             self.expire = long(expire)
                 
