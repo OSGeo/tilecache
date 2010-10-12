@@ -93,6 +93,23 @@ includes this file in the TileCache/Caches/S3.py file. (Packagers are
 encouraged to remove this file from distributions and instead depend
 on the boto library described above.)
 
+MBTiles
+-------
+
+Simple read-only format for MBTiles sqlite databases. Name each database
+according to the name of the layer, and place it inside your cache directory,
+and provide an extension to your cache.
+
+    [cache]
+    type=MBTiles
+    base=./tiles
+    ext=db
+
+For layer basic, this will attempt to open a sqlite3 database at 
+./tiles/basic.db .
+
+See http://mapbox.com/tools/mbtiles for more details.
+
 All Caches
 ----------
 
