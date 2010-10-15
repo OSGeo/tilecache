@@ -1,4 +1,3 @@
-
 >>> from TileCache.Swarm import Message
 >>> from TileCache.Layer import Layer, Tile
 >>> from sha import sha

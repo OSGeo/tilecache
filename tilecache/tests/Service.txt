@@ -2,8 +2,8 @@ The Service is the core component of the TileCache Server: various services
 (wsgi, cgi, mod_python) feed into it. You can see the properties::
 
     >>> import TileCache.Service
-    >>> dir(TileCache.Service)
-    ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__', '_load', '_loadFromSection', 'cache', 'config', 'dispatchRequest', 'expireTile', 'files', 'generate_crossdomain_xml', 'layers', 'load', 'loadFromSection', 'metadata', 'renderTile', 'tilecache_options']
+    >>> filter(lambda x: not x.startswith("_"), dir(TileCache.Service))
+    ['cache', 'config', 'dispatchRequest', 'expireTile', 'files', 'generate_crossdomain_xml', 'layers', 'load', 'loadFromSection', 'metadata', 'renderTile', 'tilecache_options']
 
 Or you can create one. In general, this is generated via the config file,
 but you can build one manually as well::
