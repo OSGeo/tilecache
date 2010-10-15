@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# BSD Licensed, Copyright (c) 2006-2008 TileCache Contributors
+# BSD Licensed, Copyright (c) 2006-2010 TileCache Contributors
 
 import sys, urllib, urllib2, time, os, math
 import time

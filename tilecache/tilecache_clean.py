@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# BSD Licensed, Copyright (c) 2006-2008 TileCache Contributors
+# BSD Licensed, Copyright (c) 2006-2010 TileCache Contributors
 """This is intended to be run as a command line tool. Use --help to determine
    arguments to this program. It is a tool to keep a certain directory
    to a maximum size by removing least recently accessed files from the 
