@@ -1,6 +1,14 @@
 Changelog
 =========
 
+tilecache-2.11,  Fri 15 Oct 2010 06:36:11 -0500
+ * Change copyright statements to be more accurate
+ * Add minimal (read-only, non-optimized) support for the
+   MBTiles sqlite format
+ * Fix a bug introduced in disk locking prior to 2.0.3
+ * Add sendfile and Expires support to tilecache.
+ * Other minor improvements to documentation and pre-seeding.
+
 tilecache-2.10,  Sun, 18 Jan 2009 21:07:49 -0500
  * APPLICATION CHANGE: tilecache_seed.py now uses optparse for options
    parsing, which may require changes in scripts which call tilecache_seed
