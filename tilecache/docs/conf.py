@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'TileCache'
-copyright = u'2008, TileCache Project'
+copyright = u'2008-2010, TileCache Project'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
