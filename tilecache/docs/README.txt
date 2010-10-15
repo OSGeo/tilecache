@@ -7,7 +7,7 @@ Cache and serve map tiles
 -------------------------
 
 :Author: labs@metacarta.com
-:Copyright: (c) 2006-2008 MetaCarta, Inc.
+:Copyright: (c) 2006-2008 TileCache Contributors
             Distributed under the BSD license.
 :Version: 2.10 
 :Manual section: 8

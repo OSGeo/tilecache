@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# BSD Licensed, Copyright (c) 2006-2008 MetaCarta, Inc.
+# BSD Licensed, Copyright (c) 2006-2008 TileCache Contributors
 
 class TileCacheException(Exception): pass
 

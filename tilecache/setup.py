@@ -34,7 +34,7 @@ else:
 setup(name='TileCache',
       version='2.10',
       description='a web map tile caching system',
-      author='MetaCarta Labs',
+      author='TileCache Contributors',
       author_email='tilecache@openlayers.org',
       url='http://tilecache.org/',
       long_description=readme,
