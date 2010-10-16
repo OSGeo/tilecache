@@ -37,12 +37,12 @@ install: build
     
 	# eliminates script-not-executable warning from lintian
 
-	rm $(PREFIX)/usr/bin/tilecache_install_config.py # only used for eggs
-	mv $(PREFIX)/usr/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
-	mv $(PREFIX)/usr/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
-	mv $(PREFIX)/usr/bin/tilecache_clean.py $(PREFIX)/usr/sbin/tilecache_clean
-	mv $(PREFIX)/usr/bin/tilecache_http_server.py $(PREFIX)/usr/sbin/tilecache_http_server
-	rmdir $(PREFIX)/usr/bin
+	rm $(PREFIX)/usr/local/bin/tilecache_install_config.py # only used for eggs
+	mv $(PREFIX)/usr/local/bin/tilecache.* $(PREFIX)/usr/lib/cgi-bin # .cgi, .fcgi
+	mv $(PREFIX)/usr/local/bin/tilecache_seed.py $(PREFIX)/usr/sbin/tilecache_seed
+	mv $(PREFIX)/usr/local/bin/tilecache_clean.py $(PREFIX)/usr/sbin/tilecache_clean
+	mv $(PREFIX)/usr/local/bin/tilecache_http_server.py $(PREFIX)/usr/sbin/tilecache_http_server
+	rmdir $(PREFIX)/usr/local/bin
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -56,9 +56,9 @@ binary-indep: build install
 	dh_compress
 	dh_fixperms
 	dh_pysupport
-	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Service.py
-	chmod +x $(PREFIX)$(PYSUPPORT)/TileCache/Client.py
-	rm $(PREFIX)$(PYSUPPORT)/TileCache/Caches/S3.py # Suggests python-boto instead. 
+	chmod +x $(PREFIX)/usr/share/pyshared/TileCache/Service.py
+	chmod +x $(PREFIX)/usr/share/pyshared/TileCache/Client.py
+	rm $(PREFIX)/usr/share/pyshared/TileCache/Caches/S3.py # Suggests python-boto instead. 
 	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
