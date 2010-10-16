@@ -1,7 +1,7 @@
 Source: tilecache
 Section: web
 Priority: extra
-Maintainer: Christopher Schmidt <crschmidt@metacarta.com>
+Maintainer: Christopher Schmidt <christopher.schmidt@nokia.com>
 Build-Depends: debhelper (>= 5.0.0)
 Build-Depends-Indep: python (>= 2.1), python-support (>= 0.3), 
                      python-setuptools
