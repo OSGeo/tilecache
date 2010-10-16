@@ -5,13 +5,13 @@ Maintainer: Christopher Schmidt <christopher.schmidt@nokia.com>
 Build-Depends: debhelper (>= 5.0.0)
 Build-Depends-Indep: python (>= 2.1), python-support (>= 0.3), 
                      python-setuptools
-Standards-Version: 3.7.3
+Standards-Version: 3.9.1
 Homepage: http://tilecache.org/
 
 Package: tilecache
 Architecture: all
 XS-Python-Version: >= 2.1
-Depends: ${python:Depends}
+Depends: ${python:Depends}, ${misc:Depends}
 Recommends: python-imaging
 Suggests: python-mapscript (>= 4.10), python-mapnik, memcached, python-memcache, python-boto, python-flup, python-paste, python-wsgiref, python-simplejson
 Description: a web map tile caching system
