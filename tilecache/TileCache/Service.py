@@ -7,6 +7,7 @@ class TileCacheException(Exception): pass
 import sys, cgi, time, os, traceback, email, ConfigParser
 import Cache, Caches
 import Layer, Layers
+import urllib2
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
@@ -40,13 +41,15 @@ def import_module(name):
     return mod
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files")
+    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files", "include")
 
     def __init__ (self, cache, layers, metadata = {}):
         self.cache    = cache
         self.layers   = layers
         self.metadata = metadata
- 
+    
+    ##### loadFromSection #####
+    
     def _loadFromSection (cls, config, section, module, **objargs):
         type  = config.get(section, "type")
         for opt in config.options(section):
@@ -61,6 +64,7 @@ class Service (object):
             if module is Layer:
                 type = type.replace("Layer", "")
                 object_module = import_module("TileCache.Layers.%s" % type)
+               
             else:
                 type = type.replace("Cache", "")
                 object_module = import_module("TileCache.Caches.%s" % type)
@@ -73,8 +77,51 @@ class Service (object):
             return section_object(section, **objargs)
         else:
             return section_object(**objargs)
+    
     loadFromSection = classmethod(_loadFromSection)
 
+    ##### load method for the included config files #####
+    
+    def _load_recurse (cls, metadata, layers, config, section, **objargs):
+    
+        ##### url? #####
+        
+        if config.has_option(section, "urls"):
+            urls = config.get(section, "urls")
+            
+            for url in urls.split(','):
+                
+                try:
+                    myconfig = None
+                    myconfig = ConfigParser.ConfigParser()
+                    fp = urllib2.urlopen( url )
+                    myconfig.readfp(fp)
+                    fp.close()
+                    
+                    for section in myconfig.sections():
+                        
+                        ##### include sections #####
+                        
+                        if section == "include":
+                            cls.load_recurse( metadata, layers, myconfig, section, **objargs)
+                        
+                        ##### check for layer sections #####
+                        
+                        if section in cls.__slots__:
+                            continue
+                        
+                        layers[section] = cls.loadFromSection( myconfig, section,
+                                                                Layer, **objargs)
+                
+                except Exception, E:
+                    metadata['exception'] = E
+                    metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
+        
+    
+    load_recurse = classmethod(_load_recurse)
+    
+    ##### load method for the root config file #####
+                                       
     def _load (cls, *files):
         cache = None
         metadata = {}
@@ -97,10 +144,18 @@ class Service (object):
 
             layers = {}
             for section in config.sections():
+            
+                ##### include sections #####
+                
+                if section == "include":
+                    cls.load_recurse( metadata, layers, config, section, cache = cache)
+                
+                ##### check for layer sections #####
+                    
                 if section in cls.__slots__: continue
-                layers[section] = cls.loadFromSection(
-                                        config, section, Layer, 
-                                        cache = cache)
+                layers[section] = cls.loadFromSection( config, section,
+                                                       Layer, cache = cache)
+        
         except Exception, E:
             metadata['exception'] = E
             metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
