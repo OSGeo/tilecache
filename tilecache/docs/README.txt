@@ -200,6 +200,27 @@ tilecache.fcgi.
 
 Configuring FastCGI is beyond the scope of this documentation.
 
+Running Under Apache + mod_wsgi 2
+=================================
+
+This note is meant to be a technical outline, not a set of directions.
+
+Assuming you have installed TileCache to, say, /var/www/tilecache, the
+following has been known to work in an Apache .conf:
+
+  <Directory /var/www/tilecache>
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  WSGIScriptAlias /tile /var/www/tilecache/TileCache/Service.py
+  WSGICallableObject wsgiApp
+  WSGIDaemonProcess TileCache processes=2 threads=15 python-path=/var/www/tilecache/TileCache:/var/www/tilecache
+  WSGIProcessGroup TileCache
+
+The `python-path` bit in the `WSGIDaemonProcess` parameter appears to be
+necessary, because of the way that mod_wsgi sets up the Python path.
+
 Running Under IIS
 =================
 
