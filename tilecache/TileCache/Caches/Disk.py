@@ -60,6 +60,17 @@ class Disk (Cache):
         filename = os.path.join( *components )
         return filename
 
+    ###########################################################################
+    ##
+    ## @brief get cached tile
+    ##
+    ## @param TileCache::Layer::Tile  the tile to get from the cache
+    ##
+    ## @return filename for the X-SendFile header, TileCache::Layer::Tile::data,
+    ##  or None if the there is no cached tile
+    ##
+    ###########################################################################
+    
     def get (self, tile):
         filename = self.getKey(tile)
         if self.access(filename, 'read'):
