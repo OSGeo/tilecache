@@ -48,7 +48,18 @@ class Service (object):
         self.layers   = layers
         self.metadata = metadata
     
-    ##### loadFromSection #####
+    ###########################################################################
+    ##
+    ## @brief load method for a config section.
+    ##
+    ## @param config    ConfigParser::ConfigParser object
+    ## @param section   include section list item
+    ## @param module    module to load, typically "Layer"
+    ## @param objargs   section objects
+    ## 
+    ## @return section object
+    ##
+    ###########################################################################
     
     def _loadFromSection (cls, config, section, module, **objargs):
         type  = config.get(section, "type")
@@ -80,7 +91,18 @@ class Service (object):
     
     loadFromSection = classmethod(_loadFromSection)
 
-    ##### load method for the included config files #####
+    ###########################################################################
+    ##
+    ## @brief load method for the included config files.
+    ##
+    ## @param metadata   dictionary of metadata items
+    ## @param layers     dictionary of layers
+    ## @param config     ConfigParser::ConfigParser object
+    ## @param section    include section list item
+    ## @param objargs    section objects
+    ##
+    ## 
+    ###########################################################################
     
     def _load_recurse (cls, metadata, layers, config, section, **objargs):
     
@@ -120,8 +142,14 @@ class Service (object):
     
     load_recurse = classmethod(_load_recurse)
     
-    ##### load method for the root config file #####
-                                       
+    ###########################################################################
+    ##
+    ## @brief load method to parse the config.
+    ##
+    ## @param files    config files to parse
+    ##
+    ###########################################################################
+    
     def _load (cls, *files):
         cache = None
         metadata = {}
