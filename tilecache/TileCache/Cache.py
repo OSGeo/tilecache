@@ -7,7 +7,23 @@ class Cache (object):
         self.stale    = float(stale_interval)
         self.timeout = float(timeout)
         self.readonly = readonly
+        
+        #######################################################################
+        ##
+        ##  The expire=n option instructs TileCache to send an Expires header,
+        ##   with the date set ‘n’ seconds into the future.
+        ##
+        #######################################################################
+        
         self.expire = expire
+        
+        #######################################################################
+        ##
+        ##  The sendfile=yes option instructs TileCache to send an X-SendFile
+        ##   header to the web server rather than the contents of the image.
+        ##
+        #######################################################################
+
         self.sendfile = sendfile and sendfile.lower() in ["yes", "y", "t", "true"]
         if expire != False:
             self.expire = long(expire)
@@ -38,6 +54,18 @@ class Cache (object):
     def unlock (self, tile):
         raise NotImplementedError()
 
+    ###########################################################################
+    ##
+    ## @brief get cached tile
+    ##
+    ## @param TileCache::Layer::Tile  the tile to get from the cache
+    ##
+    ## @return cache type specfic
+    ## 
+    ## @details
+    ##  if no cache is implemented this method raises NotImplementedError()
+    ###########################################################################
+    
     def get (self, tile):
         raise NotImplementedError()
 
