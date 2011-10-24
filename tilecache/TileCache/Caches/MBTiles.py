@@ -19,6 +19,17 @@ class MBTiles (Cache):
         self.basedir = base
         self.ext = ext
         
+    ###########################################################################
+    ##
+    ## @brief get cached tile from a MBTiles db
+    ##
+    ## @param TileCache::Layer::Tile  the tile to get from the cache
+    ##
+    ## @return TileCache::Layer::Tile::data, or None if the there is no
+    ##            cached tile
+    ##
+    ###########################################################################
+    
     def get (self, tile):
         db = sqlite3.connect("%s.%s" % (os.path.join(self.basedir, tile.layer.name), self.ext))
         c = db.cursor()
