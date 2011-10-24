@@ -1,7 +1,7 @@
 # A minimal implementation of an MBTiles-formatted SQLite database 
 # cache access mechanism. (No writing, only reading.)
 # See:
-#  http://mapbox.com/tools/mbtiles 
+#  http://mbtiles.org/
 # for more information on the mbtiles format; it is essentially a single 
 # table in a sqlite database with 4 columns:
 #  * tile_column
