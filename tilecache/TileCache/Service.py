@@ -322,9 +322,11 @@ class Service (object):
 
                 return (format, buffer.read())
         else:
-            # tile.format has never existed... so this code has never worked
-            # return (tile.format, tile.data)
-            raise NotImplementedError("Service instance must return a Tile object")
+            # return ( TileCache.Service.Capabilities.format,
+            #          TileCache.Service.Capabilities.data
+            #        )
+            
+            return (tile.format, tile.data)
 
 def modPythonHandler (apacheReq, service):
     from mod_python import apache, util
