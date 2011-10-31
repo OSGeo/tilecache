@@ -283,12 +283,26 @@ class Service (object):
             from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
         
-        if hasattr(tile, "data"): # duck-typing for Layer.Tile
+        ##### Capabilities object #####
+        
+        if hasattr(tile, "format"):
+            # return ( TileCache.Service.Capabilities.format,
+            #          TileCache.Service.Capabilities.data
+            #        )
+            return (tile.format, tile.data)
+        
+        ##### single tile object #####
+        
+        elif not isinstance(tile, list):
+            
             if req_method == 'DELETE':
                 self.expireTile(tile)
                 return ('text/plain', 'OK')
             else:
                 return self.renderTile(tile, params.has_key('FORCE'))
+        
+        ##### list of tile objects #####
+        
         elif isinstance(tile, list):
             if req_method == 'DELETE':
                 [self.expireTile(t) for t in tile]
@@ -321,12 +335,11 @@ class Service (object):
                 buffer.seek(0)
 
                 return (format, buffer.read())
+        
+        ##### unknown object #####
+        
         else:
-            # return ( TileCache.Service.Capabilities.format,
-            #          TileCache.Service.Capabilities.data
-            #        )
-            
-            return (tile.format, tile.data)
+            raise NotImplementedError("Service instance must return a Tile or Capabilities object")
 
 def modPythonHandler (apacheReq, service):
     from mod_python import apache, util
