@@ -1,6 +1,6 @@
 # BSD Licensed, Copyright (c) 2006-2010 TileCache Contributors
 
-import os, sys
+import os, sys, time
 from warnings import warn
 from Client import WMS
 from Service import TileCacheException
@@ -100,7 +100,8 @@ class Layer (object):
                   "watermarkimage", "watermarkopacity",
                   "extent_type", "tms_type", "units", "mime_type",
                   "paletted",
-                  "spherical_mercator", "metadata")
+                  "spherical_mercator", "metadata",
+                  "expired")
     
     config_properties = [
       {'name':'spherical_mercator', 'description':'Layer is in spherical mercator. (Overrides bbox, maxresolution, SRS, Units)', 'type': 'boolean'},
@@ -109,6 +110,7 @@ class Layer (object):
       {'name':'bbox', 'description':'Bounding box of the layer grid', 'default':'-180,-90,180,90'},
       {'name':'srs', 'description':'Spatial Reference System for the layer', 'default':'EPSG:4326'},
       {'name':'data_extent', 'description':'Bounding box of the layer data. (Same SRS as the layer grid.)', 'default':"", 'type': 'map'},
+      {'name':'expired', 'description':'Timestamp of latest change to source data.', 'default':""}
     ]  
     
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
@@ -118,7 +120,8 @@ class Layer (object):
                         extension = "png", mime_type = None, cache = None,  debug = True, 
                         watermarkimage = None, watermarkopacity = 0.2,
                         spherical_mercator = False,
-                        extent_type = "strict", units = "degrees", tms_type = "", **kwargs ):
+                        extent_type = "strict", units = "degrees", tms_type = "",
+                        expired = None, **kwargs ):
         """Take in parameters, usually from a config file, and create a Layer.
 
         >>> l = Layer("Name", bbox="-12,17,22,36", debug="no")
@@ -201,6 +204,19 @@ class Layer (object):
         self.watermarkopacity = float(watermarkopacity)
         
         self.metadata = {}
+        
+        if expired == None:
+            self.expired = None
+        
+        else:
+            try:
+                os.environ['TZ'] = 'UTC'
+                time.tzset()
+                mytime = time.strptime(expired, "%Y-%m-%dT%H:%M:%SZ")
+                self.expired = time.mktime(mytime)
+            except:
+                sys.stderr.write("invalid expired timestamp format on layer %s\n" % name)
+                self.expired = None;
 
         prefix_len = len("metadata_")
         for key in kwargs:

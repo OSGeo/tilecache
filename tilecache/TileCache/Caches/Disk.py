@@ -46,6 +46,33 @@ class Disk (Cache):
             else:
                 return os.access(path, os.W_OK)
 
+    ###########################################################################
+    ##
+    ## @brief test a tile to see if it has expired
+    ##
+    ## @param path              the full path to the tile to test
+    ## @param TileCache::Layer  the layer
+    ##
+    ## @return true if expire time on the layer is less than the tiles mtime,
+    ##         or false in any other case
+    ##
+    ###########################################################################
+    
+    def isExpired(self, path, layer):
+        
+        if layer.expired != None:
+            
+            try:
+                mtime = os.stat(path).st_mtime
+            except Exception, E:
+                raise Exception( "isExpired %s %s\n", (path, E) )
+                return False
+            
+            if mtime < layer.expired:
+                return True
+        
+        return False
+        
     def getKey (self, tile):
         components = ( self.basedir,
                        tile.layer.name,
@@ -72,8 +99,16 @@ class Disk (Cache):
     ###########################################################################
     
     def get (self, tile):
+        
         filename = self.getKey(tile)
         if self.access(filename, 'read'):
+            
+            ##### test if the tile has expired #####
+            
+            if self.isExpired(filename, tile.layer) and not self.readonly:
+                os.unlink(filename)
+                return None
+            
             if self.sendfile:
                 return filename
             else:
