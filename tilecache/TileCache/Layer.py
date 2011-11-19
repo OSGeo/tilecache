@@ -385,7 +385,11 @@ class MetaLayer (Layer):
     def __init__ (self, name, metatile = "", metasize = (5,5),
                               metabuffer = (10,10), **kwargs):
         Layer.__init__(self, name, **kwargs)
-        self.metaTile    = metatile.lower() in ("true", "yes", "1")
+        
+        if isinstance(metatile, str):
+            metatile = str(metatile).lower() in ("true", "yes", "1")
+        self.metaTile = metatile
+        
         if isinstance(metasize, str):
             metasize = map(int,metasize.split(","))
         if isinstance(metabuffer, str):
