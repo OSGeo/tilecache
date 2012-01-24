@@ -2,11 +2,12 @@
 
 from TileCache.Service import Request, Capabilities
 import TileCache.Layer as Layer
+import sys
 
 class WMS (Request):
     def parse (self, fields, path, host):
         param = {}
-        for key in ['bbox', 'layers', 'request', 'version']: 
+        for key in ['bbox', 'layers', 'request', 'version', 'height', 'width']: 
             if fields.has_key(key.upper()):
                 param[key] = fields[key.upper()] 
             elif fields.has_key(key):
@@ -21,15 +22,33 @@ class WMS (Request):
     def getMap (self, param):
         bbox  = map(float, param["bbox"].split(","))
         layers = param["layers"].split(",")
-
+        height = int(param["height"])
+        width  = int(param["width"])
         tiles =  []
+
+        ##### loop over the layers #####
+
         for name in layers:
-            tile  = self.getLayer(name).getTile(bbox)
-            if not tile:
-                raise Exception(
-                    "couldn't calculate tile index for layer %s from (%s)"
-                    % (layer.name, bbox))
-            tiles.append(tile)
+
+            ##### calc the increment for each of the tiles in the bbox #####
+
+            xincr = ( bbox[2] - bbox[0] ) / (width  / self.getLayer(name).size[0])
+            yincr = ( bbox[3] - bbox[1] ) / (height / self.getLayer(name).size[1])
+            
+            ##### loop over the bbox  and build a list of tiles #####
+            
+            x = bbox[0]
+            while x < bbox[2] - xincr / 2: #### cant use the exact bbox value because of floating point errors
+                y = bbox[1]
+                while y < bbox[3] - yincr / 2:
+                    tile  = self.getLayer(name).getTile((x, y, x+xincr, y+yincr))
+                    if not tile:
+                        raise Exception(
+                            "couldn't calculate tile index for layer %s from (%s)"
+                            % (layer.name, bbox))
+                    tiles.append(tile)
+                    y += yincr
+                x += xincr
 
         if len(tiles) > 1:
             return tiles

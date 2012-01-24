@@ -11,7 +11,7 @@ class Cache (object):
         #######################################################################
         ##
         ##  The expire=n option instructs TileCache to send an Expires header,
-        ##   with the date set ‘n’ seconds into the future.
+        ##   with the date set 'n' seconds into the future.
         ##
         #######################################################################
         

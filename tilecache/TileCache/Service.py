@@ -5,17 +5,22 @@
 class TileCacheException(Exception): pass
 
 import sys, cgi, time, os, traceback, email, ConfigParser
-import Cache, Caches
+import Cache, Caches, Config, Configs
 import Layer, Layers
-import urllib2
+import urllib2, csv
+from Configs.File import File
+import threading
 
 # Windows doesn't always do the 'working directory' check correctly.
 if sys.platform == 'win32':
     workingdir = os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0])))
-    cfgfiles = (os.path.join(workingdir, "tilecache.cfg"), os.path.join(workingdir,"..","tilecache.cfg"))
+    cfgfiles = [ os.path.join(workingdir, "tilecache.cfg"),
+                 os.path.join(workingdir,"..","tilecache.cfg") ]
 else:
-    cfgfiles = ("/etc/tilecache.cfg", os.path.join("..", "tilecache.cfg"), "tilecache.cfg")
-
+    cfgfiles = [ "/etc/tilecache.cfg",
+                 os.path.join("..", "tilecache.cfg"),
+                 "tilecache.cfg" ]
+    
 
 class Capabilities (object):
     def __init__ (self, format, data):
@@ -31,7 +36,6 @@ class Request (object):
         except:
             raise TileCacheException("The requested layer (%s) does not exist. Available layers are: \n * %s" % (layername, "\n * ".join(self.service.layers.keys()))) 
 
-    
 def import_module(name):
     """Helper module to import any module based on a name, and return the module."""
     mod = __import__(name)
@@ -41,107 +45,17 @@ def import_module(name):
     return mod
 
 class Service (object):
-    __slots__ = ("layers", "cache", "metadata", "tilecache_options", "config", "files", "include")
+    __slots__ = ("files", "configs", "layers", "lastcheckchange", "cache", "thread_lock")
 
-    def __init__ (self, cache, layers, metadata = {}):
-        self.cache    = cache
-        self.layers   = layers
-        self.metadata = metadata
-    
-    ###########################################################################
-    ##
-    ## @brief load method for a config section.
-    ##
-    ## @param config    ConfigParser::ConfigParser object
-    ## @param section   include section list item
-    ## @param module    module to load, typically "Layer"
-    ## @param objargs   section objects
-    ## 
-    ## @return section object
-    ##
-    ###########################################################################
-    
-    def _loadFromSection (cls, config, section, module, **objargs):
-        type  = config.get(section, "type")
-        for opt in config.options(section):
-            if opt not in ["type", "module"]:
-                objargs[opt] = config.get(section, opt)
+    def __init__ (self, configs, layers):
+        self.configs = configs
+        self.layers = layers
+        self.lastcheckchange = time.time()
         
-        object_module = None
-        
-        if config.has_option(section, "module"):
-            object_module = import_module(config.get(section, "module"))
-        else: 
-            if module is Layer:
-                type = type.replace("Layer", "")
-                object_module = import_module("TileCache.Layers.%s" % type)
-               
-            else:
-                type = type.replace("Cache", "")
-                object_module = import_module("TileCache.Caches.%s" % type)
-        if object_module == None:
-            raise TileCacheException("Attempt to load %s failed." % type)
-        
-        section_object = getattr(object_module, type)
-        
-        if module is Layer:
-            return section_object(section, **objargs)
-        else:
-            return section_object(**objargs)
-    
-    loadFromSection = classmethod(_loadFromSection)
+        ##### we need a mutex for reading the configs #####
 
-    ###########################################################################
-    ##
-    ## @brief load method for the included config files.
-    ##
-    ## @param metadata   dictionary of metadata items
-    ## @param layers     dictionary of layers
-    ## @param config     ConfigParser::ConfigParser object
-    ## @param section    include section list item
-    ## @param objargs    section objects
-    ##
-    ## 
-    ###########################################################################
-    
-    def _load_recurse (cls, metadata, layers, config, section, **objargs):
-    
-        ##### url? #####
-        
-        if config.has_option(section, "urls"):
-            urls = config.get(section, "urls")
-            
-            for url in urls.split(','):
-                
-                try:
-                    myconfig = None
-                    myconfig = ConfigParser.ConfigParser()
-                    fp = urllib2.urlopen( url )
-                    myconfig.readfp(fp)
-                    fp.close()
-                    
-                    for section in myconfig.sections():
-                        
-                        ##### include sections #####
-                        
-                        if section == "include":
-                            cls.load_recurse( metadata, layers, myconfig, section, **objargs)
-                        
-                        ##### check for layer sections #####
-                        
-                        if section in cls.__slots__:
-                            continue
-                        
-                        layers[section] = cls.loadFromSection( myconfig, section,
-                                                                Layer, **objargs)
-                
-                except Exception, E:
-                    metadata['exception'] = E
-                    metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
-        
-    
-    load_recurse = classmethod(_load_recurse)
-    
+        self.thread_lock=threading.Lock()
+
     ###########################################################################
     ##
     ## @brief load method to parse the config.
@@ -150,49 +64,63 @@ class Service (object):
     ##
     ###########################################################################
     
-    def _load (cls, *files):
-        cache = None
-        metadata = {}
-        layers = {}
-        config = None
-        try:
-            config = ConfigParser.ConfigParser()
-            config.read(files)
-            
-            if config.has_section("metadata"):
-                for key in config.options("metadata"):
-                    metadata[key] = config.get("metadata", key)
-            
-            if config.has_section("tilecache_options"):
-                if 'path' in config.options("tilecache_options"): 
-                    for path in config.get("tilecache_options", "path").split(","):
-                        sys.path.insert(0, path)
-            
-            cache = cls.loadFromSection(config, "cache", Cache)
-
-            layers = {}
-            for section in config.sections():
-            
-                ##### include sections #####
-                
-                if section == "include":
-                    cls.load_recurse( metadata, layers, config, section, cache = cache)
-                
-                ##### check for layer sections #####
-                    
-                if section in cls.__slots__: continue
-                layers[section] = cls.loadFromSection( config, section,
-                                                       Layer, cache = cache)
+    def _load (cls, files):
         
-        except Exception, E:
-            metadata['exception'] = E
-            metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
-        service = cls(cache, layers, metadata)
+        configs = []
+        initconfigs = []
+
+        for f in files:
+            #sys.stderr.write( "_load f %s\n" % f )
+            cfg = File(f)
+            configs.append( cfg )
+            initconfigs.append( cfg )
+
+        for conf in initconfigs:
+            conf.read( configs )
+            if conf.cache != None:
+                cls.cache = conf.cache
+            
+        layers = {}
+            
+        for conf in configs:
+            layers.update(conf.layers)
+        
+        service = cls(configs, layers)
+        
         service.files = files
-        service.config = config
-        return service 
+            
+        return service
+
     load = classmethod(_load)
 
+    ###########################################################################
+    ##
+    ## @brief method to check the configs for change
+    ##
+    ##
+    ###########################################################################
+    
+    def checkchange (self):
+    
+        if self.lastcheckchange < time.time() + 1:
+           
+            #sys.stderr.write( "service.checkchange\n" )
+            configs = []
+            initconfigs = []
+            
+            for conf in self.configs:
+                conf.checkchange(self.configs)
+            
+            layers = {}
+            
+            for conf in self.configs:
+                layers.update(conf.layers)
+            
+            self.layers = layers
+            self.lastcheckchange = time.time()
+
+            
+    
     def generate_crossdomain_xml(self):
         """Helper method for generating the XML content for a crossdomain.xml
            file, to be used to allow remote sites to access this content."""
@@ -216,11 +144,16 @@ class Service (object):
 
         layer = tile.layer
         image = None
-        if not force: image = self.cache.get(tile)
+        if not force:
+            image = self.cache.get(tile)
+        
         if not image:
             data = layer.render(tile, force=force)
-            if (data): image = self.cache.set(tile, data)
-            else: raise Exception("Zero length data returned from layer.")
+            if (data):
+                image = self.cache.set(tile, data)
+            else:
+                raise Exception("Zero length data returned from layer.")
+            
             if layer.debug:
                 sys.stderr.write(
                 "Cache miss: %s, Tile: x: %s, y: %s, z: %s, time: %s\n" % (
@@ -245,8 +178,16 @@ class Service (object):
                     self.cache.delete(coverage)
 
     def dispatchRequest (self, params, path_info="/", req_method="GET", host="http://example.com/"):
-        if self.metadata.has_key('exception'):
-            raise TileCacheException("%s\n%s" % (self.metadata['exception'], self.metadata['traceback']))
+
+        ##### loop over the config instances and #####
+        ##### check for warnings and exceptions  #####
+        
+        for conf in self.configs:
+            if conf.metadata.has_key('exception'):
+                raise TileCacheException("%s\n%s" % (conf.metadata['exception'], conf.metadata['traceback']))
+            elif conf.metadata.has_key('warn'):
+                sys.stderr.write("%s\n%s" % (conf.metadata['warn'], conf.metadata['traceback']))
+        
         if path_info.find("crossdomain.xml") != -1:
             return self.generate_crossdomain_xml()
 
@@ -283,6 +224,9 @@ class Service (object):
             from TileCache.Services.TMS import TMS
             tile = TMS(self).parse(params, path_info, host)
         
+        #if hasattr(tile, "data"): # duck-typing for Layer.Tile
+        #if isinstance(tile, Layer.Tile):
+        
         ##### Capabilities object #####
         
         if hasattr(tile, "format"):
@@ -317,21 +261,69 @@ class Service (object):
                 except ImportError:
                     import StringIO
                 
-                result = None
                 
+                ##### calc image size #####
+
+                xoff=0;
+                yoff=0;
+                prev = None
+                xmax=0
+                ymax=0
                 for t in tile:
+                    
+                    
+                    xincr = t.layer.size[0]
+                    yincr = t.layer.size[1]
+                    if prev:
+                        if t.x < prev.x:
+                            xoff = 0;
+                        elif  t.x > prev.x:
+                            xoff += xincr
+                        
+                        if t.y < prev.y:
+                            yoff = 0;
+                        elif t.y > prev.y:
+                            yoff += yincr
+                    
+                    xmax = max(xmax, xoff + xincr)
+                    ymax = max(ymax, yoff + yincr)
+                    prev=t
+
+                ##### build an image from the tiles #####
+
+                result = None
+                xoff=0;
+                yoff = ymax - yincr
+                prev = None
+                for t in tile:
+
+                    xincr = t.layer.size[0]
+                    yincr = t.layer.size[1]
+                    if prev:
+                        if t.x < prev.x:
+                            xoff = 0;
+                        elif  t.x > prev.x:
+                            xoff += xincr
+
+                        if t.y < prev.y:
+                            yoff = ymax - yincr;
+                        elif t.y > prev.y:
+                            yoff -= yincr
+
                     (format, data) = self.renderTile(t, params.has_key('FORCE'))
                     image = Image.open(StringIO.StringIO(data))
                     if not result:
-                        result = image
-                    else:
-                        try:
-                            result.paste(image, None, image)
-                        except Exception, E:
-                            raise Exception("Could not combine images: Is it possible that some layers are not \n8-bit transparent images? \n(Error was: %s)" % E) 
-                
+                        result = Image.new(image.mode, (xmax, ymax))
+                        imformat = image.format
+                    
+                    try:
+                        result.paste(image, (xoff, yoff) , image)
+                    except Exception, E:
+                        raise Exception("Could not combine images: Is it possible that some layers are not \n8-bit transparent images? \n(Error was: %s)" % E) 
+                    prev=t
+
                 buffer = StringIO.StringIO()
-                result.save(buffer, result.format)
+                result.save(buffer, imformat)
                 buffer.seek(0)
 
                 return (format, buffer.read())
@@ -340,6 +332,7 @@ class Service (object):
         
         else:
             raise NotImplementedError("Service instance must return a Tile or Capabilities object")
+        
 
 def modPythonHandler (apacheReq, service):
     from mod_python import apache, util
@@ -348,7 +341,13 @@ def modPythonHandler (apacheReq, service):
             host = "http://" + apacheReq.headers_in["X-Forwarded-Host"]
         else:
             host = "http://" + apacheReq.headers_in["Host"]
-        host += apacheReq.uri[:-len(apacheReq.path_info)]
+        #host += apacheReq.uri[:-len(apacheReq.path_info)]
+        host += "/tilecache/tilecache.py"
+        
+        ##### test configs for changes #####
+        
+        service.checkchange()
+        
         format, image = service.dispatchRequest( 
                                 util.FieldStorage(apacheReq), 
                                 apacheReq.path_info,
@@ -399,7 +398,11 @@ def wsgiHandler (environ, start_response, service):
         host += environ["SCRIPT_NAME"]
         req_method = environ["REQUEST_METHOD"]
         fields = parse_formvars(environ)
-
+        
+        ##### test configs for changes #####
+        
+        service.checkchange()
+        
         format, image = service.dispatchRequest( fields, path_info, req_method, host )
         headers = [('Content-Type',format)]
         if format.startswith("image/"):
@@ -423,6 +426,7 @@ def wsgiHandler (environ, start_response, service):
             str(E), 
             "".join(traceback.format_tb(sys.exc_traceback)))]
 
+
 def cgiHandler (service):
     try:
         params = {}
@@ -440,6 +444,11 @@ def cgiHandler (service):
 
         host += os.environ["SCRIPT_NAME"]
         req_method = os.environ["REQUEST_METHOD"]
+        
+        ##### test configs for changes #####
+        
+        service.checkchange()
+        
         format, image = service.dispatchRequest( params, path_info, req_method, host )
         print "Content-type: %s" % format
         if format.startswith("image/"):
@@ -469,13 +478,15 @@ lastRead = {}
 def handler (apacheReq):
     global theService, lastRead
     options = apacheReq.get_options()
-    cfgs    = cfgfiles
+    print options
     fileChanged = False
     if options.has_key("TileCacheConfig"):
         configFile = options["TileCacheConfig"]
         lastRead[configFile] = time.time()
         
-        cfgs = cfgs + (configFile,)
+        if configFile not in cfgfiles:
+            cfgfiles.append( configFile )
+        
         try:
             cfgTime = os.stat(configFile)[8]
             fileChanged = lastRead[configFile] < cfgTime
@@ -485,7 +496,7 @@ def handler (apacheReq):
         configFile = 'default'
         
     if not theService.has_key(configFile) or fileChanged:
-        theService[configFile] = Service.load(*cfgs)
+        theService[configFile] = Service.load(cfgfiles)
         
     return modPythonHandler(apacheReq, theService[configFile])
 
@@ -493,7 +504,7 @@ def wsgiApp (environ, start_response):
     global theService
     cfgs    = cfgfiles
     if not theService:
-        theService = Service.load(*cfgs)
+        theService = Service.load(cfgs)
     return wsgiHandler(environ, start_response, theService)
 
 def binaryPrint(binary_data):
@@ -523,5 +534,5 @@ def paste_deploy_app(global_conf, full_stack=True, **app_conf):
     return pdWsgiApp
 
 if __name__ == '__main__':
-    svc = Service.load(*cfgfiles)
+    svc = Service.load(cfgfiles)
     cgiHandler(svc)

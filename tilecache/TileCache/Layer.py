@@ -140,7 +140,10 @@ class Layer (object):
         self.layers = layers or name
         self.paletted = False
         
-        self.spherical_mercator = spherical_mercator and spherical_mercator.lower() in ["yes", "y", "t", "true"]
+        if isinstance(spherical_mercator, str):
+            spherical_mercator = spherical_mercator and spherical_mercator.lower() in ["yes", "y", "t", "true"]
+        self.spherical_mercator = spherical_mercator
+
         if self.spherical_mercator:
             bbox = "-20037508.34,-20037508.34,20037508.34,20037508.34"
             maxresolution = "156543.0339"
@@ -201,7 +204,8 @@ class Layer (object):
         
         self.watermarkimage = watermarkimage
         
-        self.watermarkopacity = float(watermarkopacity)
+        if watermarkopacity != None:
+            self.watermarkopacity = float(watermarkopacity)
         
         self.metadata = {}
         
@@ -215,8 +219,8 @@ class Layer (object):
                 mytime = time.strptime(expired, "%Y-%m-%dT%H:%M:%SZ")
                 self.expired = time.mktime(mytime)
             except:
-                sys.stderr.write("invalid expired timestamp format on layer %s\n" % name)
-                self.expired = None;
+                sys.stderr.write("invalid expired timestamp format on layer %s %s. format should be %s\n" % (name, expired, "%Y-%m-%dT%H:%M:%SZ") )
+                self.expired = None
 
         prefix_len = len("metadata_")
         for key in kwargs:
@@ -388,7 +392,7 @@ class MetaLayer (Layer):
         
         if isinstance(metatile, str):
             metatile = str(metatile).lower() in ("true", "yes", "1")
-        self.metaTile = metatile
+        self.metaTile    = metatile
         
         if isinstance(metasize, str):
             metasize = map(int,metasize.split(","))
