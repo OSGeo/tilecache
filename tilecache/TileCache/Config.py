@@ -99,7 +99,7 @@ class Config (object):
     def _loadSections (self, config, configs, reload = False, **objargs):
         #sys.stderr.write( "_loadSections\n")
         for section in config.sections():
-            sys.stderr.write( "_loadSections %s\n" % section)
+            #sys.stderr.write( "_loadSections %s\n" % section)
             ##### include sections #####
             
             if section == "include" and reload == False:
@@ -125,7 +125,7 @@ class Config (object):
     ###########################################################################
     #FIXME this does not work in the parent class for some reason
     def _ddread_include (self, config, configs, section, reload = False):
-        sys.stderr.write("File._read_include\n")
+        #sys.stderr.write("File._read_include\n")
         ##### url? #####
 
         if config.has_option(section, "urls"):

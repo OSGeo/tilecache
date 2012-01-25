@@ -25,7 +25,7 @@ class PGVersion (object):
     __slots__ = ( "major", "minor", "build", "rev" )
     
     def __init__ (self, version):
-        
+
         split = version.split('.')
         
         self.major = int(split[0])
@@ -37,6 +37,7 @@ class PGVersion (object):
         except:
             self.build = int(split[2])
             self.rev = None
+
 
 ###############################################################################
 ##
@@ -87,7 +88,8 @@ class PG(Config):
         
         ##### connect to the server #####
 
-        if not self._connect():
+        self._connect()
+        if self.conn == none:
 		    return None
         
         ##### get the server version #####
@@ -116,6 +118,7 @@ class PG(Config):
         except Exception, E:
             self.metadata['warn'] = E
             self.metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
+            self.conn = None
             return False
 
         return True
@@ -469,7 +472,7 @@ UNLISTEN %s_update;
     ###########################################################################
     
     def read(self, configs, reload = None, name = None):
-        sys.stderr.write( "PG.read\n" )
+        #sys.stderr.write( "PG.read\n" )
         if name == None:
             sql = '''
 SELECT

@@ -87,8 +87,9 @@ class File (Config):
                 
                 if not reload or not have:
                     mPG = PG(dsn, self.cache)
-                    configs.append(mPG)
-                    mPG.read(configs)
+                    if mPG != none:
+                        configs.append(mPG)
+                        mPG.read(configs)
                 
                 
         ##### insert new config types here ie: sqlite #####

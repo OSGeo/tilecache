@@ -12,7 +12,7 @@ class Url(Config):
     __slots__ = Config.__slots__
     
     def __init__ (self, resource, cache = None):
-        sys.stderr.write( "Url.__init__ %s\n" % resource)
+        #sys.stderr.write( "Url.__init__ %s\n" % resource)
         self.resource = resource
         self.cache = cache
         self.layers = {}
@@ -34,7 +34,7 @@ class Url(Config):
     ###########################################################################
     
     def _read_include (self, config, configs, section, reload = False):
-        sys.stderr.write("URL._read_include\n")
+        #sys.stderr.write("URL._read_include\n")
         
         ##### url? #####
 
@@ -54,9 +54,9 @@ class Url(Config):
                 
                 
                 if not reload or not have:
-                    sys.stderr.write("File.read_include %s\n" % "goot")
+                    #sys.stderr.write("File.read_include %s\n" % "goot")
                     mUrl = Url(url, self.cache)
-                    sys.stderr.write("File.read_include %s\n" % mUrl.resource)
+                    #sys.stderr.write("File.read_include %s\n" % mUrl.resource)
                     configs.append(mUrl)
                     mUrl.read(configs)
                 
@@ -98,7 +98,7 @@ class Url(Config):
     ###########################################################################
     
     def read(self, configs, reload = False):
-        sys.stderr.write("url.read\n")
+        #sys.stderr.write("url.read\n")
         self.cache = None
         self.metadata = {}
         
