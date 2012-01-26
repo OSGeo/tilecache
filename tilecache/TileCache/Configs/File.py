@@ -14,7 +14,7 @@ import re
 ##
 ## @brief base config class handles file configs
 ##
-####################################################################tilecache###########
+###############################################################################
 
 class File (Config):
     __slots__ = Config.__slots__
