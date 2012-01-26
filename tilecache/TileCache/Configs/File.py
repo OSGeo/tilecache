@@ -8,12 +8,13 @@ import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
 from TileCache.Configs.Url import Url
 from TileCache.Configs.PG import PG
+import re
 
 ###############################################################################
 ##
 ## @brief base config class handles file configs
 ##
-###############################################################################
+####################################################################tilecache###########
 
 class File (Config):
     __slots__ = Config.__slots__
@@ -46,7 +47,7 @@ class File (Config):
         if config.has_option(section, "urls"):
             urls = config.get(section, "urls")
             
-            for url in csv.reader([urls], delimiter=',', quotechar='"').next():
+            for url in csv.reader([re.sub(r'\s', '', urls)], delimiter=',', quotechar='"').next():
                 
                 have = False
                 

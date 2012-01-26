@@ -7,6 +7,7 @@ import TileCache.Cache, TileCache.Caches
 import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
 from TileCache.Configs.PG import PG
+import re
 
 class Url(Config):
     __slots__ = Config.__slots__
@@ -41,7 +42,7 @@ class Url(Config):
         if config.has_option(section, "urls"):
             urls = config.get(section, "urls")
             
-            for url in csv.reader([urls], delimiter=',', quotechar='"').next():
+            for url in csv.reader([re.sub(r'\s', '', urls)], delimiter=',', quotechar='"').next():
                 
                 have = False
                 ##### test if its a new include ? #####
