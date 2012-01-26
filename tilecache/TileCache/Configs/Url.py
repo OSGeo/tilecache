@@ -84,8 +84,9 @@ class Url(Config):
                 
                 if not reload or not have:
                     mPG = PG(dsn, self.cache)
-                    configs.append(mPG)
-                    mPG.read(configs)
+                    if mPG.conn != None:
+                        configs.append(mPG)
+                        mPG.read(configs)
                 
                 
         ##### insert new config types here ie: sqlite #####

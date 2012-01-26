@@ -20,12 +20,18 @@ class File (Config):
     __slots__ = Config.__slots__
     
     def __init__ (self, resource, cache = None):
+        
         self.resource = resource
         self.cache = cache
         #sys.stderr.write( "File.__init__ %s\n" % resource)
         self.layers = {}
         self.metadata={}
-    
+
+        try:
+            os.stat(self.resource)
+        except:
+            self.resource = None
+
     def isFile(self):
         return True
     
@@ -88,7 +94,7 @@ class File (Config):
                 
                 if not reload or not have:
                     mPG = PG(dsn, self.cache)
-                    if mPG != none:
+                    if mPG.conn != None:
                         configs.append(mPG)
                         mPG.read(configs)
                 

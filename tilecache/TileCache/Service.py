@@ -72,8 +72,9 @@ class Service (object):
         for f in files:
             #sys.stderr.write( "_load f %s\n" % f )
             cfg = File(f)
-            configs.append( cfg )
-            initconfigs.append( cfg )
+            if cfg.resource != None:
+                configs.append( cfg )
+                initconfigs.append( cfg )
 
         for conf in initconfigs:
             conf.read( configs )

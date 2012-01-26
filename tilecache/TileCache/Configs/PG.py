@@ -89,8 +89,6 @@ class PG(Config):
         ##### connect to the server #####
 
         self._connect()
-        if self.conn == none:
-		    return None
         
         ##### get the server version #####
         
