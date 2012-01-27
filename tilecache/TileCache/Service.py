@@ -405,7 +405,7 @@ def wsgiHandler (environ, start_response, service):
         service.checkchange()
         
         format, image = service.dispatchRequest( fields, path_info, req_method, host )
-        headers = [('Content-Type',format)]
+        headers = [( 'Content-Type', format.encode('utf-8') )]
         if format.startswith("image/"):
             if service.cache.sendfile:
                 headers.append(('X-SendFile', image))
