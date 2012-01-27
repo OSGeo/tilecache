@@ -22,8 +22,8 @@ class WMS (Request):
     def getMap (self, param):
         bbox  = map(float, param["bbox"].split(","))
         layers = param["layers"].split(",")
-        height = int(param["height"])
-        width  = int(param["width"])
+        height = min( 4096, int(param["height"]) )
+        width  = min( 4096, int(param["width"]) )
         tiles =  []
 
         ##### loop over the layers #####
