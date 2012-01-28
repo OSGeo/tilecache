@@ -766,7 +766,15 @@ VALUES (
     def checkchange (self, configs):
         #FIXME test if the connection has dropped
         try:
-            if select.select([self.conn],[],[],0)==([],[],[]):
+            
+            ##### older versions of Psycopg had the fileno method in the cursor #####
+            
+            if hasattr(self.conn,"fileno"):
+                fd = self.conn
+            else:
+                fd = self.lcur
+ 
+            if select.select([fd],[],[],0)==([],[],[]):
                 pass
             else:
                 self.conn.poll()
