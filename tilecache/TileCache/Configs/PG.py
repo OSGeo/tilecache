@@ -100,6 +100,10 @@ class PG(Config):
             self.conn.set_isolation_level(
                 psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         
+        ##### setup the listen for config changes #####
+
+        self.start_listen()
+
     def isPG(self):
         return True
     
