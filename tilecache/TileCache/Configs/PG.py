@@ -421,14 +421,15 @@ ON "%s";
 
                 
         sql = '''
-LISTEN %s_insert;
-LISTEN %s_delete;
-LISTEN %s_update;
+LISTEN "%s_insert";
+LISTEN "%s_delete";
+LISTEN "%s_update";
 ''' % ( self.tname, self.tname, self.tname )
         
         try:
             
             self.lcur = self.conn.cursor()
+            self.lcur.execute(sql)
             if self.pgversion.major < 9:
                 self.conn.commit();
             
@@ -436,7 +437,7 @@ LISTEN %s_update;
             self.metadata['warn'] = E
             self.metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
             if self.pgversion.major < 9:
-                conn.rollback()
+               self.conn.rollback()
     
     ###########################################################################
     ##
