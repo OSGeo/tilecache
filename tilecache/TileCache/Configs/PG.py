@@ -49,7 +49,7 @@ class PG(Config):
     __slots__ = Config.__slots__ + ( "dsn", "tname", "pgversion", "pool", "conn", "lcur")
     
     def __init__ (self, resource, cache = None):
-        sys.stderr.write( "PG.__init__ %s\n" % resource)
+        #sys.stderr.write( "PG.__init__ %s\n" % resource)
         self.resource = resource
         self.cache = cache
         
