@@ -103,7 +103,7 @@ class PG(Config):
         ##### setup the listen for config changes #####
 
         self.start_listen()
-
+        
     def isPG(self):
         return True
     
@@ -115,14 +115,13 @@ class PG(Config):
     
     def _connect (self):
         
-        try:
-            self.conn = psycopg2.connect(**self.dsn)
-        except Exception, E:
-            self.metadata['warn'] = E
-            self.metadata['traceback'] = "".join(traceback.format_tb(sys.exc_traceback))
-            self.conn = None
-            return False
-
+        while true:
+            try:
+                self.conn = psycopg2.connect(**self.dsn)
+                break
+            except psycopg2.DatabaseError, e:
+                sleep(1)
+        
         return True
     
     ###########################################################################
@@ -224,11 +223,14 @@ CREATE TABLE "%s"
         CHECK( projection   IS NULL OR type = 'ArcXML' )
     );
     ''' % self.tname
-        
+
+
         self._simplesql (sql)
+
         self._remove_triggers()
         self._create_trigger_functions()
         self._create_triggers()
+
     ###########################################################################
     ##
     ## @brief method to get the pg server version
@@ -336,13 +338,13 @@ $$ LANGUAGE plpgsql;
             sql='''
 CREATE TRIGGER "%s_tilecache_config_insert_notify_trigger"
 AFTER insert
-ON "%s"
+ON %s
 FOR EACH ROW
     EXECUTE PROCEDURE tilecache_config_insert_notify_trigger();
 
 CREATE TRIGGER "%s_tilecache_config_update_notify_trigger"
 AFTER update
-ON "%s"
+ON %s
 FOR EACH ROW
     EXECUTE PROCEDURE tilecache_config_update_notify_trigger();
 
@@ -353,19 +355,19 @@ FOR EACH ROW
             sql='''
 CREATE TRIGGER "%s_tilecache_config_insert_notify_trigger"
 AFTER insert
-ON "%s"
+ON %s
 FOR EACH ROW
     EXECUTE PROCEDURE tilecache_config_insert_notify_trigger();
 
 CREATE TRIGGER "%s_tilecache_config_delete_notify_trigger"
 AFTER delete
-ON "%s"
+ON %s
 FOR EACH ROW
     EXECUTE PROCEDURE tilecache_config_delete_notify_trigger();
 
 CREATE TRIGGER "%s_tilecache_config_update_notify_trigger"
 AFTER update
-ON "%s"
+ON %s
 FOR EACH ROW
     EXECUTE PROCEDURE tilecache_config_update_notify_trigger();
 
@@ -387,10 +389,10 @@ FOR EACH ROW
         
             sql='''
 DROP TRIGGER IF EXISTS "%s_tilecache_config_insert_notify_trigger"
-ON "%s";
+ON %s;
 
 DROP TRIGGER IF EXISTS "%s_tilecache_config_update_notify_trigger"
-ON "%s";
+ON %s;
 
 ''' % ( self.tname, self.tname, self.tname, self.tname )
         
@@ -398,13 +400,13 @@ ON "%s";
         
             sql='''
 DROP TRIGGER IF EXISTS "%s_tilecache_config_insert_notify_trigger"
-ON "%s";
+ON %s;
 
 DROP TRIGGER IF EXISTS "%s_tilecache_config_delete_notify_trigger"
-ON "%s";
+ON %s;
 
 DROP TRIGGER IF EXISTS "%s_tilecache_config_update_notify_trigger"
-ON "%s";
+ON %s;
 
 ''' % ( self.tname, self.tname, self.tname, self.tname, self.tname, self.tname )
 
@@ -771,6 +773,7 @@ VALUES (
     def checkchange (self, configs):
         #FIXME test if the connection has dropped
         try:
+
             
             ##### older versions of Psycopg had the fileno method in the cursor #####
             
