@@ -115,7 +115,7 @@ class PG(Config):
     
     def _connect (self):
         
-        while true:
+        while True:
             try:
                 self.conn = psycopg2.connect(**self.dsn)
                 break
