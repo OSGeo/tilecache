@@ -276,7 +276,7 @@ CREATE OR REPLACE FUNCTION tilecache_config_insert_notify_trigger()
 RETURNS trigger AS $$
 DECLARE
 BEGIN
-    EXECUTE 'NOTIFY ' || TG_TABLE_NAME || '_insert';
+    EXECUTE 'NOTIFY "%s_insert"';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -285,11 +285,11 @@ CREATE OR REPLACE FUNCTION tilecache_config_update_notify_trigger()
 RETURNS trigger AS $$
 DECLARE
 BEGIN
-    EXECUTE 'NOTIFY ' || TG_TABLE_NAME || '_update';
+    EXECUTE 'NOTIFY "%s_update"';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-'''
+''' % ( self.tname, self.tname, self.tname )
 
         else:
             sql='''
@@ -297,7 +297,7 @@ CREATE OR REPLACE FUNCTION tilecache_config_insert_notify_trigger()
 RETURNS trigger AS $$
 DECLARE
 BEGIN
-    EXECUTE 'NOTIFY ' || TG_TABLE_NAME || '_insert , \'\'' || NEW.name || '\'\'';
+    EXECUTE 'NOTIFY "%s_insert" , \'\'' || NEW.name || '\'\'';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -306,7 +306,7 @@ CREATE OR REPLACE FUNCTION tilecache_config_delete_notify_trigger()
 RETURNS trigger AS $$
 DECLARE
 BEGIN
-    EXECUTE 'NOTIFY ' || TG_TABLE_NAME || '_delete , \'\'' || OLD.name || '\'\'';
+    EXECUTE 'NOTIFY "%s_delete" , \'\'' || OLD.name || '\'\'';
     RETURN OLD;
 END;
 
@@ -315,11 +315,11 @@ CREATE OR REPLACE FUNCTION tilecache_config_update_notify_trigger()
 RETURNS trigger AS $$
 DECLARE
 BEGIN
-    EXECUTE 'NOTIFY ' || TG_TABLE_NAME || '_update , \'\'' || NEW.name || '\'\'';
+    EXECUTE 'NOTIFY "%s_update" , \'\'' || NEW.name || '\'\'';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-'''
+''' % ( self.tname, self.tname, self.tname, self.tname )
 
         self._simplesql (sql)
         
@@ -794,14 +794,10 @@ VALUES (
                     if self.pgversion.major < 9:
                         if notify.channel == "%s_insert" % self.tname:
                             self.read(None, True)
-                            sys.stderr.write( "Config file %s has changed, reloading\n" %
-                                  self.url )
-                        
+                            
                         elif notify.channel == "%s_update" % self.tname:
                             self.read(None, True)
-                            sys.stderr.write( "Config file %s has changed, reloading\n" %
-                                  self.url )
-                        
+                            
                         else:
                             sys.stderr.write( "Got Unhandled NOTIFY: %s %s %s\n",
                                               notify.pid, notify.channel )
