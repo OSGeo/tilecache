@@ -10,7 +10,7 @@ try:
 except ImportError:
     Psycopg2 = False;
 
-import sys, select, traceback, csv
+import sys, select, traceback, csv, time
 import TileCache.Cache, TileCache.Caches
 import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
@@ -120,7 +120,7 @@ class PG(Config):
                 self.conn = psycopg2.connect(**self.dsn)
                 break
             except psycopg2.DatabaseError, e:
-                sleep(1)
+                time.sleep(1)
         
         return True
     
