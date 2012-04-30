@@ -108,18 +108,35 @@ class Service (object):
             #sys.stderr.write( "service.checkchange\n" )
             configs = []
             initconfigs = []
-            
-            for conf in self.configs:
-                conf.checkchange(self.configs)
-            
-            layers = {}
-            
-            for conf in self.configs:
-                layers.update(conf.layers)
-            
-            self.layers = layers
-            self.lastcheckchange = time.time()
+            changes = 0;
 
+            for conf in self.configs:
+
+                ##### only one thread needs to check a single config #####
+
+                if conf.lock.acquire( blocking=0 ):
+                    if conf.checkchange(self.configs):
+                        changes = changes + 1
+                    conf.lock.release()
+
+            ##### the copy isnt cheap, dont do this #####
+            ##### unless there is actualy a change  #####
+ 
+            if changes > 0:
+
+                layers = {}
+
+                ##### use a mutex here to block so all changes are added #####
+                
+                self.thread_lock.acquire()
+
+                for conf in self.configs:
+                    layers.update(conf.layers)
+                
+                self.layers = layers
+                self.lastcheckchange = time.time()
+
+                self.thread_lock.release()
             
     
     def generate_crossdomain_xml(self):

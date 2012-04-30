@@ -14,6 +14,7 @@ import sys, select, traceback, csv, time
 import TileCache.Cache, TileCache.Caches
 import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
+import threading
 
 ###############################################################################
 ##
@@ -53,6 +54,8 @@ class PG(Config):
         self.resource = resource
         self.cache = cache
         
+        self.lock = threading.RLock()
+
         ##### multiple vars seperated by " " with '' quotes #####
         
         dsndict = {}
@@ -477,6 +480,7 @@ UNLISTEN %s_update;
     ###########################################################################
     
     def read(self, configs, reload = None, name = None):
+        
         #sys.stderr.write( "PG.read\n" )
         if name == None:
             sql = '''
@@ -761,7 +765,37 @@ VALUES (
             return False
         
         return True
-    
+   
+    ###########################################################################
+    ##
+    ## @brief method to reconnect to the db when its the connection drops
+    ##
+    ## @return True if succcessfull, False if error.
+    ##
+    ###########################################################################
+
+    def _reconnect (self):
+
+        try:
+            self.conn = psycopg2.connect(**self.dsn)
+
+            ##### set autocommit mode if atleast pg 9 #####
+
+            if self.pgversion.major >= 9:
+               self.conn.set_isolation_level(
+                  psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
+            ##### setup the listen for config changes #####
+
+            self.start_listen()
+                    
+            ##### if the connection errors out return false #####
+
+        except psycopg2.DatabaseError, e:
+            return False
+
+        return True
+
     ###########################################################################
     ##
     ## @brief method to check a config for change and reload it
@@ -785,6 +819,24 @@ VALUES (
             if select.select([fd],[],[],0)==([],[],[]):
                 pass
             else:
+
+                ##### do we need to reconnect? #####
+
+                if self.conn.closed or not hasattr(self.conn, 'poll'):
+
+                    ##### if reconnect reread the config #####
+
+                    if self._reconnect():
+                        self.read(None, True)
+                        return True
+
+                    ##### if we cant reconnect return false like theres no changes #####
+
+                    else:
+                        return False
+
+                ##### we didnt loose connection so check for the notifies #####
+
                 self.conn.poll()
                 while self.conn.notifies:
                     notify = self.conn.notifies.pop()

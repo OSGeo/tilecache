@@ -5,6 +5,7 @@
 import urllib2, traceback, sys, os, ConfigParser, csv, time
 import TileCache.Layer, TileCache.Layers
 import TileCache.Cache, TileCache.Caches
+import threading
 
 def import_module(name):
     """Helper module to import any module based on a name, and return the module."""
@@ -28,11 +29,13 @@ def import_module(name):
 ###############################################################################
 
 class Config (object):
-    __slots__ = ( "resource", "last_mtime", "cache", "metadata" , "layers", "s_sections")
+    __slots__ = ( "resource", "last_mtime", "cache", "metadata" , "layers", "s_sections", "lock")
     
     def __init__ (self, resource):
         self.s_sections = [ "cache", "metadata", "tilecache_options", "include" ]
-    
+        self.lock = threading.RLock()
+
+
     def isequal(self, resource):
         if self.resource == arg:
             return True
@@ -97,6 +100,7 @@ class Config (object):
             return section_object(**objargs)
     
     def _loadSections (self, config, configs, reload = False, **objargs):
+        layers = {}
         #sys.stderr.write( "_loadSections\n")
         for section in config.sections():
             #sys.stderr.write( "_loadSections %s\n" % section)
@@ -109,9 +113,12 @@ class Config (object):
             
             #sys.stderr.write( "_loadSections %s s_sections %s\n" % (section, [ "cache", "metadata", "tilecache_options", "include" ]))
             if section not in [ "cache", "metadata", "tilecache_options", "include" ]:
-                self.layers[section] = self._loadFromSection ( config, section,
+                
+                layers[section] = self._loadFromSection ( config, section,
                                                                TileCache.Layer,
                                                                cache = self.cache)
+        
+        self.layers = layers
     
     ###########################################################################
     ##

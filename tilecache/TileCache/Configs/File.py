@@ -9,6 +9,7 @@ from TileCache.Service import TileCacheException
 from TileCache.Configs.Url import Url
 from TileCache.Configs.PG import PG
 import re
+import threading
 
 ###############################################################################
 ##
@@ -26,6 +27,8 @@ class File (Config):
         #sys.stderr.write( "File.__init__ %s\n" % resource)
         self.layers = {}
         self.metadata={}
+
+        self.lock = threading.RLock()
 
         try:
             os.stat(self.resource)
@@ -256,7 +259,7 @@ class File (Config):
             mtime = os.stat(self.resource)[8]
         
             if self.last_mtime < mtime:
-                self.read(file, True)
+                #self.read(file, True)
                 #sys.stderr.write( "Config file %s has changed, reloading\n" %
                 #                  self.resource )
                 self.read(self.file, configs, reload = True)

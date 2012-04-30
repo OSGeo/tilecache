@@ -8,6 +8,7 @@ import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
 from TileCache.Configs.PG import PG
 import re
+import threading
 
 class Url(Config):
     __slots__ = Config.__slots__
@@ -19,6 +20,8 @@ class Url(Config):
         self.layers = {}
         self.metadata={}
     
+        self.lock = threading.RLock()
+
     def isUrl(self):
         return True
     
