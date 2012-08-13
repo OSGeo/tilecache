@@ -14,7 +14,7 @@ import threading
 # the module name for this config, and the object name supporting it.
 ################################################################################
 
-supported_configs={'file': ('TileCache.Config.File','File',
+supported_configs={'file': ('TileCache.Config.File','File',),
                    'url': ('TileCache.Config.Url','Url',),
                    'pg': ('TileCache.Configs.PG', 'PG',),
                    'memcache': ('TileCache.Configs.Memcache', 'Memcache',),
@@ -39,16 +39,14 @@ def import_module(name):
 ###############################################################################
 
 class Config (object):
-    __slots__ = ( "resource", "last_mtime", "cache", "metadata" , "layers", "s_sections", "lock")
+    __slots__ = ( "resource", "last_mtime", "cache", "metadata" , "layers", "s_sections", "lock", "loadedConfigs")
     
-    def __init__ (self, resource, cache=None):
+    def __init__ (self, resource, cache = None):
         self.s_sections = [ "cache", "metadata", "tilecache_options", "include" ]
         self.resource = resource     
         self.cache=cache   
         self.loadedConfigs={}
-        self.lock = threading.RLock()    def __init__ (self, resource):
-        self.s_sections = [ "cache", "metadata", "tilecache_options", "include" ]
-        self.lock = threading.RLock()
+        self.lock = threading.RLock() 
 
 
     def isFile(self):

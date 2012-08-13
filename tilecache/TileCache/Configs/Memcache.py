@@ -25,8 +25,8 @@ except:
 class Memcache(Config):
     __slots__ = Config.__slots__ + ('mc','memcache_prefix',)
     
-    def __init__(self, memcache_name, memcache_prefix, memcache_array):
-        super(Memcache, self).__init__(resource=memcache_name)
+    def __init__(self, cache_name, cache_prefix, cache_array, cache):
+        super(Memcache, self).__init__(resource=cache_name, cache=cache)
         self.memcache_prefix=memcache_prefix
         self.mc = memcache.Client(memcache_array, debug=0)
         sys.stderr.write('Loading memcache config!')
