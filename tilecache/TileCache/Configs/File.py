@@ -6,8 +6,6 @@ import traceback, sys, os, ConfigParser, csv
 import TileCache.Cache, TileCache.Caches
 import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
-from TileCache.Configs.Url import Url
-from TileCache.Configs.PG import PG
 import re
 import threading
 
@@ -21,14 +19,11 @@ class File (Config):
     __slots__ = Config.__slots__
     
     def __init__ (self, resource, cache = None):
-        
-        self.resource = resource
-        self.cache = cache
+        super(File, self).__init__(resource, cache)
         #sys.stderr.write( "File.__init__ %s\n" % resource)
         self.layers = {}
         self.metadata={}
 
-        self.lock = threading.RLock()
 
         try:
             os.stat(self.resource)
@@ -37,72 +32,6 @@ class File (Config):
 
     def isFile(self):
         return True
-    
-    ###########################################################################
-    ##
-    ## @brief load method for the included config files.
-    ##
-    ## @param config     ConfigParser::ConfigParser object
-    ## @param section    include section list item
-    ## @param objargs    section objects
-    ##
-    ## 
-    ###########################################################################
-    
-    def _read_include (self, config, configs, section, reload = False):
-        #sys.stderr.write("File._read_include\n")
-        ##### url? #####
-
-        if config.has_option(section, "urls"):
-            urls = config.get(section, "urls")
-            
-            for url in csv.reader([re.sub(r'\s', '', urls)], delimiter=',', quotechar='"').next():
-                
-                have = False
-                
-                ##### test if its a new include ? #####
-                
-                if reload:
-                    for conf in configs:
-                        if conf.isUrl() and conf.isequal(url):
-                            have = True
-                            break
-                
-                
-                if not reload or not have:
-                    mUrl = Url(url, self.cache)
-                    configs.append(mUrl)
-                    mUrl.read(configs)
-                
-        ##### postgres? #####
-        
-        if config.has_option(section, "pg"):
-            
-            pg = config.get(section, "pg")
-            
-            ##### multiple dsn's seperated by , with "" quotes #####
-            
-            for dsn in csv.reader([pg], delimiter=',', quotechar='"').next():
-                dsndict = {}
-                
-                have = False
-                
-                ##### test if its a new include ? #####
-                
-                if reload:
-                    for conf in configs:
-                        if conf.isPG() and conf.isequal(dsn):
-                            have = True
-                            break
-                
-                if not reload or not have:
-                    mPG = PG(dsn, self.cache)
-                    if mPG.conn != None:
-                        configs.append(mPG)
-                        mPG.read(configs)
-                
-                
-        ##### insert new config types here ie: sqlite #####
     
     ###########################################################################
     ##
@@ -191,24 +120,25 @@ class File (Config):
     ## use the add to remove options from the layer
     ###########################################################################
     
-    def update (self, objargs ):
+    ##### i think this is broke the option arg is never set
+#    def update (self, objargs ):
         
-        if objargs.has_key('name'):
-            try:
-                config = ConfigParser.ConfigParser()
-                config.read(self.resource)
+#        if objargs.has_key('name'):
+#            try:
+#                config = ConfigParser.ConfigParser()
+#                config.read(self.resource)
                 
-                if config.has_section(name):
-                    options = config.options(name)
+#                if config.has_section(name):
+#                    options = config.options(name)
                 
-                    config.set(name, option, objargs[option])
+#                    config.set(name, option, objargs[option])
                         
-                    config.write(self.resource)
-                    return True
-            except:
-                raise Exception("Update failed.\n".join(traceback.format_tb(sys.exc_traceback)))
+#                    config.write(self.resource)
+#                    return True
+#            except:
+#                raise Exception("Update failed.\n".join(traceback.format_tb(sys.exc_traceback)))
         
-        return False
+#        return False
 
     ###########################################################################
     ##

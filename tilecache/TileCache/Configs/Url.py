@@ -6,7 +6,6 @@ import urllib2, traceback, sys, os, ConfigParser, csv, time
 import TileCache.Cache, TileCache.Caches
 import TileCache.Layer, TileCache.Layers
 from TileCache.Service import TileCacheException
-from TileCache.Configs.PG import PG
 import re
 import threading
 
@@ -15,84 +14,13 @@ class Url(Config):
     
     def __init__ (self, resource, cache = None):
         #sys.stderr.write( "Url.__init__ %s\n" % resource)
-        self.resource = resource
-        self.cache = cache
+        super(Url,self).__init__(resource, cache)
+
         self.layers = {}
         self.metadata={}
-    
-        self.lock = threading.RLock()
 
     def isUrl(self):
         return True
-    
-    ###########################################################################
-    ##
-    ## @brief load method for the included config files.
-    ##
-    ## @param config    ConfigParser::ConfigParser object
-    ## @param configs   list of config objects to add new configs to
-    ## @param section   ConfigParser include section
-    ## @param reload    
-    ##
-    ## 
-    ###########################################################################
-    
-    def _read_include (self, config, configs, section, reload = False):
-        #sys.stderr.write("URL._read_include\n")
-        
-        ##### url? #####
-
-        if config.has_option(section, "urls"):
-            urls = config.get(section, "urls")
-            
-            for url in csv.reader([re.sub(r'\s', '', urls)], delimiter=',', quotechar='"').next():
-                
-                have = False
-                ##### test if its a new include ? #####
-                
-                if reload:
-                    for conf in configs:
-                        if conf.isUrl() and conf.isequal(url):
-                            have = True
-                            break
-                
-                
-                if not reload or not have:
-                    #sys.stderr.write("File.read_include %s\n" % "goot")
-                    mUrl = Url(url, self.cache)
-                    #sys.stderr.write("File.read_include %s\n" % mUrl.resource)
-                    configs.append(mUrl)
-                    mUrl.read(configs)
-                
-        ##### postgres? #####
-        
-        if config.has_option(section, "pg"):
-            
-            pg = config.get(section, "pg")
-            
-            ##### multiple dsn's seperated by , with "" quotes #####
-            
-            for dsn in csv.reader([pg], delimiter=',', quotechar='"').next():
-                dsndict = {}
-                
-                have = False
-                
-                ##### test if its a new include ? #####
-                
-                if reload:
-                    for conf in configs:
-                        if conf.isPG() and conf.isequal(dsn):
-                            have = True
-                            break
-                
-                if not reload or not have:
-                    mPG = PG(dsn, self.cache)
-                    if mPG.conn != None:
-                        configs.append(mPG)
-                        mPG.read(configs)
-                
-                
-        ##### insert new config types here ie: sqlite #####
     
     ###########################################################################
     ##

@@ -51,10 +51,7 @@ class PG(Config):
     
     def __init__ (self, resource, cache = None):
         #sys.stderr.write( "PG.__init__ %s\n" % resource)
-        self.resource = resource
-        self.cache = cache
-        
-        self.lock = threading.RLock()
+        super(PG,self).__init__(resource, cache)
 
         ##### multiple vars seperated by " " with '' quotes #####
         

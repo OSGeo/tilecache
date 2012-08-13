@@ -69,6 +69,7 @@ class Service (object):
         configs = []
         initconfigs = []
 
+        print >> sys.stderr, "Loading Configs: %s" % (','.join(files),)
         for f in files:
             #sys.stderr.write( "_load f %s\n" % f )
             cfg = File(f)
@@ -81,11 +82,13 @@ class Service (object):
             if conf.cache != None:
                 cls.cache = conf.cache
             
-        layers = {}
+#        layers = {}
+        layers = cls.LayerConfig()  
             
-        for conf in configs:
-            layers.update(conf.layers)
-        
+         for conf in configs:
+#            layers.update(conf.layers)        
+            layers.update(conf)
+
         service = cls(configs, layers)
         
         service.files = files
@@ -93,6 +96,113 @@ class Service (object):
         return service
 
     load = classmethod(_load)
+
+    ############################################################################
+    # This subclass is used to define the config objects layerconfig object -
+    # which acts like a layer dictionary, so we can make it masquerade as 
+    # what *used* to be the layers dictionary, which contained configs for the
+    # layers.
+    # 
+    # Each config is checked (in the order they appear in the config file) for 
+    # the requested layer.  The first match is returned.  That means that
+    # it's possible for a config to be defined more than once, but the first
+    # definition will always take precedence.
+    # This allows for "dynamic" configs (like memcache) where we don't know
+    #    if a layer config exists in advance.
+    ############################################################################
+
+    class LayerConfig(object):
+
+        ########################################################################
+        # The constructor
+        ########################################################################
+        
+        def __init__(self):
+            self.list=[]
+        
+        ########################################################################
+        # @brief get the number of objects in the list, Not number of config
+        #        entries (since we might not know that.)
+        #
+        # @return the number of objects in the layerconfig
+        #
+        ########################################################################
+
+        def __len__(self):
+
+            return len(self.list)
+        
+        ########################################################################
+        # @brief iterate over the LayerConfig list and check each item for a
+        #        layer
+        # 
+        # @param key    the name of the layer to search for
+        #
+        # @return the layer object if found. or None when no config is found.
+        ########################################################################
+
+        def __getitem__(self, key):
+            '''
+
+            '''
+            sys.stderr.write('Getitem for %s\n' % (key,))
+            sys.stderr.write('list contains %s items\n' % (len(self),))
+            for item in self.list:
+                sys.stderr.write('Lookup for %s\n' % (item.resource,))
+                c=item.getConfig(key)
+                sys.stderr.write('Value is %s\n' % (c,))
+                if c:
+                    return c
+            return False
+        
+        ########################################################################
+        # @brief Get a list of (known) layers that are supported by this tilecache
+        #        service.  The memcache ones won't be listed - since TileCache
+        #        doesn't really know about them until they are queried.
+        #
+        # @return list of layers
+        ########################################################################
+
+        def keys(self):
+            
+            layers=[]
+            for item in self.list:
+                layers += item.getLayers()
+            return layers
+            
+        ########################################################################
+        # @brief Add a config, this'll update the item (maintaining the same order
+        #        as in the original config.) if it's already there (such as
+        #        in the case of checkchange) or add it to the end (the initial
+        #        parse/load case.)
+        #
+        # @param configObjb the configuration object to add
+        #
+        ########################################################################
+        
+        def update(self, configObj):
+
+            for pos, item in enumerate(self.list):
+                if configObj.resource == item.resource:
+                    self.list[pos]=configObj
+                    break
+            else:
+                self.list.append(configObj)
+            
+        ########################################################################
+        # @brief This is in case someone tries to do something like:
+        #    if layer_name in LayerConfig_object ...
+        #    this is the membership test.
+        #
+        # @param key    the 
+        ########################################################################
+    
+        def __contains__(self, key):
+            
+            for item in self.list:
+                if item.hasConfig(key): 
+                    return True
+            return False
 
     ###########################################################################
     ##
@@ -116,27 +226,9 @@ class Service (object):
 
                 if conf.lock.acquire( blocking=0 ):
                     if conf.checkchange(self.configs):
-                        changes = changes + 1
+                        self.layers.update(conf)
                     conf.lock.release()
 
-            ##### the copy isnt cheap, dont do this #####
-            ##### unless there is actualy a change  #####
- 
-            if changes > 0:
-
-                layers = {}
-
-                ##### use a mutex here to block so all changes are added #####
-                
-                self.thread_lock.acquire()
-
-                for conf in self.configs:
-                    layers.update(conf.layers)
-                
-                self.layers = layers
-                self.lastcheckchange = time.time()
-
-                self.thread_lock.release()
             
     
     def generate_crossdomain_xml(self):

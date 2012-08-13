@@ -7,20 +7,30 @@ import TileCache.Layer, TileCache.Layers
 import TileCache.Cache, TileCache.Caches
 import threading
 
+################################################################################
+# These are the supported configuration lines for includes.
+# The key is the name of the config reference as it will appear in
+# the tilecache.cfg file, the value is a two-tuple containing
+# the module name for this config, and the object name supporting it.
+################################################################################
+
+supported_configs={'file': ('TileCache.Config.File','File',)
+                   'url': ('TileCache.Config.Url','Url',),
+                   'pg': ('TileCache.Configs.PG', 'PG',),
+                   'memcache': ('TileCache.Configs.Memcache', 'Memcache',),
+                   }
+
+################################################################################
+# Helper module to import any module based on a name, and return the module
+################################################################################
+
 def import_module(name):
-    """Helper module to import any module based on a name, and return the module."""
+    """."""
     mod = __import__(name)
     components = name.split('.')
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
-    
-    def isFile(self):
-        return False
-    def isUrl(self):
-        return False
-    def isPG(self):
-        return False
     
 ###############################################################################
 ##
@@ -31,15 +41,61 @@ def import_module(name):
 class Config (object):
     __slots__ = ( "resource", "last_mtime", "cache", "metadata" , "layers", "s_sections", "lock")
     
-    def __init__ (self, resource):
+    def __init__ (self, resource, cache=None):
+        self.s_sections = [ "cache", "metadata", "tilecache_options", "include" ]
+        self.resource = resource     
+        self.cache=cache   
+        self.loadedConfigs={}
+        self.lock = threading.RLock()    def __init__ (self, resource):
         self.s_sections = [ "cache", "metadata", "tilecache_options", "include" ]
         self.lock = threading.RLock()
 
+
+    def isFile(self):
+        return False
+    def isUrl(self):
+        return False
+    def isPG(self):
+        return False
+    def isMemcache(self):
+        return False
+
+    def getLayers(self):
+        if not self.isMemcache():
+            return self.layers.keys()
+        return []
+    
+    def hasConfig(self, item):
+        return self.layer.has_key(item)
+        
+    def getConfig(self, item):
+        sys.stderr.write('Getting config for %s' % (item,))
+        return self.layers.get(item)
 
     def isequal(self, resource):
         if self.resource == arg:
             return True
         return False
+
+    def _getConfig(self, configtype):
+        if configtype in self.loadedConfigs:
+            return self.loadedConfigs[configtype]
+        else:
+            if not configtype in supported_configs:
+                raise TileCacheException("Configuration include of " \
+                                         "type %s not supported" % configtype)
+            try:
+                module_name, class_name=supported_configs[configtype]
+                config_mod=import_module(module_name)
+                self.loadedConfigs[configtype]=getattr(config_mod, 
+                                                       class_name)
+                return self.loadedConfigs[configtype]
+            except Exception, e:
+                raise TileCacheException("Configuration include of " \
+                                         "type %s supported, but import failed" \
+                                         " (%s)"
+                                         % (configtype, e,))
+            
     
     def _load_layer ( self, **objargs):
         
@@ -130,15 +186,19 @@ class Config (object):
     ##
     ## 
     ###########################################################################
-    #FIXME this does not work in the parent class for some reason
-    def _ddread_include (self, config, configs, section, reload = False):
+
+    def _read_include (self, config, configs, section, reload = False):
+        # This should really just load the config type and 
+        # the type should have it's own parser, but this is legacy code
+        # and I don't want to re-write it at this point.
+
         #sys.stderr.write("File._read_include\n")
         ##### url? #####
 
         if config.has_option(section, "urls"):
             urls = config.get(section, "urls")
             
-            for url in csv.reader([urls], delimiter=',', quotechar='"').next():
+            for url in csv.reader([re.sub(r'\s', '', urls)], delimiter=',', quotechar='"').next():
                 
                 have = False
                 
@@ -152,12 +212,13 @@ class Config (object):
                 
                 
                 if not reload or not have:
+                    Url = self._getConfig("urls")
                     mUrl = Url(url, self.cache)
                     configs.append(mUrl)
                     mUrl.read(configs)
-                
+
         ##### postgres? #####
-        
+
         if config.has_option(section, "pg"):
             
             pg = config.get(section, "pg")
@@ -178,13 +239,49 @@ class Config (object):
                             break
                 
                 if not reload or not have:
+                    PG = self._getConfig("pg")
                     mPG = PG(dsn, self.cache)
-                    configs.append(mPG)
-                    mPG.read(configs)
-                
-                
-        ##### insert new config types here ie: sqlite #####
+                    if mPG.conn != None:
+                        configs.append(mPG)
+                        mPG.read(configs)
+
+        ##### Memcache? #####
+        
+        if config.has_option(section, "memcache"):
+            
+            memcache = config.get(section, "memcache")
+            sys.stderr.write('Got Memcache Section (%s)\n' % (memcache,))
+
+            ##### Iterate over the entries in the section  #####
+            for mcsettings in csv.reader([memcache], delimiter=',', quotechar='"'):
+                # Memcache entries should be of the form:
+                # memcache="name,Cache_prefix,host1:port1,host2:port2,host3:port3, ..."
+
+
+                ##### settings is a list #####
+                #sys.stderr.write('%s\n' % ','.join(mcsettings))
     
+                cache_name=settings.pop(0)
+                cache_prefix=settings.pop(0)
+                # The remainder are the host/port combinations
+                cache_array=settings
+                
+                
+                ##### test if its a new include ? #####
+                
+                if reload:
+                    for conf in configs:
+                        if conf.isMemcache() and conf.isequal(cache_name):
+                            have = True
+                            break
+                
+                if not reload or not have:
+                    Memcache = self._getConfig("memcache")
+                    sys.stderr.write('Loading the memcache config and appending to configs\n')
+                    mMemcache = Memcache(cache_name, cache_prefix, cache_array, cache=self.cache)
+                    configs.append(mMemcache)
+
+        ##### insert new config types here ie: sqlite #####
     
     def read(self, configs, reload = None):
         raise NotImplementedError()
