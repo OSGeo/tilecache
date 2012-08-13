@@ -259,10 +259,10 @@ class Config (object):
                 ##### settings is a list #####
                 #sys.stderr.write('%s\n' % ','.join(mcsettings))
     
-                cache_name=settings.pop(0)
-                cache_prefix=settings.pop(0)
+                cache_name=mcsettings.pop(0)
+                cache_prefix=mcsettings.pop(0)
                 # The remainder are the host/port combinations
-                cache_array=settings
+                cache_array=mcsettings
                 
                 
                 ##### test if its a new include ? #####
