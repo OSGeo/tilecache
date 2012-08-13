@@ -14,7 +14,7 @@ import threading
 # the module name for this config, and the object name supporting it.
 ################################################################################
 
-supported_configs={'file': ('TileCache.Config.File','File',)
+supported_configs={'file': ('TileCache.Config.File','File',
                    'url': ('TileCache.Config.Url','Url',),
                    'pg': ('TileCache.Configs.PG', 'PG',),
                    'memcache': ('TileCache.Configs.Memcache', 'Memcache',),

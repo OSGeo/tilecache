@@ -85,7 +85,7 @@ class Service (object):
 #        layers = {}
         layers = cls.LayerConfig()  
             
-         for conf in configs:
+        for conf in configs:
 #            layers.update(conf.layers)        
             layers.update(conf)
 
