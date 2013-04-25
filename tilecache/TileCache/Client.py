@@ -159,7 +159,7 @@ def main ():
     if options.tilecacheconfig:
         configFile = options.tilecacheconfig
         print "Config file set to %s" % (configFile)
-        cfgs = cfgs + (configFile)
+        cfgs = cfgs + [configFile]
  
     svc = Service.load(cfgs)
 
