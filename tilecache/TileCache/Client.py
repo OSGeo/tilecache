@@ -161,7 +161,7 @@ def main ():
         print "Config file set to %s" % (configFile)
         cfgs = cfgs + (configFile,)
  
-    svc = Service.load(*cfgs)
+    svc = Service.load(cfgs)
 
     layer = svc.layers[args[0]]
     
