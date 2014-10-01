@@ -7,12 +7,41 @@ from Service import TileCacheException
 
 DEBUG = True
 
+################################################################################
+## @brief class for a tile object
+################################################################################
+
 class Tile (object):
     """
     >>> l = Layer("name", maxresolution=0.019914, size="256,256")
     >>> t = Tile(l, 18, 20, 0)
     """
     __slots__ = ( "layer", "x", "y", "z", "data" )
+    
+    ############################################################################
+    ## @brief method to create a tile object
+    ##
+    ## @param layer the layer object
+    ## @param x     the x cell coord
+    ## @param y     the y cell coord
+    ## @param z     the z cell coord (level)
+    ## 
+    ## @return the newly created tile object
+    ##
+    ## @details
+    ## example:
+    ##        >>> l = Layer("name", maxresolution=0.019914, size="256,256")
+    ##        >>> t = Tile(l, 18, 20, 0)
+    ##        >>> t.x 
+    ##        18
+    ##        >>> t.y
+    ##        20
+    ##        >>> t.z
+    ##        0
+    ##        >>> pr
+    ##    
+    ############################################################################
+    
     def __init__ (self, layer, x, y, z):
         """
         >>> l = Layer("name", maxresolution=0.019914, size="256,256")
@@ -32,6 +61,17 @@ class Tile (object):
         self.z = z
         self.data = None
 
+    ############################################################################
+    ## @brief method to get the pixel size of a tile
+    ##
+    ## @return returns a list [x, y] of the pixel sixe of the tile
+    ##
+    ## @details
+    ## example:
+    ##        >>> t.size()
+    ##        [256, 256]
+    ############################################################################
+    
     def size (self):
         """
         >>> l = Layer("name", maxresolution=0.019914, size="256,256")
@@ -41,6 +81,18 @@ class Tile (object):
         """
         return self.layer.size
 
+    ############################################################################
+    ## @brief method to get the geospatial bounds of a tile
+    ##
+    ## @return returns a tuple (minx, miny, maxx, maxy) of the tile bounds
+    ##
+    ## @details
+    ## example:
+    ##        >>> t.bounds()
+    ##        (-88.236288000000002, 11.959680000000006, -83.138303999999991, 17.057664000000003)
+    ##
+    ############################################################################
+    
     def bounds (self):
         """
         >>> l = Layer("name", maxresolution=0.019914)
@@ -55,6 +107,18 @@ class Tile (object):
         maxy = self.layer.bbox[1] + (res * (self.y + 1) * self.layer.size[1])
         return (minx, miny, maxx, maxy)
 
+    ############################################################################
+    ## @brief method to get the bbox in text of a tile
+    ##
+    ## @return returns a tuple (minx, miny, maxx, maxy) of the tile bounds as a string
+    ##
+    ## @details
+    ## note this method seems to round off the results to the 6th place
+    ## example:
+    ##        >>> t.bbox()
+    ##        '-88.236288,11.95968,-83.138304,17.057664'
+    ############################################################################
+    
     def bbox (self):
         """
         >>> l = Layer("name", maxresolution=0.019914)
@@ -64,7 +128,23 @@ class Tile (object):
         """
         return ",".join(map(str, self.bounds()))
 
+################################################################################
+# @brief class for tiles that are slightly larger (overlap eachother)
+################################################################################
+
 class MetaTile (Tile):
+    ############################################################################
+    ## @brief method to get the actual size of a Metatile
+    ##
+    ## @return returns a tuple of the actual size
+    ## @details
+    ## example:
+    ##        >>> l = MetaLayer("name")
+    ##        >>> t = MetaTile(l, 0,0,0)
+    ##        >>> t.actualSize()
+    ##        (256, 256)
+    ############################################################################
+    
     def actualSize (self):
         """
         >>> l = MetaLayer("name")
@@ -76,11 +156,28 @@ class MetaTile (Tile):
         return ( self.layer.size[0] * metaCols,
                  self.layer.size[1] * metaRows )
 
+
+    ############################################################################
+    ## @brief method to get the pixel size of a Metatile
+    ##
+    ## @return returns a list [x, y] of the pixel sixe of the tile
+    ##
+    ## @details
+    ############################################################################
+    
     def size (self):
         actual = self.actualSize()
         return ( actual[0] + self.layer.metaBuffer[0] * 2, 
                  actual[1] + self.layer.metaBuffer[1] * 2 )
 
+    ############################################################################
+    ## @brief method to get the geospatial bounds of a Metatile
+    ##
+    ## @return returns a tuple (minx, miny, maxx, maxy) of the tile bounds
+    ##
+    ## @detailsd
+    ############################################################################
+    
     def bounds (self):
         tilesize   = self.actualSize()
         res        = self.layer.resolutions[self.z]
@@ -92,6 +189,10 @@ class MetaTile (Tile):
         maxx = minx + metaWidth  + 2 * buffer[0]
         maxy = miny + metaHeight + 2 * buffer[1]
         return (minx, miny, maxx, maxy)
+
+################################################################################
+## @brief class for a layer object
+################################################################################
 
 class Layer (object):
     __slots__ = ( "name", "layers", "bbox", "data_extent", 
@@ -113,6 +214,51 @@ class Layer (object):
       {'name':'expired', 'description':'Timestamp of latest change to source data.', 'default':""}
     ]  
     
+    ############################################################################
+    ## @brief method to Take in layer parameters and create a Layer 0bject
+    ##
+    ## @param name  the unique name of the layer
+    ## @param ...   config options for the layer
+    ##
+    ## @return returns the newly created layer object
+    ##
+    ## @details
+    ##
+    ## config arguments and default values:
+    ## layers = None
+    ## bbox = (-180, -90, 180, 90)
+    ## data_extent = None
+    ## srs  = "EPSG:4326"
+    ## description = ""
+    ## maxresolution = None
+    ## size = (256, 256)
+    ## levels = 20
+    ## resolutions = None
+    ## extension = "png"
+    ## mime_type = None
+    ## cache = None
+    ## debug = True, 
+    ## watermarkimage = None
+    ## watermarkopacity = 0.2
+    ## spherical_mercator = False,
+    ## extent_type = "strict"
+    ## units = "degrees"
+    ## tms_type = "",
+    ## expired = None,
+    ## **kwargs
+    ## 
+    ## examples:
+    ##        >>> l = Layer("Name", bbox="-12,17,22,36", debug="no")
+    ##        >>> l.bbox
+    ##        [-12.0, 17.0, 22.0, 36.0]
+    ##        >>> l.debug
+    ##        False
+    ##        
+    ##        >>> l = Layer("name", spherical_mercator="yes")
+    ##        >>> round(l.resolutions[0])
+    ##        156543.0
+    ############################################################################
+
     def __init__ (self, name, layers = None, bbox = (-180, -90, 180, 90),
                         data_extent = None,
                         srs  = "EPSG:4326", description = "", maxresolution = None,
@@ -227,8 +373,20 @@ class Layer (object):
             if key.startswith("metadata_"):
                 self.metadata[key[prefix_len:]] = kwargs[key]
                 
-                
-
+    ############################################################################
+    ## @brief method to get the resolution of a layer at a particular bounds
+    ##
+    ## @param  tuple of the bounding box
+    ## 
+    ## @return the resolution
+    ##
+    ## @details
+    ## example:
+    ##        >>> l = Layer("name")
+    ##        >>> l.getResolution((-180,-90,0,90))
+    ##        0.703125
+    ############################################################################
+    
     def getResolution (self, (minx, miny, maxx, maxy)):
         """
         >>> l = Layer("name")
@@ -238,6 +396,23 @@ class Layer (object):
         return max( float(maxx - minx) / self.size[0],
                     float(maxy - miny) / self.size[1] )
 
+    ############################################################################
+    ## @brief method to get the closest level of a layer at a resolution
+    ##
+    ## @param  res  the resolution
+    ## @param  ...
+    ##
+    ## @return the closest level
+    ##
+    ## @details
+    ##
+    ## arguments and default values:
+    ## size = [256, 256]
+    ##
+    ## example:
+    ##
+    ############################################################################
+    
     def getClosestLevel (self, res, size = [256, 256]):
         diff = sys.maxint
         z = None
@@ -247,6 +422,25 @@ class Layer (object):
                 z = i
         return z
 
+    ############################################################################
+    ## @brief method to get the level of a layer at a resolution
+    ##
+    ## @param  res  the resolution
+    ## @param  ...
+    ##
+    ## @return the closest level
+    ##
+    ## @details
+    ##
+    ## arguments and default values:
+    ## size = [256, 256]
+    ##
+    ## example:
+    ##        >>> l = Layer("name")
+    ##        >>> l.getLevel(.703125)
+    ##        0
+    ############################################################################
+    
     def getLevel (self, res, size = [256, 256]):
         """
         >>> l = Layer("name")
@@ -265,6 +459,25 @@ class Layer (object):
             raise TileCacheException("can't find resolution index for %f. Available resolutions are: \n%s" % (res, self.resolutions))
         return z
 
+    ############################################################################
+    ## @brief method to get the cell coords of a layer at a particular bounds
+    ##
+    ## @param tuple of the bounding box
+    ## @param ...
+    ## @return a tupel of the cell coords (x, y, z)
+    ##
+    ## @details
+    ##
+    ## arguments and default values:
+    ## exact = True
+    ##
+    ## examples"
+    ##        >>> l.getCell((-180.,-90.,0.,90.))
+    ##        (0, 0, 0)
+    ##        >>> l.getCell((-45.,-45.,0.,0.))
+    ##        (3, 1, 2)
+    ############################################################################
+    
     def getCell (self, (minx, miny, maxx, maxy), exact = True):
         """
         Returns x, y, z
@@ -311,6 +524,20 @@ class Layer (object):
         
         return (x, y, z)
 
+    ############################################################################
+    ## @brief method to get the closest cell coords of a layer at a particular bounds
+    ##
+    ## @param tuple of the bounding box
+    ##
+    ## @return a tupel of the cell coords (x, y, z)
+    ##
+    ## @details
+    ##
+    ## examples
+    ##        >>> l.getClosestCell(2, (84, 17))
+    ##        (6, 2, 2)
+    ############################################################################
+    
     def getClosestCell (self, z, (minx, miny)):
         """
         >>> l = Layer("name")
@@ -322,6 +549,20 @@ class Layer (object):
         maxy = miny + self.size[1] * res
         return self.getCell((minx, miny, maxx, maxy), False)
 
+    ############################################################################
+    ## @brief method to get the tile oblect in a layer
+    ##
+    ## @param tuple of the bounding box
+    ##
+    ## @return the tile object
+    ##
+    ## @details
+    ##
+    ## examples
+    ##        >>> l.getTile((-180,-90,0,90)).bbox()
+    ##        '-180.0,-90.0,0.0,90.0'
+    ############################################################################
+    
     def getTile (self, bbox):
         """
         >>> l = Layer("name")
@@ -333,6 +574,24 @@ class Layer (object):
         if not coord: return None
         return Tile(self, *coord)
 
+    ############################################################################
+    ## @brief method to find if the layer contains a x,y tile at a particular
+    ## resolution
+    ##
+    ## @param (x,y) tupel of cell coord
+    ## @param res resoltion
+    ##
+    ## @return True if the layer contains the tile, or Faulse if not
+    ##
+    ## @details
+    ##
+    ## examples
+    ##        >>> l.contains((0,0))
+    ##        True
+    ##        >>> l.contains((185, 94))
+    ##        False
+    ############################################################################
+    
     def contains (self, (x, y), res = 0):
         """
         >>> l = Layer("name")
@@ -348,6 +607,17 @@ class Layer (object):
         return (x >= self.bbox[0] or diff_x1 < res) and (x <= self.bbox[2] or diff_x2 < res) \
            and (y >= self.bbox[1] or diff_y1 < res) and (y <= self.bbox[3] or diff_y2 < res)
 
+    ############################################################################
+    ## @brief method to get the size of grid at a particular zoom level
+    ##
+    ## @param   z   zoom level
+    ##
+    ## @details
+    ## example
+    ##         >>> l.grid(3)
+    ##         (16.0, 8.0)
+    ############################################################################
+    
     def grid (self, z):
         """
         Returns size of grid at a particular zoom level
@@ -360,6 +630,17 @@ class Layer (object):
         height = (self.bbox[3] - self.bbox[1]) / (self.resolutions[z] * self.size[1])
         return (width, height)
 
+    ############################################################################
+    ## @brief method to getb the image format of a layer
+    ## 
+    ## @return returns the image format
+    ##
+    ## @details
+    ## example
+    ##         >>> l.format()
+    ##        'image/png'
+    ############################################################################
+    
     def format (self):
         """
         >>> l = Layer("name")
@@ -368,12 +649,34 @@ class Layer (object):
         """
         return "image/" + self.extension
     
+    ############################################################################
+    ## @brief method to render  a tile
+    ##
+    ## @param tile  tile object
+    ##
+    ## @details
+    ## To be implemented by subclasses
+    ############################################################################
+    
     def renderTile (self, tile):
         # To be implemented by subclasses
         pass 
 
+    ############################################################################
+    ## @brief wrapper for renderTile
+    ##
+    ## @param tile  tile object
+    ## @param ...
+    ##
+    ## @details
+    ############################################################################
+
     def render (self, tile, **kwargs):
         return self.renderTile(tile)
+
+################################################################################
+# @brief layer class for metatileing
+################################################################################
 
 class MetaLayer (Layer):
     __slots__ = ('metaTile', 'metaSize', 'metaBuffer')
@@ -386,6 +689,47 @@ class MetaLayer (Layer):
     ]  
 
 
+    ############################################################################
+    ############################################################################
+    ## @brief method to Take in layer parameters and create a MetaLayer 0bject
+    ##
+    ## @param name  the unique name of the layer
+    ## @param ...   config options for the layer
+    ##
+    ## @return returns the newly created layer object
+    ##
+    ## @details
+    ##
+    ## config arguments and default values:
+    ## layers = None
+    ## bbox = (-180, -90, 180, 90)
+    ## data_extent = None
+    ## srs  = "EPSG:4326"
+    ## description = ""
+    ## maxresolution = None
+    ## size = (256, 256)
+    ## levels = 20
+    ## resolutions = None
+    ## extension = "png"
+    ## mime_type = None
+    ## cache = None
+    ## debug = True, 
+    ## watermarkimage = None
+    ## watermarkopacity = 0.2
+    ## spherical_mercator = False,
+    ## extent_type = "strict"
+    ## units = "degrees"
+    ## tms_type = "",
+    ## expired = None,
+    ## metatile = ""
+    ## metasize = (5,5)
+    ## metabuffer = (10,10),
+    ## **kwargs
+    ## 
+    ## examples:
+    ############################################################################
+    ############################################################################
+    
     def __init__ (self, name, metatile = "", metasize = (5,5),
                               metabuffer = (10,10), **kwargs):
         Layer.__init__(self, name, **kwargs)
@@ -403,17 +747,37 @@ class MetaLayer (Layer):
         self.metaSize    = metasize
         self.metaBuffer  = metabuffer
 
+    ############################################################################
+    ## @brief method to get the size of a metatile at a particular level
+    ############################################################################
+    
     def getMetaSize (self, z):
         if not self.metaTile: return (1,1)
         maxcol, maxrow = self.grid(z)
         return ( min(self.metaSize[0], int(maxcol + 1)), 
                  min(self.metaSize[1], int(maxrow + 1)) )
 
+    ############################################################################
+    ## @brief method to get the Metatile oblect in a Metalayer
+    ##
+    ## @param tuple of the bounding box
+    ##
+    ## @return the tile object
+    ##
+    ## @details
+    ##
+    ## examples
+    ############################################################################
+    
     def getMetaTile (self, tile):
         x = int(tile.x / self.metaSize[0])
         y = int(tile.y / self.metaSize[1])
         return MetaTile(self, x, y, tile.z) 
 
+    ############################################################################
+    ## @brief method
+    ############################################################################
+    
     def renderMetaTile (self, metatile, tile):
         import StringIO, Image
 
@@ -448,6 +812,10 @@ class MetaLayer (Layer):
 
         return tile.data
 
+    ############################################################################
+    # @brief method
+    ############################################################################
+    
     def render (self, tile, force=False):
         if self.metaTile:
             metatile = self.getMetaTile(tile)
@@ -467,6 +835,10 @@ class MetaLayer (Layer):
             else:
                 return self.renderTile(tile)
 
+    ############################################################################
+    # @brief method
+    ############################################################################
+    
     def watermark (self, img):
         import StringIO, Image, ImageEnhance
         tileImage = Image.open( StringIO.StringIO(img) )
