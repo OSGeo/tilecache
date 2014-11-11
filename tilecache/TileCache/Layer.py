@@ -779,7 +779,8 @@ class MetaLayer (Layer):
     ############################################################################
     
     def renderMetaTile (self, metatile, tile):
-        import StringIO, Image
+        import StringIO
+        from PIL import Image
 
         data = self.renderTile(metatile)
         image = Image.open( StringIO.StringIO(data) )
@@ -840,7 +841,8 @@ class MetaLayer (Layer):
     ############################################################################
     
     def watermark (self, img):
-        import StringIO, Image, ImageEnhance
+        import StringIO
+        from PIL import Image, ImageEnhance
         tileImage = Image.open( StringIO.StringIO(img) )
         wmark = Image.open(self.watermarkimage)
         assert self.watermarkopacity >= 0 and self.watermarkopacity <= 1
