@@ -59,7 +59,7 @@ Example configuration::
   port=6379
 
 Dependencies:
- * redis-py Python module msut be installed on your system path.
+ * redis-py Python module must be installed on your system path.
    https://github.com/andymccurdy/redis-py
 
 Amazon S3
