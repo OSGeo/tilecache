@@ -72,10 +72,19 @@ class Redis(Cache):
         :type tile: TileCache.Layer.Tile
         :rtype: bool
         """
-        return self.cache.setnx(
+        result = self.cache.setnx(
             self.getLockName(tile),
             time.time() + self.timeout + 1
         )
+
+        # Expire the lock so it can't become stuck permanently
+        if result:
+            self.cache.expire(
+                self.getLockName(tile),
+                self.timeout() + 1
+            )
+
+        return result
 
     def unlock(self, tile):
         """Unlock the given tile
