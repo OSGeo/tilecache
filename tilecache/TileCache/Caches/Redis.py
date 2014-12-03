@@ -3,6 +3,7 @@
 from TileCache.Cache import Cache
 import time
 
+
 class Redis(Cache):
     """Redis-based caching mechanism"""
 
@@ -52,8 +53,8 @@ class Redis(Cache):
         if self.readonly:
             return data
         key = self.getKey(tile)
-        self.cache.setex(key, data, expiration) 
-       return data
+        self.cache.setex(key, data, self.expiration)
+        return data
 
     def delete(self, tile):
         """Delete the cached data for the given tile.
@@ -78,7 +79,7 @@ class Redis(Cache):
 
     def unlock(self, tile):
         """Unlock the given tile
-        
+
         :param tile: A tile
         :type tile: TileCache.Layer.Tile
         """
