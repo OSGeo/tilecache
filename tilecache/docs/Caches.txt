@@ -49,6 +49,19 @@ Dependencies:
  * memcache Python module must be installed on your system path.
    http://code.sixapart.com/svn/memcached/trunk/api/python/memcache.py
 
+Redis
+-----
+Example configuration::
+
+  [cache]
+  type=Redis
+  host=127.0.0.1
+  port=6379
+
+Dependencies:
+ * redis-py Python module msut be installed on your system path.
+   https://github.com/andymccurdy/redis-py
+
 Amazon S3
 ---------
 Example configuration::
