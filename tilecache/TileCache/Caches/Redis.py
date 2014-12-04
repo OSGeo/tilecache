@@ -40,7 +40,7 @@ class Redis(Cache):
         :rtype: str or unicode
         """
         key = self.getKey(tile)
-        tile.data = self.cache.get(key)
+        tile.data = self.cache.hget(key, 'data')
         return tile.data
 
     def set(self, tile, data):
@@ -53,7 +53,10 @@ class Redis(Cache):
         if self.readonly:
             return data
         key = self.getKey(tile)
-        self.cache.setex(key, data, self.expiration)
+        pipeline = self.cache.pipeline()
+        pipeline.hmset(key, {'data': data, 'last_updated': time.time()})
+        pipeline.expire(key, self.expiration)
+        pipeline.execute()
         return data
 
     def delete(self, tile):
@@ -64,6 +67,24 @@ class Redis(Cache):
         """
         key = self.getKey(tile)
         self.cache.delete(key)
+
+    def isExpired(self, key, layer):
+        """Indicates whether or not the given layer is expired.
+
+        :param key: The key of the tile to test
+        :type key: str or unicode
+        :param layer: A layer
+        :type layer: TileCache::Layer
+        :rtype: bool
+        """
+        if layer.expired is not None:
+            result = self.cache.hget(key, 'last_updated')
+
+            if result:
+                # Result comes back from redis as a string so we cast it here.
+                return float(result) < layer.expired
+
+        return False
 
     def attemptLock(self, tile):
         """Attempt to acquire a lock for the given tile.
