@@ -81,7 +81,7 @@ class Redis(Cache):
         if result:
             self.cache.expire(
                 self.getLockName(tile),
-                self.timeout() + 1
+                self.timeout + 1
             )
 
         return result
