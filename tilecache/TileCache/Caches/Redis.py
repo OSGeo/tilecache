@@ -55,7 +55,7 @@ class Redis(Cache):
         key = self.getKey(tile)
         pipeline = self.cache.pipeline()
         pipeline.hmset(key, {'data': data, 'last_updated': time.time()})
-        pipeline.expire(key, self.expiration)
+        pipeline.expire(key, int(self.expiration))
         pipeline.execute()
         return data
 
@@ -102,7 +102,7 @@ class Redis(Cache):
         if result:
             self.cache.expire(
                 self.getLockName(tile),
-                self.timeout + 1
+                int(self.timeout + 1)
             )
 
         return result
